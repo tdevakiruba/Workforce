@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import type { Metadata } from "next"
 import { ProgramDetail } from "./program-detail"
 
@@ -10,6 +10,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   try {
     const { slug } = await params
+    if (slug === "workforce-ready") {
+      return { title: "Workforce Ready | 21-Day Leadership Program" }
+    }
     const supabase = await createClient()
     const { data: program } = await supabase
       .from("programs")
@@ -34,6 +37,11 @@ export default async function ProgramPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
+
+  // Redirect workforce-ready to the homepage (which now serves this program)
+  if (slug === "workforce-ready") {
+    redirect("/")
+  }
   let supabase: Awaited<ReturnType<typeof createClient>>
   try {
     supabase = await createClient()

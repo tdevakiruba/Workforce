@@ -34,7 +34,7 @@ export default async function OverviewPage({
     .eq("status", "active")
     .maybeSingle()
 
-  if (!enrollment) redirect(`/programs/${slug}`)
+  if (!enrollment) redirect("/")
 
   // Get subscription
   const { data: subscription } = await supabase

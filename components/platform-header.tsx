@@ -6,11 +6,6 @@ import { TrendingUp, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 
-const navLinks = [
-  { href: "/programs", label: "Programs" },
-  { href: "/organizations", label: "Organizations" },
-]
-
 export function PlatformHeader({ user }: { user: { email?: string } | null }) {
   const pathname = usePathname()
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -23,32 +18,10 @@ export function PlatformHeader({ user }: { user: { email?: string } | null }) {
           <div className="flex size-9 items-center justify-center rounded-lg bg-wf-mint">
             <TrendingUp className="size-5 text-white" />
           </div>
-          <div className="flex flex-col leading-none">
-            <span className="font-serif text-base font-bold tracking-tight text-foreground">
-              Transformer Hub
-            </span>
-            <span className="text-[11px] font-semibold tracking-wider text-wf-mint uppercase">
-              Institute
-            </span>
-          </div>
+          <span className="font-serif text-base font-bold tracking-tight text-foreground">
+            Workforce Ready
+          </span>
         </Link>
-
-        {/* Desktop nav */}
-        <nav className="hidden items-center gap-1 md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                pathname === link.href
-                  ? "bg-wf-mint/10 text-wf-mint"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
 
         {/* Auth buttons */}
         <div className="hidden items-center gap-2 md:flex">
@@ -93,23 +66,7 @@ export function PlatformHeader({ user }: { user: { email?: string } | null }) {
       {/* Mobile nav */}
       {mobileOpen && (
         <div className="border-t bg-card px-4 pb-4 pt-2 md:hidden">
-          <nav className="flex flex-col gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className={`rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                  pathname === link.href
-                    ? "bg-wf-mint/10 text-wf-mint"
-                    : "text-muted-foreground hover:bg-muted/50"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-          <div className="mt-3 flex flex-col gap-2 border-t pt-3">
+          <div className="flex flex-col gap-2">
             {user ? (
               <Button
                 asChild

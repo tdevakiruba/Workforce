@@ -55,7 +55,7 @@ export default async function ProductDashboardLayout({
     .maybeSingle()
 
   if (!enrollment) {
-    redirect(`/programs/${slug}`)
+    redirect("/")
   }
 
   // Get subscription info

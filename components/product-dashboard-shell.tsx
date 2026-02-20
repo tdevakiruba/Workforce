@@ -77,11 +77,11 @@ export function ProductDashboardShell({
           {/* Program badge header */}
           <div className="border-b p-4">
             <Link
-              href="/dashboard"
+              href="/"
               className="mb-3 flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
               <ChevronLeft className="size-3.5" />
-              All Programs
+              Home
             </Link>
             <div className="flex items-center gap-3">
               {iconSrc ? (
@@ -290,12 +290,12 @@ export function ProductDashboardShell({
             </nav>
             <div className="border-t px-4 py-3 mt-2">
               <Link
-                href="/dashboard"
+                href="/"
                 onClick={() => setMobileOpen(false)}
                 className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
               >
                 <ArrowLeft className="size-3.5" />
-                Back to All Programs
+                Back to Home
               </Link>
             </div>
           </div>

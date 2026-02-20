@@ -157,47 +157,6 @@ const testimonialsBySlug: Record<
       text: "I was intimidated by the professional world. This program broke it down into small, actionable steps that actually stuck.",
     },
   ],
-  "signal-90": [
-    {
-      name: "Marcus Williams",
-      role: "VP Operations, Fortune 500",
-      text: "The SIGNAL framework rewired how I approach leadership challenges. The self-awareness phase alone was worth it.",
-    },
-    {
-      name: "Elena Rodriguez",
-      role: "Chief People Officer",
-      text: "Our entire executive team has gone through this. The micro-action approach creates lasting change, not just temporary motivation.",
-    },
-    {
-      name: "James Chen",
-      role: "Startup Founder & CEO",
-      text: "90 days of intentional leadership practice transformed how I lead my team. The legacy phase gave me clarity on my long-term vision.",
-    },
-  ],
-  "faith-and-leadership": [
-    {
-      name: "Pastor David Mensah",
-      role: "Senior Pastor, Grace Community",
-      text: "Finally a leadership program that honors faith. The integration of scripture with practical leadership frameworks is powerful.",
-    },
-    {
-      name: "Sarah Kim",
-      role: "Ministry Director",
-      text: "The servant leadership module changed how I lead our team. My ministry has grown in both impact and depth.",
-    },
-  ],
-  "youth-leadership": [
-    {
-      name: "Jaylen Thompson",
-      role: "Age 17, Student Council President",
-      text: "I used to be terrified of public speaking. After the Growth phase, I gave my best speech ever at our school assembly.",
-    },
-    {
-      name: "Aisha Patel",
-      role: "Age 19, Community Organizer",
-      text: "The peer community was amazing. Having other young leaders to grow with made the experience so much richer.",
-    },
-  ],
 }
 
 /* ── FAQ (generic + per-program, easily editable) ── */
@@ -218,20 +177,6 @@ const faqsBySlug: Record<string, { q: string; a: string }[]> = {
     {
       q: "Can I get a refund?",
       a: "We offer a 7-day satisfaction guarantee. If the program is not right for you within the first 7 days, contact us for a full refund.",
-    },
-  ],
-  "enterprise-signal": [
-    {
-      q: "What is the minimum team size?",
-      a: "Enterprise cohorts typically start at 10 participants, but we can customize arrangements for smaller leadership teams.",
-    },
-    {
-      q: "Can we integrate with our existing LMS?",
-      a: "Yes! We support integrations with major LMS platforms including Workday Learning, Cornerstone, and custom SCORM/xAPI setups.",
-    },
-    {
-      q: "How long does setup take?",
-      a: "From initial consultation to launch, most enterprise deployments take 2-4 weeks depending on customization needs.",
     },
   ],
 }
@@ -271,15 +216,11 @@ export function ProgramDetail({
 
   async function handleEnroll(tier: PricingTier) {
     if (!isLoggedIn) {
-      router.push(`/signin?redirect=/programs/${program.slug}`)
+      router.push("/signin?redirect=/")
       return
     }
     if (hasSubscription) {
       router.push(`/dashboard/${program.slug}`)
-      return
-    }
-    if (tier.cta_href === "/organizations") {
-      router.push("/organizations")
       return
     }
 

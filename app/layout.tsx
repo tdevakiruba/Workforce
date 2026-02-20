@@ -9,11 +9,11 @@ const _inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: {
-    default: "Transformer Hub Institute | Leadership Development Platform",
-    template: "%s | Transformer Hub Institute",
+    default: "Workforce Ready | 21-Day Leadership Program",
+    template: "%s | Workforce Ready",
   },
   description:
-    "Structured, research-backed leadership programs for executives, students, faith leaders, youth, and enterprise teams.",
+    "A structured, 21-day leadership program that transforms emerging professionals into workforce-ready leaders through daily micro-learning and real-world application.",
 }
 
 export default function RootLayout({
