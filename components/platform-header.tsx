@@ -1,8 +1,9 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { TrendingUp, Menu, X } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 
@@ -15,9 +16,13 @@ export function PlatformHeader({ user }: { user: { email?: string } | null }) {
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="flex size-9 items-center justify-center rounded-lg bg-wf-mint">
-            <TrendingUp className="size-5 text-white" />
-          </div>
+          <Image
+            src="/images/workforce-icon.png"
+            alt="Workforce Ready"
+            width={36}
+            height={36}
+            className="size-9"
+          />
           <span className="font-serif text-base font-bold tracking-tight text-foreground">
             Workforce Ready
           </span>

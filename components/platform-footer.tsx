@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { TrendingUp } from "lucide-react"
+import Image from "next/image"
 
 export function PlatformFooter() {
   return (
@@ -9,9 +9,13 @@ export function PlatformFooter() {
           {/* Brand */}
           <div className="flex flex-col items-center gap-3 sm:items-start">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex size-8 items-center justify-center rounded-lg bg-wf-mint">
-                <TrendingUp className="size-4 text-white" />
-              </div>
+              <Image
+                src="/images/workforce-icon.png"
+                alt="Workforce Ready"
+                width={32}
+                height={32}
+                className="size-8"
+              />
               <span className="text-sm font-bold text-foreground">
                 Workforce Ready
               </span>
