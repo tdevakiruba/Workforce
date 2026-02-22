@@ -59,11 +59,15 @@ const PHASES = [
 /* ── Section type icon mapping ── */
 const SECTION_ICONS: Record<string, typeof BookOpen> = {
   reality_briefing: AlertTriangle,
+  reality_mapping: AlertTriangle,
   mindset_disruption: Lightbulb,
   workplace_scenario: MessageSquare,
   decision_exercise: Zap,
+  decision_challenge: Zap,
   artifact_creation: FileText,
   reflection_upgrade: Pen,
+  reflection: Pen,
+  professional_upgrade: TrendingUp,
 }
 
 /* ── Types ── */
@@ -308,7 +312,35 @@ function ContentBlock({
           </p>
         </div>
       )
+    case "text":
+      return (
+        <p className="text-base leading-relaxed text-muted-foreground">
+          {item.text as string}
+        </p>
+      )
+    case "mapping":
+      return (
+        <div
+          className="rounded-xl border-l-4 px-4 py-3"
+          style={{
+            borderColor: phaseColor,
+            backgroundColor: `${phaseColor}08`,
+          }}
+        >
+          <p className="text-sm font-medium leading-relaxed text-foreground">
+            {item.text as string}
+          </p>
+        </div>
+      )
     default:
+      // Fallback: render text if present
+      if (item.text) {
+        return (
+          <p className="text-base leading-relaxed text-muted-foreground">
+            {item.text as string}
+          </p>
+        )
+      }
       return null
   }
 }
