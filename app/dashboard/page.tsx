@@ -47,6 +47,42 @@ export default async function DashboardPage() {
     }
   }
 
+  // If no enrollments, check if there's only one program and auto-enroll
+  if (!enrollments || enrollments.length === 0) {
+    const { data: allPrograms } = await supabase
+      .from("programs")
+      .select("id, slug")
+      .eq("is_active", true)
+
+    // Auto-enroll into the only available program
+    if (allPrograms && allPrograms.length === 1) {
+      const onlyProgram = allPrograms[0]
+
+      // Create enrollment
+      await supabase.from("enrollments").upsert(
+        {
+          user_id: user.id,
+          program_id: onlyProgram.id,
+          status: "active",
+          current_day: 1,
+          started_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id,program_id" }
+      )
+
+      // Create a default subscription
+      await supabase.from("subscriptions").insert({
+        user_id: user.id,
+        program_id: onlyProgram.id,
+        plan_tier: "individual",
+        status: "active",
+        current_period_start: new Date().toISOString(),
+      })
+
+      redirect(`/dashboard/${onlyProgram.slug}/overview`)
+    }
+  }
+
   // Build journey data for each enrollment (only shown for 0 or 2+ enrollments)
   const journeys = (enrollments ?? []).map((enrollment) => {
     const program = enrollment.programs as {
