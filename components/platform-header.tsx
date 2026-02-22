@@ -23,14 +23,9 @@ export function PlatformHeader({ user }: { user: { email?: string } | null }) {
           <div className="flex size-9 items-center justify-center rounded-lg bg-wf-mint">
             <TrendingUp className="size-5 text-white" />
           </div>
-          <div className="flex flex-col leading-none">
-            <span className="font-serif text-base font-bold tracking-tight text-foreground">
-              Transformer Hub
-            </span>
-            <span className="text-[11px] font-semibold tracking-wider text-wf-mint uppercase">
-              Institute
-            </span>
-          </div>
+          <span className="font-serif text-lg font-bold tracking-tight text-foreground">
+            Workforce
+          </span>
         </Link>
 
         {/* Desktop nav */}
