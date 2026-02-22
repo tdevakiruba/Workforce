@@ -97,9 +97,9 @@ interface CurriculumDay {
   day_objective: string[] | null
   lesson_flow: string[] | null
   key_teaching_quote: string | null
-  behaviors_instilled: string[] | null
-  end_of_day_outcomes: string[] | null
-  facilitator_close: { message: string; preview: string } | null
+  behaviors_instilled: { behaviors: string[] } | string[] | null
+  end_of_day_outcomes: { outcomes: string[] } | string[] | null
+  facilitator_close: { close: string[] } | { message: string; preview?: string } | null
   curriculum_sections: CurriculumSection[]
 }
 
@@ -643,6 +643,7 @@ export function JourneyClient({
         }),
       })
       const data = await res.json()
+      console.log("[v0] toggleAction response:", JSON.stringify(data), "dayNum:", dayNum, "activeDay:", activeDay, "totalForDay:", totalForDay)
 
       // Day was advanced on the server -- update local state & auto-navigate
       if (data.dayAdvanced && dayNum === activeDay) {
@@ -1056,8 +1057,10 @@ export function JourneyClient({
         )}
 
         {/* ── Behaviors Instilled ── */}
-        {todayContent?.behaviors_instilled &&
-          todayContent.behaviors_instilled.length > 0 && (
+        {(() => {
+          const raw = todayContent?.behaviors_instilled
+          const items = Array.isArray(raw) ? raw : (raw as { behaviors?: string[] })?.behaviors ?? []
+          return items.length > 0 ? (
             <section className="overflow-hidden rounded-2xl border bg-card">
               <div
                 className="flex items-center gap-3 px-5 py-3.5"
@@ -1075,7 +1078,7 @@ export function JourneyClient({
               </div>
               <div className="px-5 py-4">
                 <ul className="space-y-2">
-                  {todayContent.behaviors_instilled.map((b, i) => (
+                  {items.map((b: string, i: number) => (
                     <li
                       key={i}
                       className="flex items-start gap-3 text-sm text-muted-foreground"
@@ -1090,11 +1093,14 @@ export function JourneyClient({
                 </ul>
               </div>
             </section>
-          )}
+          ) : null
+        })()}
 
         {/* ── End of Day Outcomes ── */}
-        {todayContent?.end_of_day_outcomes &&
-          todayContent.end_of_day_outcomes.length > 0 && (
+        {(() => {
+          const raw = todayContent?.end_of_day_outcomes
+          const items = Array.isArray(raw) ? raw : (raw as { outcomes?: string[] })?.outcomes ?? []
+          return items.length > 0 ? (
             <section className="overflow-hidden rounded-2xl border bg-card">
               <div
                 className="flex items-center gap-3 px-5 py-3.5"
@@ -1112,7 +1118,7 @@ export function JourneyClient({
               </div>
               <div className="px-5 py-4">
                 <ul className="space-y-2">
-                  {todayContent.end_of_day_outcomes.map((o, i) => (
+                  {items.map((o: string, i: number) => (
                     <li
                       key={i}
                       className="flex items-start gap-3 text-sm text-muted-foreground"
@@ -1127,29 +1133,59 @@ export function JourneyClient({
                 </ul>
               </div>
             </section>
-          )}
+          ) : null
+        })()}
 
         {/* ── Facilitator Close ── */}
-        {todayContent?.facilitator_close && (
-          <div
-            className="rounded-2xl p-5"
-            style={{ backgroundColor: activePhase.color }}
-          >
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10 rounded-2xl" />
-              <div className="relative z-10">
-                <p className="text-base font-semibold leading-relaxed text-white">
-                  {todayContent.facilitator_close.message}
-                </p>
-                {todayContent.facilitator_close.preview && (
-                  <p className="mt-3 text-sm font-medium text-white/70">
-                    {todayContent.facilitator_close.preview}
-                  </p>
-                )}
+        {(() => {
+          const raw = todayContent?.facilitator_close
+          if (!raw) return null
+          // Support both {close: [...]} and {message, preview} formats
+          const closeItems = (raw as { close?: string[] })?.close
+          const message = (raw as { message?: string })?.message
+          if (closeItems && closeItems.length > 0) {
+            return (
+              <div
+                className="overflow-hidden rounded-2xl p-5"
+                style={{ backgroundColor: activePhase.color }}
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10 rounded-2xl" />
+                  <div className="relative z-10 space-y-3">
+                    {closeItems.map((line: string, i: number) => (
+                      <p key={i} className="text-base font-semibold leading-relaxed text-white">
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            )
+          }
+          if (message) {
+            return (
+              <div
+                className="overflow-hidden rounded-2xl p-5"
+                style={{ backgroundColor: activePhase.color }}
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10 rounded-2xl" />
+                  <div className="relative z-10">
+                    <p className="text-base font-semibold leading-relaxed text-white">
+                      {message}
+                    </p>
+                    {(raw as { preview?: string })?.preview && (
+                      <p className="mt-3 text-sm font-medium text-white/70">
+                        {(raw as { preview?: string }).preview}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )
+          }
+          return null
+        })()}
 
         {/* All actions completed */}
         {todayProgress === 100 && todayActionsTotal > 0 && (
