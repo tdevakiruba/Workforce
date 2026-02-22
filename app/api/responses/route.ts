@@ -52,6 +52,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
   }
 
+  // Reject edits for completed (past) days
+  const { data: enrollment } = await supabase
+    .from("enrollments")
+    .select("current_day")
+    .eq("id", enrollmentId)
+    .eq("user_id", user.id)
+    .single()
+
+  if (!enrollment) {
+    return NextResponse.json({ error: "Enrollment not found" }, { status: 404 })
+  }
+
+  if (dayNumber < enrollment.current_day) {
+    return NextResponse.json({ error: "Cannot edit completed day" }, { status: 403 })
+  }
+
   // Determine which unique constraint to use for the upsert
   const onConflict = exerciseId
     ? "enrollment_id,exercise_id"

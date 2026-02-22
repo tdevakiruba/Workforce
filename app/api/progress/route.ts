@@ -19,6 +19,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 })
   }
 
+  // Reject toggling actions for already-completed days
+  const { data: enrollment } = await supabase
+    .from("enrollments")
+    .select("current_day")
+    .eq("id", enrollmentId)
+    .eq("user_id", user.id)
+    .single()
+
+  if (!enrollment) {
+    return NextResponse.json({ error: "Enrollment not found" }, { status: 404 })
+  }
+
+  if (dayNumber < enrollment.current_day) {
+    return NextResponse.json({ error: "Cannot modify completed day" }, { status: 403 })
+  }
+
   // Upsert action progress
   const { error } = await supabase
     .from("user_actions")
