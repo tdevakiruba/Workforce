@@ -928,9 +928,10 @@ export function JourneyClient({
               </div>
 
               {/* Section content blocks */}
-              {section.content && section.content.length > 0 && (
+              {console.log("[v0] Section:", section.title, "content:", JSON.stringify(section.content), "type:", typeof section.content, "isArray:", Array.isArray(section.content))}
+              {section.content && (Array.isArray(section.content) ? section.content : []).length > 0 && (
                 <div className="space-y-3 px-5 py-4">
-                  {section.content.map((item, i) => (
+                  {(Array.isArray(section.content) ? section.content : []).map((item: Record<string, unknown>, i: number) => (
                     <ContentBlock
                       key={i}
                       item={item}
