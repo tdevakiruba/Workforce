@@ -91,14 +91,13 @@ export async function POST(request: Request) {
               user_id: user.id,
               enrollment_id: enrollmentId,
               day_number: dayNumber,
-              status: "completed",
+              completed: true,
               completed_at: new Date().toISOString(),
-              score: completedCount,
             },
             { onConflict: "enrollment_id,day_number" }
           )
 
-        // Mark the next day as in_progress
+        // Create a placeholder row for the next day (not completed yet)
         await supabase
           .from("user_day_progress")
           .upsert(
@@ -106,8 +105,7 @@ export async function POST(request: Request) {
               user_id: user.id,
               enrollment_id: enrollmentId,
               day_number: nextDay,
-              status: "in_progress",
-              started_at: new Date().toISOString(),
+              completed: false,
             },
             { onConflict: "enrollment_id,day_number" }
           )
