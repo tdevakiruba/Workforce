@@ -78,16 +78,16 @@ export default async function Home() {
           </div>
 
           <h1 className="font-serif text-balance text-5xl font-extrabold tracking-tight text-white sm:text-6xl lg:text-7xl">
-            Leadership is not taught.{" "}
+            AI generates work.{" "}
             <span className="bg-gradient-to-r from-[#00c892] to-[#00a5ff] bg-clip-text text-transparent">
-              It is built.
+              You own decisions.
             </span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-pretty text-xl leading-relaxed text-white/60">
-            Structured, research-backed programs that turn ambition into
-            professional excellence -- from emerging talent to senior
-            executives.
+            A 21-Day Career Operating System that transforms graduates into
+            AI-ready professionals with the judgment, accountability, and
+            clarity employers demand.
           </p>
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -114,10 +114,10 @@ export default async function Home() {
           {/* Stats row */}
           <div className="mt-16 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {[
-              { value: "2,500+", label: "Participants" },
-              { value: "4.9/5", label: "Average Rating" },
-              { value: "6", label: "Program Tracks" },
-              { value: "90-Day", label: "Transformations" },
+              { value: "21", label: "Day Operating System" },
+              { value: "3", label: "Career Phases" },
+              { value: "5", label: "Daily Actions" },
+              { value: "1", label: "Career Credential" },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -162,14 +162,14 @@ export default async function Home() {
           <div className="mb-12 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <p className="text-sm font-bold uppercase tracking-widest text-[#00c892]">
-                Our Programs
+                Career Operating Systems
               </p>
               <h2 className="mt-2 font-serif text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-                Choose your transformation
+                Build your competitive advantage
               </h2>
               <p className="mt-3 max-w-lg text-base leading-relaxed text-muted-foreground">
-                Each program is a structured journey -- daily frameworks, real
-                actions, and measurable growth.
+                Not a course. A behavior conditioning system, judgment training
+                lab, and professional identity accelerator.
               </p>
             </div>
             <Button
@@ -206,46 +206,60 @@ export default async function Home() {
         <div className="mx-auto max-w-5xl">
           <div className="text-center">
             <p className="text-sm font-bold uppercase tracking-widest text-[#00c892]">
-              How It Works
+              Daily Career Operating Loop
             </p>
             <h2 className="mt-2 font-serif text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-              Three steps to transformation
+              Five steps. Every day. No passive learning.
             </h2>
           </div>
 
-          <div className="mt-14 grid grid-cols-1 gap-8 md:grid-cols-3">
+          <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
             {[
               {
                 step: "01",
                 icon: Target,
-                title: "Choose Your Path",
-                desc: "Select a program aligned with your career stage and leadership goals.",
+                title: "Reality Briefing",
+                desc: "What happens in real AI workplaces and why this skill matters.",
               },
               {
                 step: "02",
-                icon: Zap,
-                title: "Daily Frameworks",
-                desc: "Each day delivers a structured Read, Reflect, Act framework -- 15 minutes that compound.",
+                icon: Users,
+                title: "Scenario Simulation",
+                desc: "Realistic AI-powered workplace challenge with incomplete data and time pressure.",
               },
               {
                 step: "03",
+                icon: Zap,
+                title: "Decision Challenge",
+                desc: "Approve, reject, or modify AI output. Justify reasoning. Identify risk.",
+              },
+              {
+                step: "04",
                 icon: Award,
-                title: "Earn Credentials",
-                desc: "Complete phases, track your trajectory, and earn verified digital certificates.",
+                title: "Artifact Creation",
+                desc: "Produce a real-world output: decision memo, escalation email, or recommendation brief.",
+              },
+              {
+                step: "05",
+                icon: Brain,
+                title: "Reflection Upgrade",
+                desc: "What did you miss? Where was judgment required? How could this escalate?",
               },
             ].map((item) => (
               <div
                 key={item.step}
-                className="group relative rounded-2xl border border-white/5 bg-white/[0.02] p-8 transition-all hover:border-[#00c892]/20 hover:bg-white/[0.04]"
+                className="group relative rounded-2xl border border-white/5 bg-white/[0.02] p-6 transition-all hover:border-[#00c892]/20 hover:bg-white/[0.04]"
               >
-                <span className="absolute right-6 top-6 text-4xl font-black text-white/5">
-                  {item.step}
-                </span>
-                <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-[#00c892]/10">
-                  <item.icon className="size-5 text-[#00c892]" />
+                <div className="mb-3 flex items-center gap-3">
+                  <div className="flex size-10 items-center justify-center rounded-xl bg-[#00c892]/10">
+                    <item.icon className="size-4 text-[#00c892]" />
+                  </div>
+                  <span className="text-sm font-bold text-white/20">
+                    {item.step}
+                  </span>
                 </div>
-                <h3 className="font-serif text-xl font-bold text-white">{item.title}</h3>
-                <p className="mt-2 text-base leading-relaxed text-white/50">
+                <h3 className="font-serif text-lg font-bold text-white">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-white/50">
                   {item.desc}
                 </p>
               </div>
@@ -258,51 +272,63 @@ export default async function Home() {
       <section className="border-t px-4 py-20 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl text-center">
           <p className="text-sm font-bold uppercase tracking-widest text-[#00c892]">
-            Why Workforce
+            What Graduates Leave With
           </p>
           <h2 className="mt-2 font-serif text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-            Built different. By design.
+            This is not a course.
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
-            Our proprietary SIGNAL framework is a research-backed system that
-            transforms leadership potential into measurable results.
+            It is a behavior conditioning system, a judgment training lab, a
+            professional identity accelerator, and a competitive advantage.
           </p>
-          <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
-                icon: Brain,
-                title: "Research-Backed",
-                desc: "Grounded in behavioral science and proven leadership models.",
+                icon: Target,
+                title: "Decision Portfolio",
+                desc: "A body of professional decisions demonstrating judgment under pressure.",
               },
               {
-                icon: TrendingUp,
-                title: "Action-Oriented",
-                desc: "Daily micro-actions that compound into transformational habits.",
+                icon: Brain,
+                title: "AI Collaboration Workflows",
+                desc: "Proven methods for working alongside intelligent systems effectively.",
               },
               {
                 icon: Shield,
-                title: "Structured Pathways",
-                desc: "Clear phases with measurable milestones and progress tracking.",
+                title: "Escalation Framework",
+                desc: "Know when to challenge AI, when to escalate, and how to document reasoning.",
+              },
+              {
+                icon: TrendingUp,
+                title: "Communication Samples",
+                desc: "Decision memos, executive summaries, and recommendation briefs.",
+              },
+              {
+                icon: Star,
+                title: "Career Acceleration Plan",
+                desc: "Your personalized 12-month AI workforce strategy.",
               },
               {
                 icon: Award,
-                title: "Verified Credentials",
-                desc: "Digital certificates recognized by employers and organizations.",
+                title: "AI Workforce Ready Credential",
+                desc: "Verified digital certificate demonstrating AI-era professional readiness.",
               },
             ].map((item) => (
               <div
                 key={item.title}
-                className="group rounded-2xl border bg-card p-6 transition-all hover:shadow-lg hover:shadow-[#00c892]/5"
+                className="group flex gap-4 rounded-2xl border bg-card p-6 text-left transition-all hover:shadow-lg hover:shadow-[#00c892]/5"
               >
-                <div className="mx-auto mb-4 flex size-11 items-center justify-center rounded-xl bg-[#00c892]/10 transition-colors group-hover:bg-[#00c892]/20">
+                <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#00c892]/10 transition-colors group-hover:bg-[#00c892]/20">
                   <item.icon className="size-5 text-[#00c892]" />
                 </div>
-                <h3 className="font-serif text-base font-bold text-card-foreground">
-                  {item.title}
-                </h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                  {item.desc}
-                </p>
+                <div>
+                  <h3 className="font-serif text-base font-bold text-card-foreground">
+                    {item.title}
+                  </h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                    {item.desc}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -315,11 +341,12 @@ export default async function Home() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(0,200,146,0.08),transparent_50%),radial-gradient(circle_at_70%_80%,rgba(0,165,255,0.08),transparent_50%)]" />
           <div className="relative">
             <h2 className="font-serif text-balance text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-              Ready to lead differently?
+              Trust accelerates careers.
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-white/60">
-              Join thousands of professionals who have transformed their
-              leadership through structured, research-backed programs.
+              Your degree got you here. Your operating behavior determines
+              whether you rise. Start building the judgment, ownership, and
+              clarity that employers demand.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Button
