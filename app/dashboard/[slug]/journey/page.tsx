@@ -47,30 +47,46 @@ export default async function JourneyPage({
     currentDay = Math.min(Math.max(diffDays + 1, 1), totalDays)
   }
 
-  // Fetch curriculum (for now only workforce-ready has content)
-  let curriculum: {
-    day_number: number
-    title: string
-    key_theme: string | null
-    motivational_keynote: string[] | null
-    how_to_implement: string[] | null
-    three_actions: { action_title: string; instruction: string }[] | null
-  }[] = []
-
-  if (slug === "workforce-ready") {
-    const { data: days } = await supabase
-      .from("workforce_mindset_21day")
-      .select(
-        "day_number, title, key_theme, motivational_keynote, how_to_implement, three_actions"
+  // Fetch curriculum days with nested sections and exercises
+  const { data: curriculumDays } = await supabase
+    .from("curriculum_days")
+    .select(`
+      id, day_number, title, theme,
+      day_objective, lesson_flow,
+      key_teaching_quote, behaviors_instilled,
+      end_of_day_outcomes, facilitator_close,
+      curriculum_sections (
+        id, sort_order, section_type, title, content,
+        curriculum_exercises (
+          id, sort_order, question, question_type, options, thinking_prompts
+        )
       )
-      .order("day_number")
-    curriculum = days ?? []
-  }
+    `)
+    .eq("program_id", program.id)
+    .order("day_number")
+
+  // Sort nested sections and exercises by sort_order
+  const curriculum = (curriculumDays ?? []).map((day) => ({
+    ...day,
+    curriculum_sections: (day.curriculum_sections ?? [])
+      .sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order)
+      .map((section: { curriculum_exercises?: { sort_order: number }[] }) => ({
+        ...section,
+        curriculum_exercises: (section.curriculum_exercises ?? [])
+          .sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order),
+      })),
+  }))
 
   // Fetch user action progress
   const { data: userActions } = await supabase
     .from("user_actions")
     .select("day_number, action_index, completed")
+    .eq("enrollment_id", enrollment.id)
+
+  // Fetch user section progress
+  const { data: userSectionProgress } = await supabase
+    .from("user_section_progress")
+    .select("section_id, completed")
     .eq("enrollment_id", enrollment.id)
 
   return (
@@ -86,6 +102,7 @@ export default async function JourneyPage({
       currentDay={currentDay}
       curriculum={curriculum}
       userActions={userActions ?? []}
+      userSectionProgress={userSectionProgress ?? []}
     />
   )
 }
