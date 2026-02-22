@@ -1,73 +1,293 @@
--- DAY 1: From Graduate to AI-Ready Professional
--- Delete existing day 1 data if re-running
-DELETE FROM curriculum_days WHERE program_id = '7da8d569-d5a3-47d8-9101-e8142b44822e' AND day_number = 1;
+-- ============================================================
+-- Day 1 — From Graduate to AI-Ready Professional
+-- Program: AI Workforce Ready™
+-- program_id: 7da8d569-d5a3-47d8-9101-e8142b44822e
+-- Structure:
+--   1) Delete existing day row (cascade deletes sections/exercises)
+--   2) Insert curriculum_days
+--   3) Insert 6 curriculum_sections
+--   4) Insert 5 curriculum_exercises (3 decision_challenge, 2 reflection)
+-- ============================================================
 
--- Insert Day 1
-INSERT INTO curriculum_days (program_id, day_number, title, theme, day_objective, key_teaching_quote)
-VALUES (
-  '7da8d569-d5a3-47d8-9101-e8142b44822e',
-  1,
-  'From Graduate to AI-Ready Professional',
-  'The world has already changed. The question is whether you will change with it or be replaced by someone who did.',
-  '["Understand how AI has fundamentally restructured entry-level professional expectations", "Identify the critical gap between academic preparation and workplace reality", "Begin the mindset shift from student to professional operator", "Recognize that your value is not what you know but how you think and decide"]'::jsonb,
-  'You are not entering the workforce your parents knew. You are entering one that is being rebuilt in real time by artificial intelligence.'
-);
+WITH
+params AS (
+  SELECT
+    '7da8d569-d5a3-47d8-9101-e8142b44822e'::uuid AS program_id,
+    1::int AS day_number
+),
 
-DO $$
-DECLARE
-  v_day_id uuid;
-  v_section_id uuid;
-BEGIN
-  SELECT id INTO v_day_id FROM curriculum_days
-  WHERE program_id = '7da8d569-d5a3-47d8-9101-e8142b44822e' AND day_number = 1;
+-- 1) DELETE existing Day 1 (cascade removes sections/exercises)
+del_day AS (
+  DELETE FROM public.curriculum_days d
+  USING params p
+  WHERE d.program_id = p.program_id
+    AND d.day_number = p.day_number
+  RETURNING d.id
+),
 
-  -- Section 1: Reality Briefing
-  INSERT INTO curriculum_sections (day_id, sort_order, section_type, title, content)
-  VALUES (v_day_id, 1, 'reality_briefing', 'Reality Mapping',
-    '[{"text": "Before we begin, let us be direct about what you are walking into.", "type": "facilitator_script"}, {"text": "AI is not coming. It is already here. It is writing reports, screening resumes, generating code, analyzing markets, and making recommendations that used to require junior professionals.", "type": "facilitator_script"}, {"text": "This does not mean you are obsolete. It means the bar has moved. The skills that got you your degree are not the skills that will build your career.", "type": "facilitator_script"}, {"text": "The professionals who thrive in AI-powered organizations are not the ones who know the most. They are the ones who think the clearest, decide the fastest, and communicate with the most precision.", "type": "callout"}]'::jsonb
-  );
+-- 2) INSERT curriculum_days row
+ins_day AS (
+  INSERT INTO public.curriculum_days
+  (
+    program_id,
+    day_number,
+    title,
+    theme,
+    day_objective,
+    lesson_flow,
+    key_teaching_quote,
+    behaviors_instilled,
+    end_of_day_outcomes,
+    facilitator_close
+  )
+  SELECT
+    p.program_id,
+    p.day_number,
+    'From Graduate to AI-Ready Professional'::text,
+    'You are not entering a job market — you are entering an operating system.'::text,
 
-  -- Section 2: Workplace Scenario
-  INSERT INTO curriculum_sections (day_id, sort_order, section_type, title, content)
-  VALUES (v_day_id, 2, 'workplace_scenario', 'Workplace Scenario',
-    '[{"text": "It is your first week at a mid-size technology company. Your manager sends you a Slack message: I need you to review the AI-generated market analysis for our Q3 strategy meeting. Flag anything that looks off and add your perspective. I need it by 3 PM.", "type": "facilitator_script"}, {"text": "Notice what just happened. You were not asked to create the analysis. The AI already did that. You were asked to evaluate it, apply judgment, and add value the machine cannot.", "type": "facilitator_script"}, {"text": "This is the new entry-level. You are not the producer. You are the quality layer. The question is: are you ready to be that layer?", "type": "callout"}]'::jsonb
-  );
+    -- day_objective (jsonb)
+    jsonb_build_object(
+      'objective',
+      'By the end of today, you will shift from a student mindset to a professional operator mindset by understanding that AI-enabled workplaces reward judgment, ownership, and trust more than task completion, and you will define the behaviors that prove you are AI Workforce Ready.'
+    ),
 
-  -- Section 3: Decision Challenge
-  INSERT INTO curriculum_sections (day_id, sort_order, section_type, title, content)
-  VALUES (v_day_id, 3, 'decision_challenge', 'Decision Challenge',
-    '[{"text": "You open the AI-generated analysis. It is well-structured, data-rich, and professionally formatted. But something feels slightly off about one of the market projections.", "type": "facilitator_script"}, {"text": "You have two hours before the deadline. What do you do?", "type": "facilitator_script"}, {"type": "contrast", "items_a": ["accept the report as-is because the AI produced it", "spend all remaining time trying to redo the entire analysis"], "items_b": ["identify the specific concern, cross-reference with available data, and flag it with a clear recommendation", "communicate proactively with your manager about what you found"], "label_a": "A student mindset would", "label_b": "A professional mindset would"}, {"text": "Your value is not in competing with AI output. Your value is in the judgment you layer on top of it.", "type": "callout"}]'::jsonb
-  ) RETURNING id INTO v_section_id;
+    -- lesson_flow (jsonb)
+    to_jsonb(ARRAY[
+      'reality_briefing',
+      'workplace_scenario',
+      'decision_challenge',
+      'artifact_creation',
+      'reflection',
+      'professional_upgrade'
+    ]),
 
-  INSERT INTO curriculum_exercises (section_id, sort_order, question, question_type, options, thinking_prompts)
-  VALUES
-    (v_section_id, 1, 'Which behavior most strongly signals you are an AI-ready professional rather than a student entering a job?', 'multiple_choice',
-     '[{"label": "A", "text": "Finishing tasks quickly and moving on.", "is_best": false}, {"label": "B", "text": "Waiting for detailed instructions before acting.", "is_best": false}, {"label": "C", "text": "Evaluating AI output critically and adding judgment before delivering.", "is_best": true}, {"label": "D", "text": "Producing everything from scratch to prove your skills.", "is_best": false}]'::jsonb, NULL),
-    (v_section_id, 2, 'In the scenario above, what specific steps would you take in the two hours before the deadline? Write your action plan.', 'open_ended', NULL,
-     '["prioritize the flagged concern", "cross-reference data sources", "document your reasoning", "communicate proactively"]'::jsonb),
-    (v_section_id, 3, 'Why is the ability to evaluate AI output more valuable than the ability to produce work from scratch?', 'open_ended', NULL,
-     '["speed of AI production", "human judgment as differentiator", "accountability", "trust building"]'::jsonb);
+    -- key_teaching_quote
+    'Stop preparing to be hired. Start preparing to operate.'::text,
 
-  -- Section 4: Artifact Creation
-  INSERT INTO curriculum_sections (day_id, sort_order, section_type, title, content)
-  VALUES (v_day_id, 4, 'artifact_creation', 'Artifact Creation: Professional Self-Assessment',
-    '[{"text": "Write your first professional artifact: a Personal Readiness Assessment.", "type": "facilitator_script"}, {"text": "In 150-200 words, honestly assess: Where are you right now? What skills from your education translate directly to AI-augmented work? What gaps do you suspect exist? What assumptions about work are you willing to challenge this week?", "type": "facilitator_script"}, {"text": "Honesty in self-assessment is the first professional skill. Leaders trust people who know what they do not know.", "type": "callout"}]'::jsonb
-  );
+    -- behaviors_instilled (jsonb)
+    jsonb_build_object(
+      'behaviors',
+      jsonb_build_array(
+        'I think in outcomes, not assignments, and I take responsibility for impact rather than effort.',
+        'I treat AI as part of the environment I operate in, not a shortcut I hide behind or depend on blindly.',
+        'I build credibility through clarity, follow-through, and ownership, so leaders can trust me with real responsibility.'
+      )
+    ),
 
-  -- Section 5: Reflection
-  INSERT INTO curriculum_sections (day_id, sort_order, section_type, title, content)
-  VALUES (v_day_id, 5, 'reflection', 'Reflection',
-    '[{"text": "Take a moment to reflect on today''s lesson.", "type": "facilitator_script"}]'::jsonb
-  ) RETURNING id INTO v_section_id;
+    -- end_of_day_outcomes (jsonb)
+    jsonb_build_object(
+      'outcomes',
+      jsonb_build_array(
+        'You create an AI-Ready Professional Identity Statement that defines how you will operate differently than a student.',
+        'You define what “AI Workforce Ready” means as daily behavior, not as a buzzword.',
+        'You leave with a baseline operating standard you will apply throughout this 21-day accelerator.'
+      )
+    ),
 
-  INSERT INTO curriculum_exercises (section_id, sort_order, question, question_type)
-  VALUES
-    (v_section_id, 1, 'What is the biggest assumption about your career that today''s lesson challenged?', 'reflection'),
-    (v_section_id, 2, 'If AI can produce 80% of entry-level work, what will you do to own the remaining 20%?', 'reflection');
+    -- facilitator_close (jsonb)
+    jsonb_build_object(
+      'close',
+      jsonb_build_array(
+        'Your degree proves you learned; your behavior proves you are ready.',
+        'In the AI workforce, output is common — ownership is rare.',
+        'Tomorrow, you will learn how AI organizations actually function and where accountability lives.'
+      )
+    )
 
-  -- Section 6: Professional Upgrade
-  INSERT INTO curriculum_sections (day_id, sort_order, section_type, title, content)
-  VALUES (v_day_id, 6, 'professional_upgrade', 'Professional Upgrade',
-    '[{"text": "You are not entering the workforce your parents knew. You are entering one that is being rebuilt in real time by artificial intelligence.", "type": "facilitator_script"}, {"text": "The graduates who understand this on Day 1 will outpace those who figure it out in Year 3. Today, you chose to understand it. That decision alone puts you ahead.", "type": "callout"}]'::jsonb
-  );
-END $$;
+  FROM params p
+  RETURNING id
+),
+
+-- 3) INSERT 6 curriculum_sections
+ins_sections AS (
+  INSERT INTO public.curriculum_sections
+  (day_id, sort_order, section_type, title, content)
+  SELECT
+    d.id,
+    s.sort_order,
+    s.section_type,
+    s.title,
+    s.content::jsonb
+  FROM ins_day d
+  JOIN (
+    VALUES
+      -- 1) reality_briefing
+      (1, 'reality_briefing', 'Reality Briefing', $$[
+        {
+          "type":"mapping",
+          "text":"AI accelerates output. AI drafts content. AI summarizes decisions. AI supports workflows. But: AI does NOT define professionalism. AI does NOT earn trust. AI does NOT own outcomes. Humans do."
+        },
+        {
+          "type":"text",
+          "text":"Most graduates think career success comes from being smart, working hard, and finishing tasks quickly. In the AI era, that mindset is incomplete, because AI can now help anyone produce output faster. What separates people is not output volume; it is judgment, ownership, and the ability to operate inside real workflows where consequences matter."
+        },
+        {
+          "type":"text",
+          "text":"You are entering organizations where AI will generate drafts, ideas, analysis, and recommendations, but humans will still be accountable for decisions, ethics, and outcomes. If you behave like a student, you will treat work like assignments. If you behave like a professional operator, you will treat work like outcomes you own, protect, and improve."
+        }
+      ]$$),
+
+      -- 2) workplace_scenario
+      (2, 'workplace_scenario', 'Workplace Scenario', $$[
+        {
+          "type":"text",
+          "text":"You start a new role where your team uses AI to write first drafts, summarize meetings, and propose next steps. Your manager is not impressed that AI can produce content, because everyone has access to the same tools. Your manager is watching for who can validate outputs, surface risks, communicate clearly, and protect trust with stakeholders."
+        },
+        {
+          "type":"text",
+          "text":"In your first week, you are asked to send a client update. AI drafts a polished message instantly. The real question is whether you will send it as-is, or whether you will operate like a professional by verifying facts, adjusting tone, and owning the outcome of what gets communicated."
+        }
+      ]$$),
+
+      -- 3) decision_challenge
+      (3, 'decision_challenge', 'Decision Challenge', $$[
+        {
+          "type":"text",
+          "text":"Your challenge is to decide what identity you will build in the workplace. You can be the person who finishes tasks, or you can be the person who delivers outcomes with clarity and ownership. In AI-enabled environments, leaders give responsibility to the people who reduce uncertainty, because uncertainty creates risk."
+        },
+        {
+          "type":"text",
+          "text":"Today, you are committing to an operator mindset, meaning you do not hide behind AI tools, you do not forward unverified output, and you do not wait for perfect instructions. You clarify the ask, validate the work, communicate proactively, and stand behind the result."
+        }
+      ]$$),
+
+      -- 4) artifact_creation
+      (4, 'artifact_creation', 'Artifact Creation', $$[
+        {
+          "type":"text",
+          "text":"Create your “AI-Ready Professional Identity Statement.” In full sentences, describe how you will operate differently than a student. Include how you will handle accountability, communication, validation of AI-assisted work, and how you will think in outcomes rather than tasks."
+        },
+        {
+          "type":"text",
+          "text":"Your identity statement should read like a personal operating system: clear, specific, and measurable enough that you could evaluate yourself weekly."
+        }
+      ]$$),
+
+      -- 5) reflection
+      (5, 'reflection', 'Reflection', $$[
+        {
+          "type":"text",
+          "text":"Reflect on the biggest student habit that could hurt you in the workplace. Name it directly, then describe the professional behavior you will replace it with, and how that replacement will change your results and credibility."
+        },
+        {
+          "type":"text",
+          "text":"Then reflect on trust. What would make a manager feel safe delegating to you by week two? Write your answer as behaviors, not traits, because trust is built through what you repeatedly do."
+        }
+      ]$$),
+
+      -- 6) professional_upgrade
+      (6, 'professional_upgrade', 'Professional Upgrade', $$[
+        {
+          "type":"text",
+          "text":"The professionals who rise early are not the ones who produce the most output; they are the ones who produce clarity, trust, and ownership under pressure. In the AI era, tools are common, but dependable operators are rare."
+        },
+        {
+          "type":"text",
+          "text":"If you want to accelerate, stop trying to look impressive and start building a reputation as someone who can be trusted with outcomes. That reputation is what unlocks better work, stronger mentorship, and faster growth."
+        }
+      ]$$)
+
+  ) AS s(sort_order, section_type, title, content)
+  RETURNING id, section_type
+),
+
+-- Map inserted sections so exercises can reference them
+section_lookup AS (
+  SELECT
+    id AS section_id,
+    section_type
+  FROM ins_sections
+),
+
+-- 4) INSERT 5 exercises (3 decision_challenge + 2 reflection)
+ins_exercises AS (
+  INSERT INTO public.curriculum_exercises
+  (section_id, sort_order, question, question_type, options, thinking_prompts)
+  SELECT
+    sl.section_id,
+    e.sort_order,
+    e.question,
+    e.question_type,
+    e.options::jsonb,
+    e.thinking_prompts::jsonb
+  FROM section_lookup sl
+  JOIN (
+    VALUES
+      -- =========================
+      -- Decision Challenge (3)
+      -- =========================
+      ('decision_challenge', 1,
+        'In an AI-enabled workplace, what does it mean to “operate” instead of “complete tasks”?',
+        'open_ended',
+        $$null$$,
+        $$[
+          "Describe the difference between output and outcomes.",
+          "Explain how ownership changes your behavior when AI is involved.",
+          "Describe one way an operator reduces uncertainty for leaders."
+        ]$$
+      ),
+      ('decision_challenge', 2,
+        'Which behavior most strongly signals an AI-ready professional identity?',
+        'multiple_choice',
+        $$[
+          {"label":"A","text":"Finishing tasks quickly and moving on."},
+          {"label":"B","text":"Waiting for detailed instructions before acting."},
+          {"label":"C","text":"Owning outcomes, validating AI-assisted work, and communicating proactively."},
+          {"label":"D","text":"Using AI secretly so you look more capable."}
+        ]$$,
+        $$[
+          "What makes leaders trust you with higher responsibility?",
+          "What does validation protect (trust, quality, risk)?",
+          "Why is secrecy a trust breaker in hybrid teams?"
+        ]$$
+      ),
+      ('decision_challenge', 3,
+        'Your manager asks you to send a client update, and AI produces a polished draft instantly. What is the most professional next step?',
+        'multiple_choice',
+        $$[
+          {"label":"A","text":"Send it immediately because it is polished."},
+          {"label":"B","text":"Skim for spelling and send."},
+          {"label":"C","text":"Verify facts, adjust tone for the relationship, confirm context, then send with ownership."},
+          {"label":"D","text":"Avoid AI so you never risk a mistake."}
+        ]$$,
+        $$[
+          "What are the most common failure points in AI drafts (facts, tone, context)?",
+          "How does ownership show up at the point of sending?",
+          "What is the cost of a small error with a stakeholder?"
+        ]$$
+      ),
+
+      -- =========================
+      -- Reflection (2)
+      -- =========================
+      ('reflection', 1,
+        'What is the biggest student habit you must stop immediately to succeed in the AI workforce, and what professional behavior will replace it?',
+        'open_ended',
+        $$null$$,
+        $$[
+          "Name the habit honestly.",
+          "Describe the replacement behavior in one sentence.",
+          "Explain how you will measure whether you changed."
+        ]$$
+      ),
+      ('reflection', 2,
+        'What three behaviors would make a manager feel safe delegating to you in your first two weeks, and why?',
+        'open_ended',
+        $$null$$,
+        $$[
+          "Describe behaviors, not personality traits.",
+          "Explain how each behavior reduces uncertainty.",
+          "Explain how these behaviors build trust in hybrid teams."
+        ]$$
+      )
+  ) AS e(section_type, sort_order, question, question_type, options, thinking_prompts)
+    ON e.section_type = sl.section_type
+  RETURNING id
+)
+
+SELECT
+  (SELECT count(*) FROM del_day)       AS days_deleted,
+  (SELECT count(*) FROM ins_day)       AS days_inserted,
+  (SELECT count(*) FROM ins_sections)  AS sections_inserted,
+  (SELECT count(*) FROM ins_exercises) AS exercises_inserted;
