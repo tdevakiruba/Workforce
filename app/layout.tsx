@@ -9,11 +9,11 @@ const _inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: {
-    default: "Workforce | Leadership Development Platform",
+    default: "Workforce | AI Career Operating System",
     template: "%s | Workforce",
   },
   description:
-    "Structured, research-backed leadership programs for executives, students, faith leaders, youth, and enterprise teams.",
+    "A 21-day career operating system that transforms graduates into AI-ready professionals with the judgment, accountability, and clarity employers demand.",
 }
 
 export default function RootLayout({
