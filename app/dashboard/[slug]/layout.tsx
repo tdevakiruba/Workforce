@@ -45,8 +45,8 @@ export default async function ProductDashboardLayout({
 
   if (!program) notFound()
 
-  // Verify active enrollment
-  const { data: enrollment } = await supabase
+  // Verify active enrollment -- auto-enroll if not found
+  let { data: enrollment } = await supabase
     .from("enrollments")
     .select("id, status, current_day, started_at")
     .eq("user_id", user.id)
@@ -55,7 +55,46 @@ export default async function ProductDashboardLayout({
     .maybeSingle()
 
   if (!enrollment) {
-    redirect(`/programs/${slug}`)
+    // Auto-enroll the user
+    const { data: newEnrollment } = await supabase
+      .from("enrollments")
+      .upsert(
+        {
+          user_id: user.id,
+          program_id: program.id,
+          status: "active",
+          current_day: 1,
+          started_at: new Date().toISOString(),
+        },
+        { onConflict: "user_id,program_id" }
+      )
+      .select("id, status, current_day, started_at")
+      .single()
+
+    if (!newEnrollment) {
+      redirect(`/programs/${slug}`)
+    }
+
+    // Also create a default subscription if none exists
+    const { data: existingSub } = await supabase
+      .from("subscriptions")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("program_id", program.id)
+      .eq("status", "active")
+      .maybeSingle()
+
+    if (!existingSub) {
+      await supabase.from("subscriptions").insert({
+        user_id: user.id,
+        program_id: program.id,
+        plan_tier: "individual",
+        status: "active",
+        current_period_start: new Date().toISOString(),
+      })
+    }
+
+    enrollment = newEnrollment
   }
 
   // Get subscription info
