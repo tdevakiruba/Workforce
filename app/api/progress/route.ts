@@ -70,18 +70,48 @@ export async function POST(request: Request) {
 
     if (completedCount >= totalActions) {
       // All actions done for this day - advance enrollment current_day
-      const { data: enrollment } = await supabase
+      const { data: currentEnrollment } = await supabase
         .from("enrollments")
         .select("current_day")
         .eq("id", enrollmentId)
         .single()
 
-      if (enrollment && enrollment.current_day <= dayNumber) {
+      if (currentEnrollment && currentEnrollment.current_day <= dayNumber) {
         const nextDay = dayNumber + 1
         await supabase
           .from("enrollments")
           .update({ current_day: nextDay })
           .eq("id", enrollmentId)
+
+        // Record day completion in user_day_progress
+        await supabase
+          .from("user_day_progress")
+          .upsert(
+            {
+              user_id: user.id,
+              enrollment_id: enrollmentId,
+              day_number: dayNumber,
+              status: "completed",
+              completed_at: new Date().toISOString(),
+              score: completedCount,
+            },
+            { onConflict: "enrollment_id,day_number" }
+          )
+
+        // Mark the next day as in_progress
+        await supabase
+          .from("user_day_progress")
+          .upsert(
+            {
+              user_id: user.id,
+              enrollment_id: enrollmentId,
+              day_number: nextDay,
+              status: "in_progress",
+              started_at: new Date().toISOString(),
+            },
+            { onConflict: "enrollment_id,day_number" }
+          )
+
         dayAdvanced = true
       }
     }
