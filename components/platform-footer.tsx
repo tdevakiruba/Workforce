@@ -4,7 +4,7 @@ import { TrendingUp } from "lucide-react"
 const footerLinks = {
   Programs: [
     { href: "/programs?category=executive", label: "Executive Leadership" },
-    { href: "/programs?category=workforce", label: "Workforce Ready" },
+    { href: "/programs/workforce-ready", label: "AI Workforce Ready" },
     { href: "/programs?category=faith", label: "Faith & Leadership" },
     { href: "/programs?category=youth", label: "Youth Leadership" },
     { href: "/programs?category=enterprise", label: "Enterprise" },
@@ -21,12 +21,12 @@ export function PlatformFooter() {
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
           {/* Brand */}
           <div>
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/programs/workforce-ready" className="flex items-center gap-2">
               <div className="flex size-8 items-center justify-center rounded-lg bg-wf-mint">
                 <TrendingUp className="size-4 text-white" />
               </div>
               <span className="font-serif text-base font-bold text-foreground">
-                Workforce
+                AI Workforce Ready
               </span>
             </Link>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
@@ -59,7 +59,7 @@ export function PlatformFooter() {
 
         <div className="mt-10 border-t pt-6 text-center">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} Workforce. All
+            &copy; {new Date().getFullYear()} AI Workforce Ready. All
             rights reserved.
           </p>
         </div>

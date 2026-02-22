@@ -13,7 +13,7 @@ import { ProgramSearch } from "./program-search"
 export const metadata: Metadata = {
   title: "Programs",
   description:
-    "Browse all Workforce leadership programs. Filter by category to find the right fit for your journey.",
+    "Browse all AI Workforce Ready leadership programs. Filter by category to find the right fit for your journey.",
 }
 
 export default async function ProgramsPage({

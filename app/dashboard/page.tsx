@@ -4,7 +4,7 @@ import { DashboardClient } from "./dashboard-client"
 
 export const metadata = {
   title: "Dashboard",
-  description: "Your Workforce learning dashboard",
+  description: "Your AI Workforce Ready learning dashboard",
 }
 
 export default async function DashboardPage() {
