@@ -644,11 +644,18 @@ export function JourneyClient({
       })
       const data = await res.json()
 
-      // Day was advanced on the server -- update local state
+      // Day was advanced on the server -- update local state & auto-navigate
       if (data.dayAdvanced && dayNum === activeDay) {
         const nextDay = dayNum + 1
         setActiveDay(nextDay)
         setShowDayComplete(true)
+
+        // Auto-progress to the next day after a brief celebration
+        setTimeout(() => {
+          setSelectedDay(nextDay)
+          setShowDayComplete(false)
+          window.scrollTo({ top: 0, behavior: "smooth" })
+        }, 2500)
       }
     } catch {
       if (isNowCompleted) next.delete(key)
@@ -928,7 +935,6 @@ export function JourneyClient({
               </div>
 
               {/* Section content blocks */}
-              {console.log("[v0] Section:", section.title, "content:", JSON.stringify(section.content), "type:", typeof section.content, "isArray:", Array.isArray(section.content))}
               {section.content && (Array.isArray(section.content) ? section.content : []).length > 0 && (
                 <div className="space-y-3 px-5 py-4">
                   {(Array.isArray(section.content) ? section.content : []).map((item: Record<string, unknown>, i: number) => (
