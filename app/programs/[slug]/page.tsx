@@ -112,13 +112,16 @@ export default async function ProgramPage({
     key_theme: string | null
   }[] = []
 
-  if (slug === "workforce-ready") {
-    const { data: days } = await supabase
-      .from("workforce_mindset_21day")
-      .select("day_number, title, key_theme")
-      .order("day_number")
-    curriculum = days ?? []
-  }
+  const { data: days } = await supabase
+    .from("curriculum_days")
+    .select("day_number, title, theme")
+    .eq("program_id", program.id)
+    .order("day_number")
+  curriculum = (days ?? []).map((d) => ({
+    day_number: d.day_number,
+    title: d.title,
+    key_theme: d.theme,
+  }))
 
   return (
     <ProgramDetail

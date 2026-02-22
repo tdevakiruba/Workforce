@@ -72,19 +72,18 @@ export default async function OverviewPage({
     .eq("enrollment_id", enrollment.id)
     .maybeSingle()
 
-  // Get today's insight (title + key_theme for the daily quote tile)
+  // Get today's insight (title + theme for the daily quote tile)
   let dailyInsight: { title: string; keyTheme: string } | null = null
-  if (slug === "workforce-ready") {
-    const { data: dayData } = await supabase
-      .from("workforce_mindset_21day")
-      .select("title, key_theme")
-      .eq("day_number", currentDay)
-      .maybeSingle()
-    if (dayData) {
-      dailyInsight = {
-        title: dayData.title,
-        keyTheme: dayData.key_theme ?? "",
-      }
+  const { data: dayData } = await supabase
+    .from("curriculum_days")
+    .select("title, theme")
+    .eq("program_id", program.id)
+    .eq("day_number", currentDay)
+    .maybeSingle()
+  if (dayData) {
+    dailyInsight = {
+      title: dayData.title,
+      keyTheme: dayData.theme ?? "",
     }
   }
 

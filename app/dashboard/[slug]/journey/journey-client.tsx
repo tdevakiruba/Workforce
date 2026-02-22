@@ -15,6 +15,12 @@ import {
   Rocket,
   TrendingUp,
   Crown,
+  MessageSquare,
+  FileText,
+  AlertTriangle,
+  Quote,
+  Target,
+  Pen,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -49,13 +55,47 @@ const PHASES = [
   },
 ]
 
+/* ── Section type icon mapping ── */
+const SECTION_ICONS: Record<string, typeof BookOpen> = {
+  reality_briefing: AlertTriangle,
+  mindset_disruption: Lightbulb,
+  workplace_scenario: MessageSquare,
+  decision_exercise: Zap,
+  artifact_creation: FileText,
+  reflection_upgrade: Pen,
+}
+
+/* ── Types ── */
+interface CurriculumExercise {
+  id: string
+  sort_order: number
+  question: string
+  question_type: string
+  options: Record<string, unknown> | Record<string, unknown>[] | null
+  thinking_prompts: string[] | null
+}
+
+interface CurriculumSection {
+  id: string
+  sort_order: number
+  section_type: string
+  title: string
+  content: Record<string, unknown>[]
+  curriculum_exercises: CurriculumExercise[]
+}
+
 interface CurriculumDay {
+  id: string
   day_number: number
   title: string
-  key_theme: string | null
-  motivational_keynote: string[] | null
-  how_to_implement: string[] | null
-  three_actions: { action_title: string; instruction: string }[] | null
+  theme: string | null
+  day_objective: string[] | null
+  lesson_flow: string[] | null
+  key_teaching_quote: string | null
+  behaviors_instilled: string[] | null
+  end_of_day_outcomes: string[] | null
+  facilitator_close: { message: string; preview: string } | null
+  curriculum_sections: CurriculumSection[]
 }
 
 interface JourneyClientProps {
@@ -74,18 +114,302 @@ interface JourneyClientProps {
     action_index: number
     completed: boolean
   }[]
+  userSectionProgress: {
+    section_id: string
+    completed: boolean
+  }[]
 }
 
 const programIcons: Record<string, string> = {
   "workforce-ready": "/images/workforce-icon.png",
 }
 
+/* ── Section content renderers ── */
+function ContentBlock({
+  item,
+  phaseColor,
+}: {
+  item: Record<string, unknown>
+  phaseColor: string
+}) {
+  switch (item.type) {
+    case "facilitator_script":
+      return (
+        <p className="text-base leading-relaxed text-muted-foreground">
+          {item.text as string}
+        </p>
+      )
+    case "contrast": {
+      const itemsA = item.items_a as string[]
+      const itemsB = item.items_b as string[]
+      return (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="rounded-xl border-2 border-red-200 bg-red-50/50 p-4 dark:border-red-900 dark:bg-red-950/20">
+            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400">
+              {item.label_a as string}
+            </p>
+            <ul className="space-y-1">
+              {itemsA.map((t, i) => (
+                <li
+                  key={i}
+                  className="text-sm text-red-700 dark:text-red-300"
+                >
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div
+            className="rounded-xl border-2 p-4"
+            style={{
+              borderColor: `${phaseColor}30`,
+              backgroundColor: `${phaseColor}08`,
+            }}
+          >
+            <p
+              className="mb-2 text-xs font-bold uppercase tracking-wider"
+              style={{ color: phaseColor }}
+            >
+              {item.label_b as string}
+            </p>
+            <ul className="space-y-1">
+              {itemsB.map((t, i) => (
+                <li key={i} className="text-sm" style={{ color: phaseColor }}>
+                  {t}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )
+    }
+    case "callout":
+      return (
+        <div
+          className="rounded-xl border-l-4 px-4 py-3"
+          style={{
+            borderColor: phaseColor,
+            backgroundColor: `${phaseColor}08`,
+          }}
+        >
+          <p className="text-sm font-bold" style={{ color: phaseColor }}>
+            {item.text as string}
+          </p>
+        </div>
+      )
+    case "scenario_setup":
+      return (
+        <div className="rounded-xl bg-muted/50 p-4">
+          <p className="text-sm font-medium text-foreground">
+            {item.text as string}
+          </p>
+        </div>
+      )
+    case "manager_quote":
+      return (
+        <div className="flex gap-3 rounded-xl border bg-card p-4">
+          <Quote className="mt-0.5 size-5 shrink-0 text-muted-foreground/50" />
+          <p className="text-sm italic leading-relaxed text-foreground">
+            {'"'}{item.text as string}{'"'}
+          </p>
+        </div>
+      )
+    case "narrative":
+      return (
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {item.text as string}
+        </p>
+      )
+    case "challenge":
+      return (
+        <div
+          className="rounded-xl border-2 p-4"
+          style={{
+            borderColor: `${phaseColor}40`,
+            backgroundColor: `${phaseColor}06`,
+          }}
+        >
+          <p className="text-sm font-semibold text-foreground">
+            {item.text as string}
+          </p>
+        </div>
+      )
+    case "instruction":
+      return (
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {item.text as string}
+        </p>
+      )
+    case "assignment": {
+      const structure = item.structure as string[]
+      return (
+        <div className="rounded-xl border bg-card p-4">
+          <h4 className="mb-3 text-base font-bold text-foreground">
+            {item.title as string}
+          </h4>
+          <ol className="list-inside list-decimal space-y-1.5">
+            {structure.map((s, i) => (
+              <li key={i} className="text-sm text-muted-foreground">
+                {s}
+              </li>
+            ))}
+          </ol>
+          {item.length && (
+            <p className="mt-3 text-xs font-medium text-muted-foreground">
+              Target length: {item.length as string}
+            </p>
+          )}
+        </div>
+      )
+    }
+    case "skills_trained": {
+      const items = item.items as string[]
+      return (
+        <div className="flex flex-wrap gap-2">
+          {items.map((s, i) => (
+            <span
+              key={i}
+              className="rounded-full px-3 py-1 text-xs font-bold capitalize"
+              style={{
+                backgroundColor: `${phaseColor}12`,
+                color: phaseColor,
+              }}
+            >
+              {s}
+            </span>
+          ))}
+        </div>
+      )
+    }
+    case "teaching_moment":
+      return (
+        <div
+          className="rounded-xl border-l-4 px-4 py-3"
+          style={{
+            borderColor: phaseColor,
+            backgroundColor: `${phaseColor}06`,
+          }}
+        >
+          <p
+            className="mb-1 text-xs font-bold uppercase tracking-wider"
+            style={{ color: phaseColor }}
+          >
+            {item.title as string}
+          </p>
+          <p className="text-sm leading-relaxed text-foreground">
+            {item.text as string}
+          </p>
+        </div>
+      )
+    default:
+      return null
+  }
+}
+
+function ExerciseBlock({
+  exercise,
+  phaseColor,
+  index,
+  isCompleted,
+  onToggle,
+  saving,
+}: {
+  exercise: CurriculumExercise
+  phaseColor: string
+  index: number
+  isCompleted: boolean
+  onToggle: () => void
+  saving: boolean
+}) {
+  const options = Array.isArray(exercise.options) ? exercise.options : null
+
+  return (
+    <button
+      onClick={onToggle}
+      disabled={saving}
+      className={`group flex w-full items-start gap-4 rounded-xl border-2 p-4 text-left transition-all ${
+        isCompleted ? "border-transparent" : "hover:shadow-md"
+      }`}
+      style={
+        isCompleted
+          ? {
+              backgroundColor: `${phaseColor}06`,
+              borderColor: `${phaseColor}25`,
+            }
+          : undefined
+      }
+    >
+      <div
+        className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
+          isCompleted ? "border-transparent" : ""
+        }`}
+        style={
+          isCompleted
+            ? { backgroundColor: phaseColor }
+            : { borderColor: `${phaseColor}40` }
+        }
+      >
+        {isCompleted && <CheckCircle2 className="size-5 text-white" />}
+      </div>
+      <div className="min-w-0 flex-1">
+        <h4
+          className={`text-base font-bold ${
+            isCompleted
+              ? "text-muted-foreground line-through"
+              : "text-foreground"
+          }`}
+        >
+          {exercise.question}
+        </h4>
+        {exercise.question_type === "multiple_choice" && options && (
+          <div className="mt-2 space-y-1.5">
+            {options.map((opt, i) => {
+              const o = opt as Record<string, unknown>
+              return (
+                <div
+                  key={i}
+                  className="flex items-center gap-2 text-sm text-muted-foreground"
+                >
+                  <span
+                    className="flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+                    style={{
+                      backgroundColor: `${phaseColor}15`,
+                      color: phaseColor,
+                    }}
+                  >
+                    {o.label as string}
+                  </span>
+                  <span>{o.text as string}</span>
+                </div>
+              )
+            })}
+          </div>
+        )}
+        {exercise.thinking_prompts && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {exercise.thinking_prompts.map((p, i) => (
+              <span
+                key={i}
+                className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+              >
+                {p}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </button>
+  )
+}
+
+/* ── Main Component ── */
 export function JourneyClient({
   program,
   enrollmentId,
   currentDay,
   curriculum,
   userActions,
+  userSectionProgress,
 }: JourneyClientProps) {
   const [selectedDay, setSelectedDay] = useState(currentDay)
   const [completedActions, setCompletedActions] = useState<Set<string>>(
@@ -106,6 +430,20 @@ export function JourneyClient({
     PHASES.find((p) => selectedDay >= p.dayStart && selectedDay <= p.dayEnd) ??
     PHASES[0]
   const iconSrc = programIcons[program.slug]
+
+  // Count all exercises across all sections for this day
+  const allExercises =
+    todayContent?.curriculum_sections?.flatMap(
+      (s) => s.curriculum_exercises ?? []
+    ) ?? []
+  const todayActionsTotal = allExercises.length
+  const todayActionsDone = allExercises.filter((_, i) =>
+    completedActions.has(`${selectedDay}-${i}`)
+  ).length
+  const todayProgress =
+    todayActionsTotal > 0
+      ? Math.round((todayActionsDone / todayActionsTotal) * 100)
+      : 0
 
   async function toggleAction(dayNum: number, actionIdx: number) {
     const key = `${dayNum}-${actionIdx}`
@@ -136,24 +474,18 @@ export function JourneyClient({
     }
   }
 
-  const todayActionsTotal = todayContent?.three_actions?.length ?? 0
-  const todayActionsDone =
-    todayContent?.three_actions?.filter((_, i) =>
-      completedActions.has(`${selectedDay}-${i}`)
-    ).length ?? 0
-  const todayProgress =
-    todayActionsTotal > 0
-      ? Math.round((todayActionsDone / todayActionsTotal) * 100)
-      : 0
-
   function isDayCompleted(day: number) {
     const content = curriculum.find((d) => d.day_number === day)
-    return (
-      content?.three_actions?.every((_, i) =>
-        completedActions.has(`${day}-${i}`)
-      ) ?? false
-    )
+    const exercises =
+      content?.curriculum_sections?.flatMap(
+        (s) => s.curriculum_exercises ?? []
+      ) ?? []
+    if (exercises.length === 0) return false
+    return exercises.every((_, i) => completedActions.has(`${day}-${i}`))
   }
+
+  // Track global exercise index for action keys
+  let globalExerciseIndex = 0
 
   return (
     <div className="mx-auto max-w-4xl space-y-5">
@@ -173,7 +505,6 @@ export function JourneyClient({
           const isCurrentPhase =
             currentDay >= phase.dayStart && currentDay <= phase.dayEnd
           const isPastPhase = currentDay > phase.dayEnd
-          const isFuturePhase = currentDay < phase.dayStart
 
           return (
             <div
@@ -190,7 +521,7 @@ export function JourneyClient({
                   : undefined,
               }}
             >
-              {/* Phase header - clickable */}
+              {/* Phase header */}
               <button
                 onClick={() =>
                   setExpandedPhase(isExpanded ? null : phase.id)
@@ -345,9 +676,9 @@ export function JourneyClient({
                 </h2>
               </div>
             </div>
-            {todayContent?.key_theme && (
+            {todayContent?.theme && (
               <p className="mt-2 text-base text-white/80">
-                {todayContent.key_theme}
+                {todayContent.theme}
               </p>
             )}
             <div className="mt-4 flex items-center gap-3">
@@ -409,11 +740,158 @@ export function JourneyClient({
         </button>
       </div>
 
-      {/* ── Session Content ── */}
+      {/* ── Day Objectives ── */}
+      {todayContent?.day_objective && todayContent.day_objective.length > 0 && (
+        <section className="overflow-hidden rounded-2xl border bg-card">
+          <div
+            className="flex items-center gap-3 px-5 py-3.5"
+            style={{ backgroundColor: `${activePhase.color}08` }}
+          >
+            <div
+              className="flex size-9 items-center justify-center rounded-lg text-white"
+              style={{ backgroundColor: activePhase.color }}
+            >
+              <Target className="size-4" />
+            </div>
+            <div>
+              <h3 className="text-lg font-extrabold text-foreground">
+                Day Objective
+              </h3>
+              <span className="text-xs text-muted-foreground">
+                What you will learn today
+              </span>
+            </div>
+          </div>
+          <div className="px-5 py-4">
+            <ul className="space-y-2">
+              {todayContent.day_objective.map((obj, i) => (
+                <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
+                  <CheckCircle2
+                    className="mt-0.5 size-4 shrink-0"
+                    style={{ color: activePhase.color }}
+                  />
+                  <span>{obj}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {/* ── Session Content: Sections ── */}
       <div id="session-content" className="flex flex-col gap-5">
-        {/* READ */}
-        {todayContent?.motivational_keynote &&
-          todayContent.motivational_keynote.length > 0 && (
+        {todayContent?.curriculum_sections?.map((section) => {
+          const SectionIcon = SECTION_ICONS[section.section_type] ?? BookOpen
+          const hasExercises = section.curriculum_exercises?.length > 0
+          const sectionExerciseStartIndex = globalExerciseIndex
+
+          return (
+            <section
+              key={section.id}
+              className="overflow-hidden rounded-2xl border bg-card"
+            >
+              {/* Section header */}
+              <div
+                className="flex items-center justify-between px-5 py-3.5"
+                style={{ backgroundColor: `${activePhase.color}08` }}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="flex size-9 items-center justify-center rounded-lg text-white"
+                    style={{ backgroundColor: activePhase.color }}
+                  >
+                    <SectionIcon className="size-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-extrabold text-foreground">
+                      {section.title}
+                    </h3>
+                    <span className="text-xs capitalize text-muted-foreground">
+                      {section.section_type.replace(/_/g, " ")}
+                    </span>
+                  </div>
+                </div>
+                {hasExercises && (
+                  <span
+                    className="rounded-full px-3 py-1 text-sm font-bold text-white"
+                    style={{ backgroundColor: activePhase.color }}
+                  >
+                    {section.curriculum_exercises.filter((_, i) =>
+                      completedActions.has(
+                        `${selectedDay}-${sectionExerciseStartIndex + i}`
+                      )
+                    ).length}
+                    /{section.curriculum_exercises.length}
+                  </span>
+                )}
+              </div>
+
+              {/* Section content blocks */}
+              {section.content && section.content.length > 0 && (
+                <div className="space-y-3 px-5 py-4">
+                  {section.content.map((item, i) => (
+                    <ContentBlock
+                      key={i}
+                      item={item}
+                      phaseColor={activePhase.color}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Exercises within section */}
+              {hasExercises && (
+                <div className="flex flex-col gap-2.5 border-t p-4">
+                  {section.curriculum_exercises.map((exercise, i) => {
+                    const actionIndex = sectionExerciseStartIndex + i
+                    const key = `${selectedDay}-${actionIndex}`
+                    const done = completedActions.has(key)
+                    // Increment global index for next section
+                    if (i === section.curriculum_exercises.length - 1) {
+                      globalExerciseIndex =
+                        sectionExerciseStartIndex +
+                        section.curriculum_exercises.length
+                    }
+                    return (
+                      <ExerciseBlock
+                        key={exercise.id}
+                        exercise={exercise}
+                        phaseColor={activePhase.color}
+                        index={actionIndex}
+                        isCompleted={done}
+                        onToggle={() => toggleAction(selectedDay, actionIndex)}
+                        saving={saving}
+                      />
+                    )
+                  })}
+                </div>
+              )}
+            </section>
+          )
+        })}
+
+        {/* ── Key Teaching Quote ── */}
+        {todayContent?.key_teaching_quote && (
+          <div
+            className="flex items-start gap-4 rounded-2xl border-2 p-5"
+            style={{
+              borderColor: `${activePhase.color}30`,
+              backgroundColor: `${activePhase.color}06`,
+            }}
+          >
+            <Quote
+              className="mt-1 size-6 shrink-0"
+              style={{ color: activePhase.color }}
+            />
+            <p className="text-lg font-bold italic text-foreground">
+              {todayContent.key_teaching_quote}
+            </p>
+          </div>
+        )}
+
+        {/* ── Behaviors Instilled ── */}
+        {todayContent?.behaviors_instilled &&
+          todayContent.behaviors_instilled.length > 0 && (
             <section className="overflow-hidden rounded-2xl border bg-card">
               <div
                 className="flex items-center gap-3 px-5 py-3.5"
@@ -423,158 +901,108 @@ export function JourneyClient({
                   className="flex size-9 items-center justify-center rounded-lg text-white"
                   style={{ backgroundColor: activePhase.color }}
                 >
-                  <BookOpen className="size-4" />
+                  <Sparkles className="size-4" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-extrabold text-foreground">
-                    Read
-                  </h3>
-                  <span className="text-xs text-muted-foreground">
-                    Motivational Keynote
-                  </span>
-                </div>
+                <h3 className="text-lg font-extrabold text-foreground">
+                  Behaviors Instilled
+                </h3>
               </div>
-              <div className="space-y-3 px-5 py-4">
-                {todayContent.motivational_keynote.map((para, i) => (
-                  <p
-                    key={i}
-                    className="text-base leading-relaxed text-muted-foreground"
-                  >
-                    {para}
-                  </p>
-                ))}
-              </div>
-            </section>
-          )}
-
-        {/* REFLECT */}
-        {todayContent?.how_to_implement &&
-          todayContent.how_to_implement.length > 0 && (
-            <section className="overflow-hidden rounded-2xl border bg-card">
-              <div className="flex items-center gap-3 bg-amber-500/5 px-5 py-3.5">
-                <div className="flex size-9 items-center justify-center rounded-lg bg-amber-500 text-white">
-                  <Lightbulb className="size-4" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-extrabold text-foreground">
-                    Reflect
-                  </h3>
-                  <span className="text-xs text-muted-foreground">
-                    How to Implement
-                  </span>
-                </div>
-              </div>
-              <div className="space-y-3 px-5 py-4">
-                {todayContent.how_to_implement.map((para, i) => (
-                  <p
-                    key={i}
-                    className="text-base leading-relaxed text-muted-foreground"
-                  >
-                    {para}
-                  </p>
-                ))}
-              </div>
-            </section>
-          )}
-
-        {/* ACT */}
-        {todayContent?.three_actions &&
-          todayContent.three_actions.length > 0 && (
-            <section className="overflow-hidden rounded-2xl border bg-card">
-              <div className="flex items-center justify-between bg-blue-500/5 px-5 py-3.5">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-9 items-center justify-center rounded-lg bg-blue-500 text-white">
-                    <Zap className="size-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-extrabold text-foreground">
-                      Act
-                    </h3>
-                    <span className="text-xs text-muted-foreground">
-                      Strategic Actions
-                    </span>
-                  </div>
-                </div>
-                <span
-                  className="rounded-full px-3 py-1 text-sm font-bold text-white"
-                  style={{ backgroundColor: activePhase.color }}
-                >
-                  {todayActionsDone}/{todayActionsTotal}
-                </span>
-              </div>
-              <div className="flex flex-col gap-2.5 p-4">
-                {todayContent.three_actions.map((action, i) => {
-                  const key = `${selectedDay}-${i}`
-                  const done = completedActions.has(key)
-                  return (
-                    <button
+              <div className="px-5 py-4">
+                <ul className="space-y-2">
+                  {todayContent.behaviors_instilled.map((b, i) => (
+                    <li
                       key={i}
-                      onClick={() => toggleAction(selectedDay, i)}
-                      disabled={saving}
-                      className={`group flex items-start gap-4 rounded-xl border-2 p-4 text-left transition-all ${
-                        done ? "border-transparent" : "hover:shadow-md"
-                      }`}
-                      style={
-                        done
-                          ? {
-                              backgroundColor: `${activePhase.color}06`,
-                              borderColor: `${activePhase.color}25`,
-                            }
-                          : undefined
-                      }
+                      className="flex items-start gap-3 text-sm text-muted-foreground"
                     >
                       <div
-                        className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-                          done ? "border-transparent" : ""
-                        }`}
-                        style={
-                          done
-                            ? { backgroundColor: activePhase.color }
-                            : { borderColor: `${activePhase.color}40` }
-                        }
-                      >
-                        {done && (
-                          <CheckCircle2 className="size-5 text-white" />
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h4
-                          className={`text-base font-bold ${
-                            done
-                              ? "text-muted-foreground line-through"
-                              : "text-foreground"
-                          }`}
-                        >
-                          {action.action_title}
-                        </h4>
-                        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                          {action.instruction}
-                        </p>
-                      </div>
-                    </button>
-                  )
-                })}
+                        className="mt-1.5 size-2 shrink-0 rounded-full"
+                        style={{ backgroundColor: activePhase.color }}
+                      />
+                      <span>{b}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-
-              {todayProgress === 100 && (
-                <div
-                  className="flex items-center gap-3 px-5 py-3"
-                  style={{ backgroundColor: `${activePhase.color}10` }}
-                >
-                  <Sparkles
-                    className="size-5"
-                    style={{ color: activePhase.color }}
-                  />
-                  <p
-                    className="text-sm font-bold"
-                    style={{ color: activePhase.color }}
-                  >
-                    All actions completed for Day {selectedDay}! Great work.
-                  </p>
-                </div>
-              )}
             </section>
           )}
+
+        {/* ── End of Day Outcomes ── */}
+        {todayContent?.end_of_day_outcomes &&
+          todayContent.end_of_day_outcomes.length > 0 && (
+            <section className="overflow-hidden rounded-2xl border bg-card">
+              <div
+                className="flex items-center gap-3 px-5 py-3.5"
+                style={{ backgroundColor: `${activePhase.color}08` }}
+              >
+                <div
+                  className="flex size-9 items-center justify-center rounded-lg text-white"
+                  style={{ backgroundColor: activePhase.color }}
+                >
+                  <CheckCircle2 className="size-4" />
+                </div>
+                <h3 className="text-lg font-extrabold text-foreground">
+                  End-of-Day Outcomes
+                </h3>
+              </div>
+              <div className="px-5 py-4">
+                <ul className="space-y-2">
+                  {todayContent.end_of_day_outcomes.map((o, i) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-3 text-sm text-muted-foreground"
+                    >
+                      <CheckCircle2
+                        className="mt-0.5 size-4 shrink-0"
+                        style={{ color: activePhase.color }}
+                      />
+                      <span>{o}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          )}
+
+        {/* ── Facilitator Close ── */}
+        {todayContent?.facilitator_close && (
+          <div
+            className="rounded-2xl p-5"
+            style={{ backgroundColor: activePhase.color }}
+          >
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10 rounded-2xl" />
+              <div className="relative z-10">
+                <p className="text-base font-semibold leading-relaxed text-white">
+                  {todayContent.facilitator_close.message}
+                </p>
+                {todayContent.facilitator_close.preview && (
+                  <p className="mt-3 text-sm font-medium text-white/70">
+                    {todayContent.facilitator_close.preview}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* All actions completed */}
+        {todayProgress === 100 && todayActionsTotal > 0 && (
+          <div
+            className="flex items-center gap-3 rounded-2xl px-5 py-4"
+            style={{ backgroundColor: `${activePhase.color}10` }}
+          >
+            <Sparkles
+              className="size-5"
+              style={{ color: activePhase.color }}
+            />
+            <p
+              className="text-sm font-bold"
+              style={{ color: activePhase.color }}
+            >
+              All actions completed for Day {selectedDay}! Great work.
+            </p>
+          </div>
+        )}
 
         {!todayContent && (
           <div className="flex flex-col items-center justify-center rounded-2xl border bg-card py-16 text-center">

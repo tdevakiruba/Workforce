@@ -32,39 +32,39 @@ const PROGRAM_PHASES = [
     dayEnd: 7,
     color: "#00c892",
     icon: Rocket,
-    tagline: "Build your professional identity",
+    tagline: "Enter the AI Workforce",
     highlights: [
-      "Shift from student to professional mindset",
-      "Master ownership, integrity & resourcefulness",
-      "Build discipline and authority habits",
+      "Understand how modern workplaces function with AI",
+      "Shift from task execution to judgment and ownership",
+      "Learn where humans create value in automated systems",
     ],
   },
   {
-    id: "growth",
-    label: "Growth Strategy",
+    id: "strategic",
+    label: "Strategic Operation",
     dayStart: 8,
     dayEnd: 14,
     color: "#3b82f6",
     icon: TrendingUp,
-    tagline: "Develop core leadership skills",
+    tagline: "Operate Inside AI-Powered Organizations",
     highlights: [
-      "Learn accountability and team dynamics",
-      "Sharpen business acumen & communication",
-      "Build credibility through feedback loops",
+      "Interpret AI output, don't just repeat it",
+      "Make decisions under ambiguity",
+      "Translate work into business value",
     ],
   },
   {
-    id: "mastery",
-    label: "Leadership Mastery",
+    id: "leadership",
+    label: "Leadership Trajectory",
     dayStart: 15,
     dayEnd: 21,
-    color: "#a855f7",
+    color: "#00a5ff",
     icon: Crown,
-    tagline: "Lead with influence and trust",
+    tagline: "Rise Early in Human + AI Teams",
     highlights: [
-      "Develop strategic thinking and initiative",
-      "Build resilience, reputation & service mindset",
-      "Master influence and earn lasting trust",
+      "Build trust loops and signal ownership",
+      "Demonstrate ethical judgment in AI use",
+      "Position for career acceleration",
     ],
   },
 ]
@@ -628,71 +628,84 @@ export function ProgramDetail({
             </section>
           )}
 
-          {/* ─────────── DAILY EXPERIENCE ─────────── */}
+          {/* ─────────── DAILY CAREER OPERATING LOOP ─────────── */}
           <section className="py-14 border-b">
             <h2 className="font-serif text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
-              Your Daily Experience
+              Daily Career Operating Loop
             </h2>
             <p className="mt-3 max-w-xl text-base leading-relaxed text-foreground/70">
-              Each day follows a simple, powerful rhythm designed for busy
-              professionals.
+              Every day follows this structure. No passive learning.
             </p>
-            <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-3">
+            <div className="mt-8 flex flex-col gap-4">
               {[
                 {
                   icon: BookOpen,
                   step: "01",
-                  title: "Read",
-                  desc: "Engage with curated micro-content aligned to your current phase. Short, focused, and actionable.",
-                  time: "5 min",
+                  title: "Reality Briefing",
+                  desc: "What happens in real AI workplaces. Why this skill matters.",
+                  time: "5-7 min",
                 },
                 {
-                  icon: Lightbulb,
+                  icon: Users,
                   step: "02",
-                  title: "Reflect",
-                  desc: "Answer a thought-provoking question to deepen your understanding and connect insights to your life.",
-                  time: "5 min",
+                  title: "Scenario Simulation",
+                  desc: "Realistic AI-powered workplace challenge with incomplete data and time pressure.",
+                  time: "10 min",
                 },
                 {
                   icon: Zap,
                   step: "03",
-                  title: "Act",
-                  desc: "Complete a micro-action that builds real-world skills and creates compounding leadership habits.",
+                  title: "Decision Challenge",
+                  desc: "Approve, reject, or modify AI output. Justify reasoning. Identify risk. Choose next action.",
+                  time: "Action Required",
+                },
+                {
+                  icon: Lightbulb,
+                  step: "04",
+                  title: "Professional Artifact Creation",
+                  desc: "Produce one real-world output: decision memo, escalation email, executive summary, risk log, AI prompt refinement, or recommendation brief.",
+                  time: "Action Required",
+                },
+                {
+                  icon: MessageSquare,
+                  step: "05",
+                  title: "Reflection & Upgrade",
+                  desc: "What did you miss? Where was judgment required? How could this escalate in real life?",
                   time: "5 min",
                 },
               ].map((step) => (
                 <div
                   key={step.title}
-                  className="rounded-xl border bg-card p-6"
+                  className="flex items-start gap-4 rounded-xl border bg-card p-5"
                 >
-                  <div className="mb-4 flex items-center gap-3">
-                    <div
-                      className="flex size-12 items-center justify-center rounded-xl"
-                      style={{
-                        backgroundColor:
-                          (program.color || "#00c892") + "18",
-                      }}
-                    >
-                      <step.icon
-                        className="size-6"
-                        style={{ color: program.color || "#00c892" }}
-                      />
-                    </div>
-                    <div>
+                  <div
+                    className="flex size-11 shrink-0 items-center justify-center rounded-xl"
+                    style={{
+                      backgroundColor:
+                        (program.color || "#00c892") + "18",
+                    }}
+                  >
+                    <step.icon
+                      className="size-5"
+                      style={{ color: program.color || "#00c892" }}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3">
                       <p className="text-xs font-bold uppercase tracking-wider text-foreground/50">
                         Step {step.step}
                       </p>
-                      <h3 className="font-serif text-lg font-bold text-card-foreground">
-                        {step.title}
-                      </h3>
+                      <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-foreground/60">
+                        {step.time}
+                      </span>
                     </div>
+                    <h3 className="mt-1 font-serif text-base font-bold text-card-foreground">
+                      {step.title}
+                    </h3>
+                    <p className="mt-1 text-sm leading-relaxed text-foreground/70">
+                      {step.desc}
+                    </p>
                   </div>
-                  <p className="text-sm leading-relaxed text-foreground/70">
-                    {step.desc}
-                  </p>
-                  <span className="mt-4 inline-block rounded-full bg-muted px-3 py-1 text-xs font-semibold text-foreground/60">
-                    ~{step.time}
-                  </span>
                 </div>
               ))}
             </div>
