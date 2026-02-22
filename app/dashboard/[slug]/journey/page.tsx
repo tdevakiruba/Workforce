@@ -89,6 +89,12 @@ export default async function JourneyPage({
     .select("section_id, completed")
     .eq("enrollment_id", enrollment.id)
 
+  // Fetch saved exercise/artifact responses for portfolio
+  const { data: userResponses } = await supabase
+    .from("user_exercise_responses")
+    .select("exercise_id, section_id, day_number, response_text")
+    .eq("enrollment_id", enrollment.id)
+
   return (
     <JourneyClient
       program={{
@@ -103,6 +109,7 @@ export default async function JourneyPage({
       curriculum={curriculum}
       userActions={userActions ?? []}
       userSectionProgress={userSectionProgress ?? []}
+      userResponses={userResponses ?? []}
     />
   )
 }

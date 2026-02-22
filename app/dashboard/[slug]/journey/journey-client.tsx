@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import Image from "next/image"
 import {
   ArrowLeft,
@@ -21,6 +21,7 @@ import {
   Quote,
   Target,
   Pen,
+  Save,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -117,6 +118,12 @@ interface JourneyClientProps {
   userSectionProgress: {
     section_id: string
     completed: boolean
+  }[]
+  userResponses: {
+    exercise_id: string | null
+    section_id: string | null
+    day_number: number
+    response_text: string
   }[]
 }
 
@@ -313,6 +320,9 @@ function ExerciseBlock({
   isCompleted,
   onToggle,
   saving,
+  responseText,
+  onResponseChange,
+  savingResponse,
 }: {
   exercise: CurriculumExercise
   phaseColor: string
@@ -320,15 +330,20 @@ function ExerciseBlock({
   isCompleted: boolean
   onToggle: () => void
   saving: boolean
+  responseText: string
+  onResponseChange: (text: string) => void
+  savingResponse: boolean
 }) {
   const options = Array.isArray(exercise.options) ? exercise.options : null
+  const needsTextResponse =
+    exercise.question_type === "open_ended" ||
+    exercise.question_type === "reflection" ||
+    exercise.question_type === "multiple_choice"
 
   return (
-    <button
-      onClick={onToggle}
-      disabled={saving}
-      className={`group flex w-full items-start gap-4 rounded-xl border-2 p-4 text-left transition-all ${
-        isCompleted ? "border-transparent" : "hover:shadow-md"
+    <div
+      className={`rounded-xl border-2 p-4 transition-all ${
+        isCompleted ? "border-transparent" : ""
       }`}
       style={
         isCompleted
@@ -339,66 +354,103 @@ function ExerciseBlock({
           : undefined
       }
     >
-      <div
-        className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-          isCompleted ? "border-transparent" : ""
-        }`}
-        style={
-          isCompleted
-            ? { backgroundColor: phaseColor }
-            : { borderColor: `${phaseColor}40` }
-        }
+      <button
+        onClick={onToggle}
+        disabled={saving}
+        className="group flex w-full items-start gap-4 text-left"
       >
-        {isCompleted && <CheckCircle2 className="size-5 text-white" />}
-      </div>
-      <div className="min-w-0 flex-1">
-        <h4
-          className={`text-base font-bold ${
-            isCompleted
-              ? "text-muted-foreground line-through"
-              : "text-foreground"
+        <div
+          className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
+            isCompleted ? "border-transparent" : ""
           }`}
+          style={
+            isCompleted
+              ? { backgroundColor: phaseColor }
+              : { borderColor: `${phaseColor}40` }
+          }
         >
-          {exercise.question}
-        </h4>
-        {exercise.question_type === "multiple_choice" && options && (
-          <div className="mt-2 space-y-1.5">
-            {options.map((opt, i) => {
-              const o = opt as Record<string, unknown>
-              return (
-                <div
-                  key={i}
-                  className="flex items-center gap-2 text-sm text-muted-foreground"
-                >
-                  <span
-                    className="flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
-                    style={{
-                      backgroundColor: `${phaseColor}15`,
-                      color: phaseColor,
-                    }}
+          {isCompleted && <CheckCircle2 className="size-5 text-white" />}
+        </div>
+        <div className="min-w-0 flex-1">
+          <h4
+            className={`text-base font-bold ${
+              isCompleted
+                ? "text-muted-foreground line-through"
+                : "text-foreground"
+            }`}
+          >
+            {exercise.question}
+          </h4>
+          {exercise.question_type === "multiple_choice" && options && (
+            <div className="mt-2 space-y-1.5">
+              {options.map((opt, i) => {
+                const o = opt as Record<string, unknown>
+                return (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 text-sm text-muted-foreground"
                   >
-                    {o.label as string}
-                  </span>
-                  <span>{o.text as string}</span>
-                </div>
-              )
-            })}
-          </div>
-        )}
-        {exercise.thinking_prompts && (
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {exercise.thinking_prompts.map((p, i) => (
-              <span
-                key={i}
-                className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground"
-              >
-                {p}
+                    <span
+                      className="flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+                      style={{
+                        backgroundColor: `${phaseColor}15`,
+                        color: phaseColor,
+                      }}
+                    >
+                      {o.label as string}
+                    </span>
+                    <span>{o.text as string}</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+          {exercise.thinking_prompts && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {exercise.thinking_prompts.map((p, i) => (
+                <span
+                  key={i}
+                  className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+                >
+                  {p}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </button>
+
+      {/* Response textarea */}
+      {needsTextResponse && (
+        <div className="mt-3 ml-11">
+          <textarea
+            value={responseText}
+            onChange={(e) => onResponseChange(e.target.value)}
+            placeholder={
+              exercise.question_type === "multiple_choice"
+                ? "Explain your choice and reasoning..."
+                : "Type your response here..."
+            }
+            rows={4}
+            className="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-offset-1"
+            style={{ focusRingColor: phaseColor } as React.CSSProperties}
+          />
+          <div className="mt-1.5 flex items-center justify-between">
+            <span className="text-[10px] text-muted-foreground">
+              {responseText.length > 0
+                ? `${responseText.length} characters`
+                : "Your answer is saved to your portfolio"}
+            </span>
+            {savingResponse && (
+              <span className="flex items-center gap-1 text-[10px] font-medium" style={{ color: phaseColor }}>
+                <Save className="size-3" />
+                Saving...
               </span>
-            ))}
+            )}
           </div>
-        )}
-      </div>
-    </button>
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -410,6 +462,7 @@ export function JourneyClient({
   curriculum,
   userActions,
   userSectionProgress,
+  userResponses,
 }: JourneyClientProps) {
   const [selectedDay, setSelectedDay] = useState(currentDay)
   const [completedActions, setCompletedActions] = useState<Set<string>>(
@@ -420,6 +473,63 @@ export function JourneyClient({
     )
   )
   const [saving, setSaving] = useState(false)
+
+  // Response state: keyed by exercise_id or section_id
+  const [responses, setResponses] = useState<Record<string, string>>(() => {
+    const map: Record<string, string> = {}
+    for (const r of userResponses) {
+      const key = r.exercise_id || r.section_id || ""
+      if (key) map[key] = r.response_text
+    }
+    return map
+  })
+  const [savingResponseKey, setSavingResponseKey] = useState<string | null>(null)
+  const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
+
+  const saveResponse = useCallback(
+    async (key: string, text: string, isExercise: boolean, dayNumber: number) => {
+      setSavingResponseKey(key)
+      try {
+        await fetch("/api/responses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            enrollmentId,
+            exerciseId: isExercise ? key : undefined,
+            sectionId: isExercise ? undefined : key,
+            dayNumber,
+            responseText: text,
+          }),
+        })
+      } catch (err) {
+        console.error("Failed to save response:", err)
+      } finally {
+        setSavingResponseKey(null)
+      }
+    },
+    [enrollmentId]
+  )
+
+  const handleResponseChange = useCallback(
+    (key: string, text: string, isExercise: boolean, dayNumber: number) => {
+      setResponses((prev) => ({ ...prev, [key]: text }))
+
+      // Debounce: save after 800ms idle
+      if (debounceTimers.current[key]) clearTimeout(debounceTimers.current[key])
+      debounceTimers.current[key] = setTimeout(() => {
+        saveResponse(key, text, isExercise, dayNumber)
+      }, 800)
+    },
+    [saveResponse]
+  )
+
+  // Cleanup debounce timers
+  useEffect(() => {
+    const timers = debounceTimers.current
+    return () => {
+      Object.values(timers).forEach(clearTimeout)
+    }
+  }, [])
 
   const todayContent = curriculum.find((d) => d.day_number === selectedDay)
   const activePhase =
@@ -687,6 +797,44 @@ export function JourneyClient({
                 </div>
               )}
 
+              {/* Artifact creation textarea */}
+              {section.section_type === "artifact_creation" && (
+                <div className="border-t px-5 py-4">
+                  <div className="mb-2 flex items-center gap-2">
+                    <FileText className="size-4" style={{ color: activePhase.color }} />
+                    <label className="text-sm font-bold text-foreground">
+                      Your Artifact
+                    </label>
+                    <span className="text-[10px] text-muted-foreground">
+                      (saved to your portfolio)
+                    </span>
+                    {savingResponseKey === section.id && (
+                      <span
+                        className="ml-auto flex items-center gap-1 text-[10px] font-medium"
+                        style={{ color: activePhase.color }}
+                      >
+                        <Save className="size-3" />
+                        Saving...
+                      </span>
+                    )}
+                  </div>
+                  <textarea
+                    value={responses[section.id] ?? ""}
+                    onChange={(e) =>
+                      handleResponseChange(section.id, e.target.value, false, selectedDay)
+                    }
+                    placeholder="Write your artifact here: decision memo, escalation email, executive summary, recommendation brief..."
+                    rows={8}
+                    className="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                  />
+                  {(responses[section.id] ?? "").length > 0 && (
+                    <p className="mt-1 text-[10px] text-muted-foreground">
+                      {(responses[section.id] ?? "").length} characters
+                    </p>
+                  )}
+                </div>
+              )}
+
               {/* Exercises within section */}
               {hasExercises && (
                 <div className="flex flex-col gap-2.5 border-t p-4">
@@ -709,6 +857,11 @@ export function JourneyClient({
                         isCompleted={done}
                         onToggle={() => toggleAction(selectedDay, actionIndex)}
                         saving={saving}
+                        responseText={responses[exercise.id] ?? ""}
+                        onResponseChange={(text) =>
+                          handleResponseChange(exercise.id, text, true, selectedDay)
+                        }
+                        savingResponse={savingResponseKey === exercise.id}
                       />
                     )
                   })}
