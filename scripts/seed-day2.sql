@@ -9,7 +9,7 @@ VALUES (
   2,
   'How AI Organizations Actually Function',
   'If you do not understand the system you are entering, you cannot win inside it.',
-  'By the end of today, you will understand how AI-powered organizations actually function, where machines operate, where humans decide, and where accountability ultimately lives. You will begin to shift your thinking from completing tasks to understanding workflows, systems, and decision chains.'
+  '["Understand how AI-powered organizations actually function", "Learn where machines operate and where humans decide", "Shift thinking from completing tasks to understanding workflows and decision chains", "Identify where accountability lives in AI-augmented processes"]'::jsonb
 );
 
 -- Get the day ID for sections
