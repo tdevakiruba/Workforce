@@ -25,14 +25,9 @@ export function PlatformFooter() {
               <div className="flex size-8 items-center justify-center rounded-lg bg-wf-mint">
                 <TrendingUp className="size-4 text-white" />
               </div>
-              <div className="flex flex-col leading-none">
-                <span className="text-sm font-bold text-foreground">
-                  Transformer Hub
-                </span>
-                <span className="text-[9px] font-semibold tracking-wider text-wf-mint uppercase">
-                  Institute
-                </span>
-              </div>
+              <span className="font-serif text-base font-bold text-foreground">
+                Workforce
+              </span>
             </Link>
             <p className="mt-3 max-w-xs text-sm leading-relaxed text-muted-foreground">
               Structured, research-backed leadership programs that turn ambition
@@ -64,7 +59,7 @@ export function PlatformFooter() {
 
         <div className="mt-10 border-t pt-6 text-center">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} Transformer Hub Institute. All
+            &copy; {new Date().getFullYear()} Workforce. All
             rights reserved.
           </p>
         </div>

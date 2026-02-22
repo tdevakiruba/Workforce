@@ -82,7 +82,7 @@ function SignInForm() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-foreground">Welcome back</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Sign in to your Transformer Hub account</p>
+          <p className="mt-1 text-sm text-muted-foreground">Sign in to your Workforce account</p>
         </div>
 
         <div className="rounded-2xl border bg-card p-6 shadow-sm">
