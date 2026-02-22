@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { enrollmentId, dayNumber, actionIndex, completed } = body
+  const { enrollmentId, dayNumber, actionIndex, completed, totalActions } = body
 
   if (!enrollmentId || dayNumber == null || actionIndex == null) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 })
@@ -41,5 +41,35 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Failed to save" }, { status: 500 })
   }
 
-  return NextResponse.json({ ok: true })
+  // Check if all actions for this day are now completed → advance current_day
+  let dayAdvanced = false
+  if (completed && totalActions != null && totalActions > 0) {
+    const { data: dayActions } = await supabase
+      .from("user_actions")
+      .select("action_index, completed")
+      .eq("enrollment_id", enrollmentId)
+      .eq("day_number", dayNumber)
+
+    const completedCount = (dayActions ?? []).filter((a) => a.completed).length
+
+    if (completedCount >= totalActions) {
+      // All actions done for this day - advance enrollment current_day
+      const { data: enrollment } = await supabase
+        .from("enrollments")
+        .select("current_day")
+        .eq("id", enrollmentId)
+        .single()
+
+      if (enrollment && enrollment.current_day <= dayNumber) {
+        const nextDay = dayNumber + 1
+        await supabase
+          .from("enrollments")
+          .update({ current_day: nextDay })
+          .eq("id", enrollmentId)
+        dayAdvanced = true
+      }
+    }
+  }
+
+  return NextResponse.json({ ok: true, dayAdvanced })
 }

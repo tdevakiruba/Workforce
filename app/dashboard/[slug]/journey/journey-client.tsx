@@ -323,6 +323,7 @@ function ExerciseBlock({
   responseText,
   onResponseChange,
   savingResponse,
+  readOnly,
 }: {
   exercise: CurriculumExercise
   phaseColor: string
@@ -333,6 +334,7 @@ function ExerciseBlock({
   responseText: string
   onResponseChange: (text: string) => void
   savingResponse: boolean
+  readOnly: boolean
 }) {
   const options = Array.isArray(exercise.options) ? exercise.options : null
   const needsTextResponse =
@@ -355,9 +357,9 @@ function ExerciseBlock({
       }
     >
       <button
-        onClick={onToggle}
-        disabled={saving}
-        className="group flex w-full items-start gap-4 text-left"
+        onClick={readOnly ? undefined : onToggle}
+        disabled={saving || readOnly}
+        className={`group flex w-full items-start gap-4 text-left ${readOnly ? "cursor-default" : ""}`}
       >
         <div
           className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
@@ -423,31 +425,45 @@ function ExerciseBlock({
       {/* Response textarea */}
       {needsTextResponse && (
         <div className="mt-3 ml-11">
-          <textarea
-            value={responseText}
-            onChange={(e) => onResponseChange(e.target.value)}
-            placeholder={
-              exercise.question_type === "multiple_choice"
-                ? "Explain your choice and reasoning..."
-                : "Type your response here..."
-            }
-            rows={4}
-            className="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-offset-1"
-            style={{ focusRingColor: phaseColor } as React.CSSProperties}
-          />
-          <div className="mt-1.5 flex items-center justify-between">
-            <span className="text-[10px] text-muted-foreground">
-              {responseText.length > 0
-                ? `${responseText.length} characters`
-                : "Your answer is saved to your portfolio"}
-            </span>
-            {savingResponse && (
-              <span className="flex items-center gap-1 text-[10px] font-medium" style={{ color: phaseColor }}>
-                <Save className="size-3" />
-                Saving...
-              </span>
-            )}
-          </div>
+          {readOnly ? (
+            responseText ? (
+              <div className="rounded-lg border bg-muted/30 px-3 py-2.5 text-sm leading-relaxed text-foreground">
+                {responseText}
+              </div>
+            ) : (
+              <p className="text-xs italic text-muted-foreground/60">
+                No response recorded
+              </p>
+            )
+          ) : (
+            <>
+              <textarea
+                value={responseText}
+                onChange={(e) => onResponseChange(e.target.value)}
+                placeholder={
+                  exercise.question_type === "multiple_choice"
+                    ? "Explain your choice and reasoning..."
+                    : "Type your response here..."
+                }
+                rows={4}
+                className="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                style={{ focusRingColor: phaseColor } as React.CSSProperties}
+              />
+              <div className="mt-1.5 flex items-center justify-between">
+                <span className="text-[10px] text-muted-foreground">
+                  {responseText.length > 0
+                    ? `${responseText.length} characters`
+                    : "Your answer is saved to your portfolio"}
+                </span>
+                {savingResponse && (
+                  <span className="flex items-center gap-1 text-[10px] font-medium" style={{ color: phaseColor }}>
+                    <Save className="size-3" />
+                    Saving...
+                  </span>
+                )}
+              </div>
+            </>
+          )}
         </div>
       )}
     </div>
@@ -464,7 +480,14 @@ export function JourneyClient({
   userSectionProgress,
   userResponses,
 }: JourneyClientProps) {
-  const [selectedDay, setSelectedDay] = useState(currentDay)
+  const [selectedDay, setSelectedDayRaw] = useState(currentDay)
+  const [activeDay, setActiveDay] = useState(currentDay)
+
+  // Wrap setSelectedDay to dismiss the completion banner on navigation
+  const setSelectedDay = useCallback((day: number) => {
+    setSelectedDayRaw(day)
+    setShowDayComplete(false)
+  }, [])
   const [completedActions, setCompletedActions] = useState<Set<string>>(
     new Set(
       userActions
@@ -473,6 +496,7 @@ export function JourneyClient({
     )
   )
   const [saving, setSaving] = useState(false)
+  const [showDayComplete, setShowDayComplete] = useState(false)
 
   // Response state: keyed by exercise_id or section_id
   const [responses, setResponses] = useState<Record<string, string>>(() => {
@@ -537,6 +561,9 @@ export function JourneyClient({
     PHASES[0]
   const iconSrc = programIcons[program.slug]
 
+  // Whether the user is viewing a past (completed) day
+  const isViewingPastDay = selectedDay < activeDay
+
   // Count all exercises across all sections for this day
   const allExercises =
     todayContent?.curriculum_sections?.flatMap(
@@ -552,6 +579,9 @@ export function JourneyClient({
       : 0
 
   async function toggleAction(dayNum: number, actionIdx: number) {
+    // Don't allow toggling for past (completed) days
+    if (dayNum < activeDay) return
+
     const key = `${dayNum}-${actionIdx}`
     const isNowCompleted = !completedActions.has(key)
     const next = new Set(completedActions)
@@ -559,9 +589,17 @@ export function JourneyClient({
     else next.delete(key)
     setCompletedActions(next)
 
+    // Count total exercises for this day
+    const dayContent = curriculum.find((d) => d.day_number === dayNum)
+    const dayExercises =
+      dayContent?.curriculum_sections?.flatMap(
+        (s) => s.curriculum_exercises ?? []
+      ) ?? []
+    const totalForDay = dayExercises.length
+
     setSaving(true)
     try {
-      await fetch("/api/progress", {
+      const res = await fetch("/api/progress", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -569,8 +607,17 @@ export function JourneyClient({
           dayNumber: dayNum,
           actionIndex: actionIdx,
           completed: isNowCompleted,
+          totalActions: totalForDay,
         }),
       })
+      const data = await res.json()
+
+      // Day was advanced on the server -- update local state
+      if (data.dayAdvanced && dayNum === activeDay) {
+        const nextDay = dayNum + 1
+        setActiveDay(nextDay)
+        setShowDayComplete(true)
+      }
     } catch {
       if (isNowCompleted) next.delete(key)
       else next.add(key)
@@ -645,25 +692,47 @@ export function JourneyClient({
                     {todayContent.theme}
                   </p>
                 )}
-                <div className="mt-4 flex items-center gap-3">
-                  <Button
-                    size="lg"
-                    className="rounded-xl bg-white px-5 font-bold shadow-lg hover:bg-white/90"
-                    style={{ color: activePhase.color }}
-                    onClick={() =>
-                      document
-                        .getElementById("session-content")
-                        ?.scrollIntoView({ behavior: "smooth" })
-                    }
-                  >
-                    <Play className="mr-2 size-4" />
-                    {selectedDay === currentDay ? "Start Session" : "View Session"}
-                  </Button>
-                  <div className="flex items-center gap-2 rounded-full bg-white/15 px-4 py-2">
-                    <span className="text-sm font-bold text-white">
-                      {todayActionsDone}/{todayActionsTotal} actions
-                    </span>
-                  </div>
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  {isViewingPastDay ? (
+                    <>
+                      <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2">
+                        <CheckCircle2 className="size-4 text-white" />
+                        <span className="text-sm font-bold text-white">
+                          Completed &middot; Review only
+                        </span>
+                      </div>
+                      <Button
+                        size="lg"
+                        className="rounded-xl bg-white px-5 font-bold shadow-lg hover:bg-white/90"
+                        style={{ color: activePhase.color }}
+                        onClick={() => setSelectedDay(activeDay)}
+                      >
+                        Continue to Day {activeDay}
+                        <ArrowRight className="ml-2 size-4" />
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        size="lg"
+                        className="rounded-xl bg-white px-5 font-bold shadow-lg hover:bg-white/90"
+                        style={{ color: activePhase.color }}
+                        onClick={() =>
+                          document
+                            .getElementById("session-content")
+                            ?.scrollIntoView({ behavior: "smooth" })
+                        }
+                      >
+                        <Play className="mr-2 size-4" />
+                        Start Session
+                      </Button>
+                      <div className="flex items-center gap-2 rounded-full bg-white/15 px-4 py-2">
+                        <span className="text-sm font-bold text-white">
+                          {todayActionsDone}/{todayActionsTotal} actions
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -683,13 +752,13 @@ export function JourneyClient({
             </button>
             <button
               onClick={() =>
-                selectedDay < currentDay && setSelectedDay(selectedDay + 1)
+                selectedDay < activeDay && setSelectedDay(selectedDay + 1)
               }
-              disabled={selectedDay >= currentDay}
+              disabled={selectedDay >= activeDay}
               className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground disabled:opacity-30"
             >
-              {selectedDay < currentDay ? `Day ${selectedDay + 1}` : ""}
-              {selectedDay >= currentDay && selectedDay < program.totalDays && (
+              {selectedDay < activeDay ? `Day ${selectedDay + 1}` : ""}
+              {selectedDay >= activeDay && selectedDay < program.totalDays && (
                 <span className="flex items-center gap-1 opacity-50">
                   <Lock className="size-3" /> Day {selectedDay + 1}
                 </span>
@@ -734,6 +803,48 @@ export function JourneyClient({
             </ul>
           </div>
         </section>
+      )}
+
+      {/* ── Day Complete Banner ── */}
+      {showDayComplete && (
+        <div
+          className="flex items-center justify-between rounded-2xl border-2 p-5"
+          style={{
+            borderColor: `${activePhase.color}40`,
+            backgroundColor: `${activePhase.color}08`,
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="flex size-10 items-center justify-center rounded-full text-white"
+              style={{ backgroundColor: activePhase.color }}
+            >
+              <CheckCircle2 className="size-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-extrabold text-foreground">
+                Day {selectedDay} Complete!
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Great work. Your responses are saved to your portfolio.
+              </p>
+            </div>
+          </div>
+          {activeDay <= program.totalDays && (
+            <Button
+              size="lg"
+              className="rounded-xl font-bold text-white"
+              style={{ backgroundColor: activePhase.color }}
+              onClick={() => {
+                setSelectedDay(activeDay)
+                setShowDayComplete(false)
+              }}
+            >
+              Continue to Day {activeDay}
+              <ArrowRight className="ml-2 size-4" />
+            </Button>
+          )}
+        </div>
       )}
 
       {/* ── Session Content: Sections ── */}
@@ -806,9 +917,9 @@ export function JourneyClient({
                       Your Artifact
                     </label>
                     <span className="text-[10px] text-muted-foreground">
-                      (saved to your portfolio)
+                      {isViewingPastDay ? "(read only)" : "(saved to your portfolio)"}
                     </span>
-                    {savingResponseKey === section.id && (
+                    {!isViewingPastDay && savingResponseKey === section.id && (
                       <span
                         className="ml-auto flex items-center gap-1 text-[10px] font-medium"
                         style={{ color: activePhase.color }}
@@ -818,19 +929,33 @@ export function JourneyClient({
                       </span>
                     )}
                   </div>
-                  <textarea
-                    value={responses[section.id] ?? ""}
-                    onChange={(e) =>
-                      handleResponseChange(section.id, e.target.value, false, selectedDay)
-                    }
-                    placeholder="Write your artifact here: decision memo, escalation email, executive summary, recommendation brief..."
-                    rows={8}
-                    className="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-offset-1"
-                  />
-                  {(responses[section.id] ?? "").length > 0 && (
-                    <p className="mt-1 text-[10px] text-muted-foreground">
-                      {(responses[section.id] ?? "").length} characters
-                    </p>
+                  {isViewingPastDay ? (
+                    (responses[section.id] ?? "") ? (
+                      <div className="rounded-lg border bg-muted/30 px-3 py-2.5 text-sm leading-relaxed text-foreground whitespace-pre-wrap">
+                        {responses[section.id]}
+                      </div>
+                    ) : (
+                      <p className="text-xs italic text-muted-foreground/60">
+                        No artifact recorded
+                      </p>
+                    )
+                  ) : (
+                    <>
+                      <textarea
+                        value={responses[section.id] ?? ""}
+                        onChange={(e) =>
+                          handleResponseChange(section.id, e.target.value, false, selectedDay)
+                        }
+                        placeholder="Write your artifact here: decision memo, escalation email, executive summary, recommendation brief..."
+                        rows={8}
+                        className="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                      />
+                      {(responses[section.id] ?? "").length > 0 && (
+                        <p className="mt-1 text-[10px] text-muted-foreground">
+                          {(responses[section.id] ?? "").length} characters
+                        </p>
+                      )}
+                    </>
                   )}
                 </div>
               )}
@@ -862,6 +987,7 @@ export function JourneyClient({
                           handleResponseChange(exercise.id, text, true, selectedDay)
                         }
                         savingResponse={savingResponseKey === exercise.id}
+                        readOnly={isViewingPastDay}
                       />
                     )
                   })}
@@ -1045,7 +1171,7 @@ export function JourneyClient({
             <div className="divide-y">
               {phaseStats.map((phase) => {
                 const PhaseIcon = phase.icon
-                const isCurrentPhase = currentDay >= phase.dayStart && currentDay <= phase.dayEnd
+                const isCurrentPhase = activeDay >= phase.dayStart && activeDay <= phase.dayEnd
                 return (
                   <div key={phase.id} className="p-3">
                     <div className="mb-2 flex items-center gap-2">
@@ -1069,7 +1195,7 @@ export function JourneyClient({
                     <div className="flex gap-1">
                       {phase.days.map((day) => {
                         const isSelected = day === selectedDay
-                        const isLocked = day > currentDay
+                          const isLocked = day > activeDay
                         const completed = isDayCompleted(day)
                         return (
                           <button
