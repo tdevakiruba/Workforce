@@ -73,7 +73,7 @@ export function DashboardClient({
               Welcome back, {displayName}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
-              Your leadership edge sharpens with every session.
+              Your career operating system is active.
             </p>
           </div>
           {journeys.length > 0 && (
@@ -182,20 +182,21 @@ export function DashboardClient({
           </section>
         ) : (
           <section className="mb-14">
-            <div className="rounded-2xl border-2 border-dashed bg-card p-12 text-center">
-              <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl bg-[#00c892]/10">
-                <Compass className="size-7 text-[#00c892]" />
+            <div className="rounded-2xl border bg-card p-10 text-center sm:p-14">
+              <div className="mx-auto mb-5 flex size-16 items-center justify-center rounded-2xl bg-[#00c892]/10">
+                <Compass className="size-8 text-[#00c892]" />
               </div>
-              <h2 className="text-xl font-bold text-foreground">
-                No active programs yet
+              <h2 className="text-2xl font-extrabold text-foreground">
+                Start your AI career operating system
               </h2>
-              <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-                Browse our leadership programs and start your transformation
-                journey today.
+              <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-muted-foreground">
+                Build the judgment, accountability, and clarity that employers
+                demand. Choose a program below to get started.
               </p>
               <Button
                 asChild
-                className="mt-6 rounded-xl bg-[#00c892] px-6 font-bold text-white hover:bg-[#00c892]/90"
+                size="lg"
+                className="mt-8 rounded-xl bg-[#00c892] px-8 font-bold text-white hover:bg-[#00c892]/90"
               >
                 <Link href="/programs">
                   Explore Programs
@@ -212,10 +213,10 @@ export function DashboardClient({
             <div className="mb-5 flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold text-foreground">
-                  Discover More Programs
+                  Available Programs
                 </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Expand your leadership with additional tracks
+                  AI career operating systems to accelerate your growth
                 </p>
               </div>
               <Button
@@ -235,36 +236,48 @@ export function DashboardClient({
                 <Link
                   key={p.id}
                   href={`/programs/${p.slug}`}
-                  className="group flex items-center gap-4 rounded-xl border bg-card p-4 transition-all hover:shadow-md hover:border-[#00c892]/20"
+                  className="group flex flex-col overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg hover:border-[#00c892]/20"
                 >
+                  {/* Top accent bar */}
                   <div
-                    className="flex size-11 shrink-0 items-center justify-center rounded-xl text-xs font-bold text-white"
-                    style={{
-                      backgroundColor: p.color || "#00c892",
-                    }}
-                  >
-                    {(p.badge || p.name[0]).slice(0, 3)}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="truncate text-sm font-bold text-card-foreground group-hover:text-[#00c892]">
-                      {p.name}
-                    </h3>
-                    <div className="mt-0.5 flex items-center gap-2 text-[11px] text-muted-foreground">
-                      {p.duration && (
-                        <span className="flex items-center gap-1">
-                          <Clock className="size-3" />
-                          {p.duration}
-                        </span>
-                      )}
-                      {p.audience && (
-                        <span className="flex items-center gap-1">
-                          <Users className="size-3" />
-                          <span className="truncate">{p.audience}</span>
-                        </span>
-                      )}
+                    className="h-1.5 w-full"
+                    style={{ backgroundColor: p.color || "#00c892" }}
+                  />
+                  <div className="flex flex-1 flex-col p-5">
+                    <div className="mb-3 flex items-center gap-3">
+                      <div
+                        className="flex size-10 shrink-0 items-center justify-center rounded-lg text-xs font-bold uppercase text-white"
+                        style={{
+                          backgroundColor: p.color || "#00c892",
+                        }}
+                      >
+                        {(p.name || "P").slice(0, 2)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate text-sm font-bold text-card-foreground group-hover:text-[#00c892]">
+                          {p.name}
+                        </h3>
+                        {p.duration && (
+                          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Clock className="size-3" />
+                            {p.duration}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {p.audience && (
+                      <p className="mb-4 flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground">
+                        <Users className="mt-0.5 size-3 shrink-0" />
+                        <span>{p.audience}</span>
+                      </p>
+                    )}
+                    <div className="mt-auto flex items-center justify-between">
+                      <span className="text-xs font-semibold text-[#00c892] group-hover:underline">
+                        Learn more
+                      </span>
+                      <ChevronRight className="size-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-[#00c892]" />
                     </div>
                   </div>
-                  <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-all group-hover:text-[#00c892]" />
                 </Link>
               ))}
             </div>

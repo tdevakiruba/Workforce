@@ -37,7 +37,17 @@ export default async function DashboardPage() {
     .eq("user_id", user.id)
     .eq("status", "active")
 
-  // Build journey data for each enrollment
+  // If exactly one active enrollment, auto-redirect to that program's dashboard
+  if (enrollments && enrollments.length === 1) {
+    const singleProgram = enrollments[0].programs as {
+      slug: string
+    } | null
+    if (singleProgram?.slug) {
+      redirect(`/dashboard/${singleProgram.slug}/overview`)
+    }
+  }
+
+  // Build journey data for each enrollment (only shown for 0 or 2+ enrollments)
   const journeys = (enrollments ?? []).map((enrollment) => {
     const program = enrollment.programs as {
       id: string
