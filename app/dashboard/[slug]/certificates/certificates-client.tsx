@@ -32,8 +32,25 @@ interface CertificatesClientProps {
 }
 
 /* ------------------------------------------------------------------ */
-/* Certificate canvas renderer – draws a professional credential      */
+/* Certificate canvas renderer – professional AI Workforce credential */
 /* ------------------------------------------------------------------ */
+const FONT = "'Inter', 'Helvetica Neue', Arial, sans-serif"
+const NAVY = "#0F172A"
+const COMPETENCIES = [
+  "AI-enabled workflow operation",
+  "Decision framing under ambiguity",
+  "Ethical AI usage & validation",
+  "Business impact translation",
+  "Leadership influence in hybrid teams",
+]
+const CREDENTIAL_ABILITIES = [
+  "Interpret and validate AI output",
+  "Escalate risk responsibly",
+  "Translate AI insights into business impact",
+  "Communicate at executive level",
+  "Operate as a high-trust performer in AI-enabled organizations",
+]
+
 function drawCertificate(
   canvas: HTMLCanvasElement,
   data: {
@@ -60,293 +77,319 @@ function drawCertificate(
   const H = 1130
   canvas.width = W
   canvas.height = H
+  const CX = W / 2
+  const accent = data.color
+
+  // Helper: draw centered text
+  function centerText(text: string, x: number, y: number) {
+    ctx!.textAlign = "center"
+    ctx!.fillText(text, x, y)
+  }
 
   // ---- Background ----
   ctx.fillStyle = "#FFFFFF"
   ctx.fillRect(0, 0, W, H)
 
-  // Outer border
-  ctx.strokeStyle = data.color
-  ctx.lineWidth = 4
-  ctx.strokeRect(24, 24, W - 48, H - 48)
-
-  // Inner subtle border
-  ctx.strokeStyle = `${data.color}30`
+  // Subtle geometric AI grid pattern
+  ctx.strokeStyle = `${accent}06`
   ctx.lineWidth = 1
-  ctx.strokeRect(36, 36, W - 72, H - 72)
+  for (let gx = 0; gx < W; gx += 60) {
+    ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke()
+  }
+  for (let gy = 0; gy < H; gy += 60) {
+    ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke()
+  }
+
+  // Outer border
+  ctx.strokeStyle = accent
+  ctx.lineWidth = 3
+  ctx.strokeRect(28, 28, W - 56, H - 56)
+
+  // Inner border
+  ctx.strokeStyle = `${accent}25`
+  ctx.lineWidth = 1
+  ctx.strokeRect(38, 38, W - 76, H - 76)
 
   // Top accent bar
-  ctx.fillStyle = data.color
-  ctx.fillRect(24, 24, W - 48, 8)
+  ctx.fillStyle = accent
+  ctx.fillRect(28, 28, W - 56, 6)
 
-  // Corner ornaments (small squares)
-  const corners = [
-    [40, 40],
-    [W - 56, 40],
-    [40, H - 56],
-    [W - 56, H - 56],
-  ]
-  corners.forEach(([x, y]) => {
-    ctx.fillStyle = data.color
-    ctx.fillRect(x, y, 16, 16)
-  })
+  // Corner ornaments
+  const cs = 14
+  ;[
+    [42, 42], [W - 42 - cs, 42], [42, H - 42 - cs], [W - 42 - cs, H - 42 - cs],
+  ].forEach(([x, y]) => { ctx.fillStyle = accent; ctx.fillRect(x, y, cs, cs) })
 
-  // ---- Issuer Header ----
-  ctx.fillStyle = "#374151"
-  ctx.font = "600 13px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-  ctx.textAlign = "center"
-  ctx.letterSpacing = "6px"
-  ctx.fillText("ISSUED BY", W / 2, 90)
-  ctx.letterSpacing = "0px"
+  // ---- Header: Logo side + title ----
+  let Y = 80
 
-  ctx.fillStyle = data.color
-  ctx.font = "800 32px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-  ctx.fillText(data.issuer.toUpperCase(), W / 2, 128)
-
-  // Decorative line under issuer
+  // Shield logo circle
   ctx.beginPath()
-  ctx.moveTo(W / 2 - 100, 145)
-  ctx.lineTo(W / 2 + 100, 145)
-  ctx.strokeStyle = data.color
-  ctx.lineWidth = 2
-  ctx.stroke()
-
-  // ---- Shield icon (drawn as circle with letter) ----
-  const shieldY = 200
-  ctx.beginPath()
-  ctx.arc(W / 2, shieldY, 40, 0, Math.PI * 2)
-  ctx.fillStyle = `${data.color}15`
+  ctx.arc(120, Y + 22, 26, 0, Math.PI * 2)
+  ctx.fillStyle = `${accent}12`
   ctx.fill()
   ctx.beginPath()
-  ctx.arc(W / 2, shieldY, 40, 0, Math.PI * 2)
-  ctx.strokeStyle = data.color
+  ctx.arc(120, Y + 22, 26, 0, Math.PI * 2)
+  ctx.strokeStyle = accent
   ctx.lineWidth = 2
   ctx.stroke()
-
-  ctx.fillStyle = data.color
-  ctx.font = "bold 28px 'Inter', 'Helvetica Neue', Arial, sans-serif"
+  ctx.fillStyle = accent
+  ctx.font = `bold 22px ${FONT}`
   ctx.textAlign = "center"
   ctx.textBaseline = "middle"
-  ctx.fillText(data.type === "program" ? "W" : (data.phaseLetter ?? "C"), W / 2, shieldY + 2)
+  ctx.fillText("W", 120, Y + 23)
   ctx.textBaseline = "alphabetic"
 
-  // ---- Certificate Type Label ----
+  // Right header text
+  ctx.textAlign = "right"
+  ctx.fillStyle = NAVY
+  ctx.font = `800 18px ${FONT}`
+  ctx.fillText("WORKFORCE READY\u2122", W - 80, Y + 14)
   ctx.fillStyle = "#6B7280"
-  ctx.font = "600 12px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-  ctx.letterSpacing = "5px"
-  ctx.fillText("DIGITAL CREDENTIAL", W / 2, 268)
+  ctx.font = `500 11px ${FONT}`
+  ctx.fillText("AI Workforce Readiness Certification", W - 80, Y + 34)
+  ctx.textAlign = "center"
+
+  // Thin teal divider
+  Y = 130
+  ctx.beginPath()
+  ctx.moveTo(80, Y)
+  ctx.lineTo(W - 80, Y)
+  ctx.strokeStyle = accent
+  ctx.lineWidth = 1.5
+  ctx.stroke()
+
+  // ---- CERTIFICATE OF COMPLETION ----
+  Y = 168
+  ctx.fillStyle = "#9CA3AF"
+  ctx.font = `600 11px ${FONT}`
+  ctx.letterSpacing = "6px"
+  centerText("DIGITAL CREDENTIAL", CX, Y)
   ctx.letterSpacing = "0px"
 
-  // ---- Title ----
-  ctx.fillStyle = "#111827"
-  ctx.font = "800 18px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-  ctx.letterSpacing = "8px"
-  ctx.fillText("CERTIFICATE OF MASTERY", W / 2, 310)
+  Y = 206
+  ctx.fillStyle = NAVY
+  ctx.font = `800 22px ${FONT}`
+  ctx.letterSpacing = "10px"
+  centerText("CERTIFICATE OF COMPLETION", CX, Y)
   ctx.letterSpacing = "0px"
 
-  // ---- Awarded To ----
+  // ---- "This certifies that" ----
+  Y = 248
   ctx.fillStyle = "#6B7280"
-  ctx.font = "500 14px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-  ctx.fillText("This credential is awarded to", W / 2, 360)
+  ctx.font = `500 14px ${FONT}`
+  centerText("This certifies that", CX, Y)
 
   // ---- Recipient Name ----
-  ctx.fillStyle = "#111827"
-  ctx.font = "700 48px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-  ctx.fillText(data.userName, W / 2, 420)
+  Y = 296
+  ctx.fillStyle = NAVY
+  ctx.font = `700 46px ${FONT}`
+  centerText(data.userName, CX, Y)
 
-  // Decorative line under name
+  // Line under name
   ctx.beginPath()
-  ctx.moveTo(W / 2 - 200, 440)
-  ctx.lineTo(W / 2 + 200, 440)
-  ctx.strokeStyle = `${data.color}40`
+  ctx.moveTo(CX - 180, Y + 16)
+  ctx.lineTo(CX + 180, Y + 16)
+  ctx.strokeStyle = `${accent}35`
   ctx.lineWidth = 1
   ctx.stroke()
 
-  // ---- Mastery path / achievement description ----
-  ctx.fillStyle = "#374151"
-  ctx.font = "500 15px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-  ctx.fillText("for demonstrating professional mastery in", W / 2, 475)
+  // ---- "has successfully completed the" ----
+  Y = 340
+  ctx.fillStyle = "#6B7280"
+  ctx.font = `500 13px ${FONT}`
+  centerText("has successfully completed the", CX, Y)
 
-  ctx.fillStyle = data.color
-  ctx.font = "700 28px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-  ctx.fillText(data.title, W / 2, 520)
+  // ---- Program title ----
+  Y = 374
+  ctx.fillStyle = accent
+  ctx.font = `700 24px ${FONT}`
+  centerText(data.type === "program" ? "21-Day AI Workforce Accelerator" : data.title, CX, Y)
 
   ctx.fillStyle = "#6B7280"
-  ctx.font = "500 14px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-  ctx.fillText(data.subtitle, W / 2, 555)
+  ctx.font = `500 13px ${FONT}`
+  centerText("and demonstrated competency in:", CX, Y + 28)
 
-  // ---- Mastery Path Details ----
-  if (data.type === "program" && data.phases && data.phases.length > 0) {
+  // ---- Competency list (left column) ----
+  const compY = Y + 56
+  const compItems = data.type === "program" ? COMPETENCIES : COMPETENCIES.slice(0, 3)
+  ctx.textAlign = "left"
+  compItems.forEach((item, i) => {
+    const iy = compY + i * 22
+    ctx.fillStyle = accent
+    ctx.font = `700 10px ${FONT}`
+    ctx.fillText("\u2022", CX - 200, iy)
     ctx.fillStyle = "#374151"
-    ctx.font = "600 12px 'Inter', 'Helvetica Neue', Arial, sans-serif"
+    ctx.font = `500 12px ${FONT}`
+    ctx.fillText(item, CX - 186, iy)
+  })
+  ctx.textAlign = "center"
+
+  // ---- Mastery path / phases ----
+  let phaseBlockEnd = compY + compItems.length * 22 + 16
+
+  if (data.type === "program" && data.phases && data.phases.length > 0) {
+    const pY = phaseBlockEnd + 6
+    ctx.fillStyle = "#9CA3AF"
+    ctx.font = `600 10px ${FONT}`
     ctx.letterSpacing = "3px"
-    ctx.fillText("MASTERY PATH COMPLETED", W / 2, 600)
+    centerText("MASTERY PATH COMPLETED", CX, pY)
     ctx.letterSpacing = "0px"
 
     const phaseCount = data.phases.length
-    const phaseWidth = 200
-    const totalWidth = phaseCount * phaseWidth + (phaseCount - 1) * 24
-    const startX = (W - totalWidth) / 2
+    const phaseWidth = 260
+    const gap = 20
+    const totalW = phaseCount * phaseWidth + (phaseCount - 1) * gap
+    const startX = (W - totalW) / 2
 
     data.phases.forEach((phase, i) => {
-      const x = startX + i * (phaseWidth + 24)
-      const y = 620
+      const x = startX + i * (phaseWidth + gap)
+      const y = pY + 14
 
-      // Phase box
-      ctx.fillStyle = `${data.color}08`
+      ctx.fillStyle = `${accent}08`
       ctx.beginPath()
-      ctx.roundRect(x, y, phaseWidth, 80, 8)
+      ctx.roundRect(x, y, phaseWidth, 68, 8)
       ctx.fill()
-      ctx.strokeStyle = `${data.color}30`
+      ctx.strokeStyle = `${accent}25`
       ctx.lineWidth = 1
       ctx.beginPath()
-      ctx.roundRect(x, y, phaseWidth, 80, 8)
+      ctx.roundRect(x, y, phaseWidth, 68, 8)
       ctx.stroke()
 
-      // Phase letter circle
+      // Circle with number
       ctx.beginPath()
-      ctx.arc(x + 30, y + 40, 16, 0, Math.PI * 2)
-      ctx.fillStyle = data.color
+      ctx.arc(x + 28, y + 34, 14, 0, Math.PI * 2)
+      ctx.fillStyle = accent
       ctx.fill()
       ctx.fillStyle = "#FFFFFF"
-      ctx.font = "bold 14px 'Inter', 'Helvetica Neue', Arial, sans-serif"
+      ctx.font = `bold 13px ${FONT}`
       ctx.textBaseline = "middle"
-      ctx.fillText(phase.letter ?? String(i + 1), x + 30, y + 41)
+      ctx.textAlign = "center"
+      ctx.fillText(phase.letter ?? String(i + 1), x + 28, y + 35)
       ctx.textBaseline = "alphabetic"
 
-      // Phase name
-      ctx.fillStyle = "#111827"
-      ctx.font = "600 13px 'Inter', 'Helvetica Neue', Arial, sans-serif"
       ctx.textAlign = "left"
-      ctx.fillText(phase.name, x + 54, y + 36)
-
-      // Phase days
+      ctx.fillStyle = NAVY
+      ctx.font = `600 12px ${FONT}`
+      ctx.fillText(phase.name, x + 50, y + 30)
       ctx.fillStyle = "#6B7280"
-      ctx.font = "400 11px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-      ctx.fillText(phase.days ?? "", x + 54, y + 55)
-
+      ctx.font = `400 10px ${FONT}`
+      ctx.fillText(phase.days ?? "", x + 50, y + 48)
       ctx.textAlign = "center"
     })
+
+    phaseBlockEnd = pY + 14 + 68 + 14
   } else if (data.type === "phase" && data.phaseName) {
-    // Single phase details
-    ctx.fillStyle = "#374151"
-    ctx.font = "600 12px 'Inter', 'Helvetica Neue', Arial, sans-serif"
+    const pY = phaseBlockEnd + 6
+    ctx.fillStyle = "#9CA3AF"
+    ctx.font = `600 10px ${FONT}`
     ctx.letterSpacing = "3px"
-    ctx.fillText(`PHASE ${data.phaseNumber} OF ${data.totalPhases}`, W / 2, 600)
+    centerText(`PHASE ${data.phaseNumber} OF ${data.totalPhases}`, CX, pY)
     ctx.letterSpacing = "0px"
 
-    ctx.fillStyle = `${data.color}08`
-    const boxW = 400
+    const boxW = 360
     const boxX = (W - boxW) / 2
+    const boxY = pY + 14
+    ctx.fillStyle = `${accent}08`
     ctx.beginPath()
-    ctx.roundRect(boxX, 618, boxW, 82, 8)
+    ctx.roundRect(boxX, boxY, boxW, 68, 8)
     ctx.fill()
-    ctx.strokeStyle = `${data.color}30`
+    ctx.strokeStyle = `${accent}25`
     ctx.lineWidth = 1
     ctx.beginPath()
-    ctx.roundRect(boxX, 618, boxW, 82, 8)
+    ctx.roundRect(boxX, boxY, boxW, 68, 8)
     ctx.stroke()
 
     ctx.beginPath()
-    ctx.arc(boxX + 40, 659, 20, 0, Math.PI * 2)
-    ctx.fillStyle = data.color
+    ctx.arc(boxX + 32, boxY + 34, 16, 0, Math.PI * 2)
+    ctx.fillStyle = accent
     ctx.fill()
     ctx.fillStyle = "#FFFFFF"
-    ctx.font = "bold 16px 'Inter', 'Helvetica Neue', Arial, sans-serif"
+    ctx.font = `bold 14px ${FONT}`
     ctx.textBaseline = "middle"
-    ctx.fillText(data.phaseLetter ?? String(data.phaseNumber), boxX + 40, 660)
+    ctx.fillText(data.phaseLetter ?? String(data.phaseNumber), boxX + 32, boxY + 35)
     ctx.textBaseline = "alphabetic"
 
-    ctx.fillStyle = "#111827"
-    ctx.font = "600 16px 'Inter', 'Helvetica Neue', Arial, sans-serif"
     ctx.textAlign = "left"
-    ctx.fillText(data.phaseName, boxX + 72, 652)
+    ctx.fillStyle = NAVY
+    ctx.font = `600 13px ${FONT}`
+    ctx.fillText(data.phaseName, boxX + 58, boxY + 30)
     ctx.fillStyle = "#6B7280"
-    ctx.font = "400 12px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-    const desc = data.phases?.[0]?.description ?? ""
-    const maxW = boxW - 84
-    const truncDesc = desc.length > 60 ? desc.slice(0, 57) + "..." : desc
-    ctx.fillText(truncDesc, boxX + 72, 675)
+    ctx.font = `400 11px ${FONT}`
+    ctx.fillText(data.subtitle, boxX + 58, boxY + 50)
     ctx.textAlign = "center"
+
+    phaseBlockEnd = boxY + 68 + 14
   }
 
-  // ---- Bottom section: columns ----
-  const bottomY = data.type === "program" ? 740 : 740
-
-  // Left: Date
+  // ---- Credential Statement ----
+  const csY = phaseBlockEnd + 8
   ctx.fillStyle = "#9CA3AF"
-  ctx.font = "600 10px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-  ctx.letterSpacing = "2px"
-  ctx.textAlign = "center"
-  ctx.fillText("DATE ISSUED", W / 4, bottomY)
+  ctx.font = `600 10px ${FONT}`
+  ctx.letterSpacing = "3px"
+  centerText("CREDENTIAL STATEMENT", CX, csY)
   ctx.letterSpacing = "0px"
-  ctx.fillStyle = "#374151"
-  ctx.font = "500 15px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-  ctx.fillText(data.issuedDate, W / 4, bottomY + 24)
 
-  // Line
+  ctx.fillStyle = "#374151"
+  ctx.font = `italic 11px ${FONT}`
+  centerText(
+    "Certified to operate in AI-enabled organizations under hybrid human-machine systems.",
+    CX,
+    csY + 20
+  )
+
+  // ---- Bottom metadata: 4 columns ----
+  const metaY = H - 168
+
+  // Divider above metadata
   ctx.beginPath()
-  ctx.moveTo(W / 4 - 80, bottomY + 36)
-  ctx.lineTo(W / 4 + 80, bottomY + 36)
+  ctx.moveTo(80, metaY - 14)
+  ctx.lineTo(W - 80, metaY - 14)
   ctx.strokeStyle = "#E5E7EB"
   ctx.lineWidth = 1
   ctx.stroke()
 
-  // Center: Program
-  ctx.fillStyle = "#9CA3AF"
-  ctx.font = "600 10px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-  ctx.letterSpacing = "2px"
-  ctx.fillText("PROGRAM", W / 2, bottomY)
-  ctx.letterSpacing = "0px"
-  ctx.fillStyle = "#374151"
-  ctx.font = "500 15px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-  ctx.fillText(data.programName, W / 2, bottomY + 24)
+  const cols = [
+    { label: "DATE ISSUED", value: data.issuedDate },
+    { label: "CREDENTIAL LEVEL", value: "AI-Enabled Professional" },
+    { label: "DELIVERY MODE", value: "Applied Simulation + Capstone" },
+    { label: "CREDENTIAL ID", value: data.credentialId },
+  ]
 
-  ctx.beginPath()
-  ctx.moveTo(W / 2 - 80, bottomY + 36)
-  ctx.lineTo(W / 2 + 80, bottomY + 36)
-  ctx.strokeStyle = "#E5E7EB"
-  ctx.lineWidth = 1
-  ctx.stroke()
-
-  // Right: Credential ID
-  ctx.fillStyle = "#9CA3AF"
-  ctx.font = "600 10px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-  ctx.letterSpacing = "2px"
-  ctx.fillText("CREDENTIAL ID", (3 * W) / 4, bottomY)
-  ctx.letterSpacing = "0px"
-  ctx.fillStyle = "#374151"
-  ctx.font = "500 13px 'Inter', 'Helvetica Neue', Arial, sans-serif"
-  ctx.fillText(data.credentialId, (3 * W) / 4, bottomY + 24)
-
-  ctx.beginPath()
-  ctx.moveTo((3 * W) / 4 - 80, bottomY + 36)
-  ctx.lineTo((3 * W) / 4 + 80, bottomY + 36)
-  ctx.strokeStyle = "#E5E7EB"
-  ctx.lineWidth = 1
-  ctx.stroke()
+  cols.forEach((col, i) => {
+    const cx = 80 + (i * (W - 160)) / (cols.length - 1) + (i === 0 ? 60 : i === cols.length - 1 ? -60 : 0)
+    ctx.fillStyle = "#9CA3AF"
+    ctx.font = `600 9px ${FONT}`
+    ctx.letterSpacing = "2px"
+    ctx.textAlign = "center"
+    ctx.fillText(col.label, cx, metaY)
+    ctx.letterSpacing = "0px"
+    ctx.fillStyle = "#374151"
+    ctx.font = `500 12px ${FONT}`
+    ctx.fillText(col.value, cx, metaY + 20)
+  })
 
   // ---- Footer ----
-  // Divider
+  const fY = H - 80
   ctx.beginPath()
-  ctx.moveTo(60, H - 110)
-  ctx.lineTo(W - 60, H - 110)
+  ctx.moveTo(80, fY)
+  ctx.lineTo(W - 80, fY)
   ctx.strokeStyle = "#E5E7EB"
   ctx.lineWidth = 1
   ctx.stroke()
 
   ctx.fillStyle = "#9CA3AF"
-  ctx.font = "500 11px 'Inter', 'Helvetica Neue', Arial, sans-serif"
+  ctx.font = `500 10px ${FONT}`
   ctx.textAlign = "center"
-  ctx.fillText(
-    `This digital credential verifies that the above-named individual has completed the required mastery path.`,
-    W / 2,
-    H - 78
+  centerText(
+    "This digital credential verifies that the above-named individual has completed the required mastery path.",
+    CX,
+    fY + 22
   )
-  ctx.fillText(
+  centerText(
     `Issued by ${data.issuer} | Credential ID: ${data.credentialId} | Verify at workforce.transformerhub.com`,
-    W / 2,
-    H - 58
+    CX,
+    fY + 40
   )
 }
 

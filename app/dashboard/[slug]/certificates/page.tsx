@@ -39,33 +39,33 @@ export default async function CertificatesPage({
   const totalDays = durationMatch ? parseInt(durationMatch[1], 10) : 21
   const currentDay = Math.min(enrollment.current_day ?? 1, totalDays)
 
-  // Fetch phases using correct DB columns: name, letter, days, description, sort_order
+  // Fetch phases -- actual DB columns: title, description, day_range, sort_order
   const { data: phases } = await supabase
     .from("program_phases")
-    .select("name, letter, days, description, sort_order")
+    .select("title, description, day_range, sort_order")
     .eq("program_id", program.id)
     .order("sort_order")
 
   // Parse "Days X-Y" string into { start, end }
-  function parseDays(daysStr: string | null): { start: number; end: number } {
-    const match = daysStr?.match(/(\d+)\s*-\s*(\d+)/)
+  function parseDays(dayRange: string | null): { start: number; end: number } {
+    const match = dayRange?.match(/(\d+)\s*-\s*(\d+)/)
     if (match) return { start: parseInt(match[1], 10), end: parseInt(match[2], 10) }
-    const single = daysStr?.match(/(\d+)/)
+    const single = dayRange?.match(/(\d+)/)
     if (single) return { start: parseInt(single[1], 10), end: parseInt(single[1], 10) }
     return { start: 1, end: totalDays }
   }
 
   // Build certificates from phases
   const certificates = (phases ?? []).map((phase, idx) => {
-    const { start, end } = parseDays(phase.days)
+    const { start, end } = parseDays(phase.day_range)
     const isEarned = currentDay > end
     return {
       id: `phase-${idx + 1}`,
-      title: `${phase.name} Mastery`,
-      phaseName: phase.name,
-      phaseLetter: phase.letter,
-      description: phase.description ?? `Phase ${idx + 1}: ${phase.name} (${phase.days})`,
-      daysLabel: phase.days ?? `Days ${start}-${end}`,
+      title: `${phase.title} Mastery`,
+      phaseName: phase.title,
+      phaseLetter: (phase.title ?? "P")[0], // First letter of title as badge letter
+      description: phase.description ?? `Phase ${idx + 1}: ${phase.title} (${phase.day_range})`,
+      daysLabel: phase.day_range ?? `Days ${start}-${end}`,
       isEarned,
       earnedDate: isEarned && enrollment.started_at ? new Date(enrollment.started_at).toISOString() : null,
       phaseNumber: idx + 1,
