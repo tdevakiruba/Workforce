@@ -125,30 +125,6 @@ export function ProductDashboardShell({
             </div>
           </div>
 
-          {/* Progress */}
-          <div className="border-b px-4 py-3">
-            <div className="mb-1.5 flex items-center justify-between text-xs">
-              <span className="font-medium text-muted-foreground">
-                Day {enrollment.currentDay} of {enrollment.totalDays}
-              </span>
-              <span
-                className="font-bold"
-                style={{ color: program.badgeColor }}
-              >
-                {enrollment.progress}%
-              </span>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full transition-all duration-500"
-                style={{
-                  width: `${enrollment.progress}%`,
-                  backgroundColor: program.badgeColor,
-                }}
-              />
-            </div>
-          </div>
-
           {/* Nav tabs */}
           <nav className="flex-1 px-2 py-3">
             <ul className="flex flex-col gap-0.5">
