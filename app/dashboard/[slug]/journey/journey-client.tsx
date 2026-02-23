@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import Image from "next/image"
 import {
   ArrowLeft,
@@ -21,6 +21,7 @@ import {
   Quote,
   Target,
   Pen,
+  Save,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -58,11 +59,15 @@ const PHASES = [
 /* ── Section type icon mapping ── */
 const SECTION_ICONS: Record<string, typeof BookOpen> = {
   reality_briefing: AlertTriangle,
+  reality_mapping: AlertTriangle,
   mindset_disruption: Lightbulb,
   workplace_scenario: MessageSquare,
   decision_exercise: Zap,
+  decision_challenge: Zap,
   artifact_creation: FileText,
   reflection_upgrade: Pen,
+  reflection: Pen,
+  professional_upgrade: TrendingUp,
 }
 
 /* ── Types ── */
@@ -92,9 +97,9 @@ interface CurriculumDay {
   day_objective: string[] | null
   lesson_flow: string[] | null
   key_teaching_quote: string | null
-  behaviors_instilled: string[] | null
-  end_of_day_outcomes: string[] | null
-  facilitator_close: { message: string; preview: string } | null
+  behaviors_instilled: { behaviors: string[] } | string[] | null
+  end_of_day_outcomes: { outcomes: string[] } | string[] | null
+  facilitator_close: { close: string[] } | { message: string; preview?: string } | null
   curriculum_sections: CurriculumSection[]
 }
 
@@ -117,6 +122,12 @@ interface JourneyClientProps {
   userSectionProgress: {
     section_id: string
     completed: boolean
+  }[]
+  userResponses: {
+    exercise_id: string | null
+    section_id: string | null
+    day_number: number
+    response_text: string
   }[]
 }
 
@@ -301,7 +312,35 @@ function ContentBlock({
           </p>
         </div>
       )
+    case "text":
+      return (
+        <p className="text-base leading-relaxed text-muted-foreground">
+          {item.text as string}
+        </p>
+      )
+    case "mapping":
+      return (
+        <div
+          className="rounded-xl border-l-4 px-4 py-3"
+          style={{
+            borderColor: phaseColor,
+            backgroundColor: `${phaseColor}08`,
+          }}
+        >
+          <p className="text-sm font-medium leading-relaxed text-foreground">
+            {item.text as string}
+          </p>
+        </div>
+      )
     default:
+      // Fallback: render text if present
+      if (item.text) {
+        return (
+          <p className="text-base leading-relaxed text-muted-foreground">
+            {item.text as string}
+          </p>
+        )
+      }
       return null
   }
 }
@@ -313,6 +352,10 @@ function ExerciseBlock({
   isCompleted,
   onToggle,
   saving,
+  responseText,
+  onResponseChange,
+  savingResponse,
+  readOnly,
 }: {
   exercise: CurriculumExercise
   phaseColor: string
@@ -320,15 +363,21 @@ function ExerciseBlock({
   isCompleted: boolean
   onToggle: () => void
   saving: boolean
+  responseText: string
+  onResponseChange: (text: string) => void
+  savingResponse: boolean
+  readOnly: boolean
 }) {
   const options = Array.isArray(exercise.options) ? exercise.options : null
+  const needsTextResponse =
+    exercise.question_type === "open_ended" ||
+    exercise.question_type === "reflection" ||
+    exercise.question_type === "multiple_choice"
 
   return (
-    <button
-      onClick={onToggle}
-      disabled={saving}
-      className={`group flex w-full items-start gap-4 rounded-xl border-2 p-4 text-left transition-all ${
-        isCompleted ? "border-transparent" : "hover:shadow-md"
+    <div
+      className={`rounded-xl border-2 p-4 transition-all ${
+        isCompleted ? "border-transparent" : ""
       }`}
       style={
         isCompleted
@@ -339,66 +388,117 @@ function ExerciseBlock({
           : undefined
       }
     >
-      <div
-        className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-          isCompleted ? "border-transparent" : ""
-        }`}
-        style={
-          isCompleted
-            ? { backgroundColor: phaseColor }
-            : { borderColor: `${phaseColor}40` }
-        }
+      <button
+        onClick={readOnly ? undefined : onToggle}
+        disabled={saving || readOnly}
+        className={`group flex w-full items-start gap-4 text-left ${readOnly ? "cursor-default" : ""}`}
       >
-        {isCompleted && <CheckCircle2 className="size-5 text-white" />}
-      </div>
-      <div className="min-w-0 flex-1">
-        <h4
-          className={`text-base font-bold ${
-            isCompleted
-              ? "text-muted-foreground line-through"
-              : "text-foreground"
+        <div
+          className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
+            isCompleted ? "border-transparent" : ""
           }`}
+          style={
+            isCompleted
+              ? { backgroundColor: phaseColor }
+              : { borderColor: `${phaseColor}40` }
+          }
         >
-          {exercise.question}
-        </h4>
-        {exercise.question_type === "multiple_choice" && options && (
-          <div className="mt-2 space-y-1.5">
-            {options.map((opt, i) => {
-              const o = opt as Record<string, unknown>
-              return (
-                <div
-                  key={i}
-                  className="flex items-center gap-2 text-sm text-muted-foreground"
-                >
-                  <span
-                    className="flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
-                    style={{
-                      backgroundColor: `${phaseColor}15`,
-                      color: phaseColor,
-                    }}
+          {isCompleted && <CheckCircle2 className="size-5 text-white" />}
+        </div>
+        <div className="min-w-0 flex-1">
+          <h4
+            className={`text-base font-bold ${
+              isCompleted
+                ? "text-muted-foreground line-through"
+                : "text-foreground"
+            }`}
+          >
+            {exercise.question}
+          </h4>
+          {exercise.question_type === "multiple_choice" && options && (
+            <div className="mt-2 space-y-1.5">
+              {options.map((opt, i) => {
+                const o = opt as Record<string, unknown>
+                return (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 text-sm text-muted-foreground"
                   >
-                    {o.label as string}
+                    <span
+                      className="flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+                      style={{
+                        backgroundColor: `${phaseColor}15`,
+                        color: phaseColor,
+                      }}
+                    >
+                      {o.label as string}
+                    </span>
+                    <span>{o.text as string}</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+          {exercise.thinking_prompts && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {exercise.thinking_prompts.map((p, i) => (
+                <span
+                  key={i}
+                  className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+                >
+                  {p}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </button>
+
+      {/* Response textarea */}
+      {needsTextResponse && (
+        <div className="mt-3 ml-11">
+          {readOnly ? (
+            responseText ? (
+              <div className="rounded-lg border bg-muted/30 px-3 py-2.5 text-sm leading-relaxed text-foreground">
+                {responseText}
+              </div>
+            ) : (
+              <p className="text-xs italic text-muted-foreground/60">
+                No response recorded
+              </p>
+            )
+          ) : (
+            <>
+              <textarea
+                value={responseText}
+                onChange={(e) => onResponseChange(e.target.value)}
+                placeholder={
+                  exercise.question_type === "multiple_choice"
+                    ? "Explain your choice and reasoning..."
+                    : "Type your response here..."
+                }
+                rows={4}
+                className="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                style={{ focusRingColor: phaseColor } as React.CSSProperties}
+              />
+              <div className="mt-1.5 flex items-center justify-between">
+                <span className="text-[10px] text-muted-foreground">
+                  {responseText.length > 0
+                    ? `${responseText.length} characters`
+                    : "Your answer is saved to your portfolio"}
+                </span>
+                {savingResponse && (
+                  <span className="flex items-center gap-1 text-[10px] font-medium" style={{ color: phaseColor }}>
+                    <Save className="size-3" />
+                    Saving...
                   </span>
-                  <span>{o.text as string}</span>
-                </div>
-              )
-            })}
-          </div>
-        )}
-        {exercise.thinking_prompts && (
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {exercise.thinking_prompts.map((p, i) => (
-              <span
-                key={i}
-                className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground"
-              >
-                {p}
-              </span>
-            ))}
-          </div>
-        )}
-      </div>
-    </button>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -410,8 +510,16 @@ export function JourneyClient({
   curriculum,
   userActions,
   userSectionProgress,
+  userResponses,
 }: JourneyClientProps) {
-  const [selectedDay, setSelectedDay] = useState(currentDay)
+  const [selectedDay, setSelectedDayRaw] = useState(currentDay)
+  const [activeDay, setActiveDay] = useState(currentDay)
+
+  // Wrap setSelectedDay to dismiss the completion banner on navigation
+  const setSelectedDay = useCallback((day: number) => {
+    setSelectedDayRaw(day)
+    setShowDayComplete(false)
+  }, [])
   const [completedActions, setCompletedActions] = useState<Set<string>>(
     new Set(
       userActions
@@ -420,16 +528,73 @@ export function JourneyClient({
     )
   )
   const [saving, setSaving] = useState(false)
-  const [expandedPhase, setExpandedPhase] = useState<string | null>(
-    PHASES.find((p) => selectedDay >= p.dayStart && selectedDay <= p.dayEnd)
-      ?.id ?? "foundation"
+  const [showDayComplete, setShowDayComplete] = useState(false)
+
+  // Response state: keyed by exercise_id or section_id
+  const [responses, setResponses] = useState<Record<string, string>>(() => {
+    const map: Record<string, string> = {}
+    for (const r of userResponses) {
+      const key = r.exercise_id || r.section_id || ""
+      if (key) map[key] = r.response_text
+    }
+    return map
+  })
+  const [savingResponseKey, setSavingResponseKey] = useState<string | null>(null)
+  const debounceTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({})
+
+  const saveResponse = useCallback(
+    async (key: string, text: string, isExercise: boolean, dayNumber: number) => {
+      setSavingResponseKey(key)
+      try {
+        await fetch("/api/responses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            enrollmentId,
+            exerciseId: isExercise ? key : undefined,
+            sectionId: isExercise ? undefined : key,
+            dayNumber,
+            responseText: text,
+          }),
+        })
+      } catch (err) {
+        console.error("Failed to save response:", err)
+      } finally {
+        setSavingResponseKey(null)
+      }
+    },
+    [enrollmentId]
   )
+
+  const handleResponseChange = useCallback(
+    (key: string, text: string, isExercise: boolean, dayNumber: number) => {
+      setResponses((prev) => ({ ...prev, [key]: text }))
+
+      // Debounce: save after 800ms idle
+      if (debounceTimers.current[key]) clearTimeout(debounceTimers.current[key])
+      debounceTimers.current[key] = setTimeout(() => {
+        saveResponse(key, text, isExercise, dayNumber)
+      }, 800)
+    },
+    [saveResponse]
+  )
+
+  // Cleanup debounce timers
+  useEffect(() => {
+    const timers = debounceTimers.current
+    return () => {
+      Object.values(timers).forEach(clearTimeout)
+    }
+  }, [])
 
   const todayContent = curriculum.find((d) => d.day_number === selectedDay)
   const activePhase =
     PHASES.find((p) => selectedDay >= p.dayStart && selectedDay <= p.dayEnd) ??
     PHASES[0]
   const iconSrc = programIcons[program.slug]
+
+  // Whether the user is viewing a past (completed) day
+  const isViewingPastDay = selectedDay < activeDay
 
   // Count all exercises across all sections for this day
   const allExercises =
@@ -446,6 +611,9 @@ export function JourneyClient({
       : 0
 
   async function toggleAction(dayNum: number, actionIdx: number) {
+    // Don't allow toggling for past (completed) days
+    if (dayNum < activeDay) return
+
     const key = `${dayNum}-${actionIdx}`
     const isNowCompleted = !completedActions.has(key)
     const next = new Set(completedActions)
@@ -453,9 +621,17 @@ export function JourneyClient({
     else next.delete(key)
     setCompletedActions(next)
 
+    // Count total exercises for this day
+    const dayContent = curriculum.find((d) => d.day_number === dayNum)
+    const dayExercises =
+      dayContent?.curriculum_sections?.flatMap(
+        (s) => s.curriculum_exercises ?? []
+      ) ?? []
+    const totalForDay = dayExercises.length
+
     setSaving(true)
     try {
-      await fetch("/api/progress", {
+      const res = await fetch("/api/progress", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -463,8 +639,24 @@ export function JourneyClient({
           dayNumber: dayNum,
           actionIndex: actionIdx,
           completed: isNowCompleted,
+          totalActions: totalForDay,
         }),
       })
+      const data = await res.json()
+
+      // Day was advanced on the server -- update local state & auto-navigate
+      if (data.dayAdvanced && dayNum === activeDay) {
+        const nextDay = dayNum + 1
+        setActiveDay(nextDay)
+        setShowDayComplete(true)
+
+        // Auto-progress to the next day after a brief celebration
+        setTimeout(() => {
+          setSelectedDay(nextDay)
+          setShowDayComplete(false)
+          window.scrollTo({ top: 0, behavior: "smooth" })
+        }, 2500)
+      }
     } catch {
       if (isNowCompleted) next.delete(key)
       else next.add(key)
@@ -487,258 +679,132 @@ export function JourneyClient({
   // Track global exercise index for action keys
   let globalExerciseIndex = 0
 
+  // Compute phase stats
+  const phaseStats = PHASES.map((phase) => {
+    const days = Array.from(
+      { length: phase.dayEnd - phase.dayStart + 1 },
+      (_, i) => phase.dayStart + i
+    )
+    const completed = days.filter((d) => isDayCompleted(d)).length
+    return { ...phase, days, completed, total: days.length }
+  })
+
+  const overallCompleted = phaseStats.reduce((a, p) => a + p.completed, 0)
+  const overallTotal = phaseStats.reduce((a, p) => a + p.total, 0)
+  const overallPct = overallTotal > 0 ? Math.round((overallCompleted / overallTotal) * 100) : 0
+
   return (
-    <div className="mx-auto max-w-4xl space-y-5">
-      {/* ── Phase-Grouped Day Navigator ── */}
-      <div className="space-y-3">
-        {PHASES.map((phase) => {
-          const PhaseIcon = phase.icon
-          const isExpanded = expandedPhase === phase.id
-          const days = Array.from(
-            { length: phase.dayEnd - phase.dayStart + 1 },
-            (_, i) => phase.dayStart + i
-          )
-          const phaseDaysCompleted = days.filter((d) => isDayCompleted(d)).length
-          const phaseProgress = Math.round(
-            (phaseDaysCompleted / days.length) * 100
-          )
-          const isCurrentPhase =
-            currentDay >= phase.dayStart && currentDay <= phase.dayEnd
-          const isPastPhase = currentDay > phase.dayEnd
-
-          return (
-            <div
-              key={phase.id}
-              className="overflow-hidden rounded-2xl border-2 transition-all"
-              style={{
-                borderColor: isCurrentPhase
-                  ? phase.color
-                  : isPastPhase
-                  ? `${phase.color}30`
-                  : "transparent",
-                backgroundColor: isCurrentPhase
-                  ? `${phase.color}04`
-                  : undefined,
-              }}
-            >
-              {/* Phase header */}
-              <button
-                onClick={() =>
-                  setExpandedPhase(isExpanded ? null : phase.id)
-                }
-                className="flex w-full items-center gap-4 p-4 text-left transition-colors hover:bg-muted/30"
-              >
-                <div
-                  className="flex size-11 shrink-0 items-center justify-center rounded-xl text-white"
-                  style={{ backgroundColor: phase.color }}
-                >
-                  <PhaseIcon className="size-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-extrabold text-foreground">
-                      {phase.label}
-                    </h3>
-                    {isCurrentPhase && (
-                      <span
-                        className="rounded-full px-2.5 py-0.5 text-[11px] font-bold text-white"
-                        style={{ backgroundColor: phase.color }}
-                      >
-                        Current
-                      </span>
-                    )}
-                    {isPastPhase && (
-                      <CheckCircle2
-                        className="size-5"
-                        style={{ color: phase.color }}
-                      />
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {phase.tagline} &middot; Days {phase.dayStart}-{phase.dayEnd}
-                  </p>
-                </div>
+    <div className="mx-auto max-w-5xl">
+      {/* ── Two-column: Main content + Side progress tile ── */}
+      <div className="flex flex-col gap-5 lg:flex-row">
+        {/* ── LEFT: Main lesson content ── */}
+        <div className="min-w-0 flex-1 space-y-5">
+          {/* Active Day Hero Card */}
+          <div
+            className="overflow-hidden rounded-2xl"
+            style={{ backgroundColor: activePhase.color }}
+          >
+            <div className="relative p-5 sm:p-6">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20" />
+              <div className="relative z-10">
                 <div className="flex items-center gap-3">
-                  <div className="hidden items-center gap-2 sm:flex">
-                    <div className="h-2 w-16 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className="h-full rounded-full transition-all"
-                        style={{
-                          width: `${phaseProgress}%`,
-                          backgroundColor: phase.color,
-                        }}
-                      />
-                    </div>
-                    <span
-                      className="text-xs font-bold"
-                      style={{ color: phase.color }}
-                    >
-                      {phaseProgress}%
+                  {iconSrc && (
+                    <Image
+                      src={iconSrc}
+                      alt=""
+                      width={40}
+                      height={40}
+                      className="shrink-0 drop-shadow-lg"
+                    />
+                  )}
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-widest text-white/70">
+                      {activePhase.label} &middot; Day {selectedDay}
                     </span>
-                  </div>
-                  <ArrowRight
-                    className={`size-5 text-muted-foreground transition-transform ${
-                      isExpanded ? "rotate-90" : ""
-                    }`}
-                  />
-                </div>
-              </button>
-
-              {/* Expanded day grid */}
-              {isExpanded && (
-                <div className="border-t px-4 pb-4 pt-3">
-                  <div className="flex flex-wrap gap-2">
-                    {days.map((day) => {
-                      const isSelected = day === selectedDay
-                      const isCurrent = day === currentDay
-                      const isLocked = day > currentDay
-                      const completed = isDayCompleted(day)
-                      const dayTitle =
-                        curriculum.find((d) => d.day_number === day)?.title ?? ""
-
-                      return (
-                        <button
-                          key={day}
-                          onClick={() => !isLocked && setSelectedDay(day)}
-                          disabled={isLocked}
-                          title={isLocked ? "Locked" : dayTitle}
-                          className={`group relative flex h-12 items-center gap-2 rounded-xl px-3.5 text-sm font-bold transition-all ${
-                            isSelected
-                              ? "text-white shadow-lg"
-                              : completed
-                              ? "border-2 bg-card hover:shadow-md"
-                              : isLocked
-                              ? "bg-muted/60 text-muted-foreground/30"
-                              : isCurrent
-                              ? "border-2 bg-card shadow-md"
-                              : "border bg-card text-foreground hover:shadow-md"
-                          }`}
-                          style={
-                            isSelected
-                              ? { backgroundColor: phase.color }
-                              : completed
-                              ? {
-                                  borderColor: `${phase.color}40`,
-                                  color: phase.color,
-                                }
-                              : isCurrent
-                              ? { borderColor: phase.color }
-                              : undefined
-                          }
-                        >
-                          {isLocked ? (
-                            <Lock className="size-3.5" />
-                          ) : completed && !isSelected ? (
-                            <CheckCircle2 className="size-4" />
-                          ) : null}
-                          <span>Day {day}</span>
-                          {isCurrent && !isSelected && (
-                            <span
-                              className="absolute -right-1 -top-1 size-3 rounded-full border-2 border-card"
-                              style={{ backgroundColor: phase.color }}
-                            />
-                          )}
-                        </button>
-                      )
-                    })}
+                    <h2 className="text-xl font-extrabold text-white sm:text-2xl">
+                      {todayContent?.title ?? `Day ${selectedDay}`}
+                    </h2>
                   </div>
                 </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
-
-      {/* ── Active Day Hero Card ── */}
-      <div
-        className="overflow-hidden rounded-2xl"
-        style={{ backgroundColor: activePhase.color }}
-      >
-        <div className="relative p-5 sm:p-6">
-          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20" />
-          <div className="relative z-10">
-            <div className="flex items-center gap-3">
-              {iconSrc && (
-                <Image
-                  src={iconSrc}
-                  alt=""
-                  width={40}
-                  height={40}
-                  className="shrink-0 drop-shadow-lg"
-                />
-              )}
-              <div>
-                <span className="text-xs font-bold uppercase tracking-widest text-white/70">
-                  {activePhase.label} &middot; Day {selectedDay}
-                </span>
-                <h2 className="text-xl font-extrabold text-white sm:text-2xl">
-                  {todayContent?.title ?? `Day ${selectedDay}`}
-                </h2>
-              </div>
-            </div>
-            {todayContent?.theme && (
-              <p className="mt-2 text-base text-white/80">
-                {todayContent.theme}
-              </p>
-            )}
-            <div className="mt-4 flex items-center gap-3">
-              <Button
-                size="lg"
-                className="rounded-xl bg-white px-5 font-bold shadow-lg hover:bg-white/90"
-                style={{ color: activePhase.color }}
-                onClick={() =>
-                  document
-                    .getElementById("session-content")
-                    ?.scrollIntoView({ behavior: "smooth" })
-                }
-              >
-                <Play className="mr-2 size-4" />
-                {selectedDay === currentDay ? "Start Session" : "View Session"}
-              </Button>
-              <div className="flex items-center gap-2 rounded-full bg-white/15 px-4 py-2">
-                <div className="h-2.5 w-20 overflow-hidden rounded-full bg-white/20">
-                  <div
-                    className="h-full rounded-full bg-white transition-all duration-500"
-                    style={{ width: `${todayProgress}%` }}
-                  />
+                {todayContent?.theme && (
+                  <p className="mt-2 text-base text-white/80">
+                    {todayContent.theme}
+                  </p>
+                )}
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  {isViewingPastDay ? (
+                    <>
+                      <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2">
+                        <CheckCircle2 className="size-4 text-white" />
+                        <span className="text-sm font-bold text-white">
+                          Completed &middot; Review only
+                        </span>
+                      </div>
+                      <Button
+                        size="lg"
+                        className="rounded-xl bg-white px-5 font-bold shadow-lg hover:bg-white/90"
+                        style={{ color: activePhase.color }}
+                        onClick={() => setSelectedDay(activeDay)}
+                      >
+                        Continue to Day {activeDay}
+                        <ArrowRight className="ml-2 size-4" />
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        size="lg"
+                        className="rounded-xl bg-white px-5 font-bold shadow-lg hover:bg-white/90"
+                        style={{ color: activePhase.color }}
+                        onClick={() =>
+                          document
+                            .getElementById("session-content")
+                            ?.scrollIntoView({ behavior: "smooth" })
+                        }
+                      >
+                        <Play className="mr-2 size-4" />
+                        Start Session
+                      </Button>
+                      <div className="flex items-center gap-2 rounded-full bg-white/15 px-4 py-2">
+                        <span className="text-sm font-bold text-white">
+                          {todayActionsDone}/{todayActionsTotal} actions
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
-                <span className="text-sm font-bold text-white">
-                  {todayActionsDone}/{todayActionsTotal}
-                </span>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* ── Day nav arrows ── */}
-      <div className="flex items-center justify-between">
-        <button
-          onClick={() =>
-            selectedDay > 1 && setSelectedDay(selectedDay - 1)
-          }
-          disabled={selectedDay <= 1}
-          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground disabled:opacity-30"
-        >
-          <ArrowLeft className="size-4" />
-          Day {selectedDay - 1 > 0 ? selectedDay - 1 : ""}
-        </button>
-        <button
-          onClick={() =>
-            selectedDay < currentDay && setSelectedDay(selectedDay + 1)
-          }
-          disabled={selectedDay >= currentDay}
-          className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground disabled:opacity-30"
-        >
-          {selectedDay < currentDay ? `Day ${selectedDay + 1}` : ""}
-          {selectedDay >= currentDay && selectedDay < program.totalDays && (
-            <span className="flex items-center gap-1 opacity-50">
-              <Lock className="size-3" /> Day {selectedDay + 1}
-            </span>
-          )}
-          <ArrowRight className="size-4" />
-        </button>
-      </div>
+          {/* Day nav arrows */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() =>
+                selectedDay > 1 && setSelectedDay(selectedDay - 1)
+              }
+              disabled={selectedDay <= 1}
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground disabled:opacity-30"
+            >
+              <ArrowLeft className="size-4" />
+              Day {selectedDay - 1 > 0 ? selectedDay - 1 : ""}
+            </button>
+            <button
+              onClick={() =>
+                selectedDay < activeDay && setSelectedDay(selectedDay + 1)
+              }
+              disabled={selectedDay >= activeDay}
+              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground disabled:opacity-30"
+            >
+              {selectedDay < activeDay ? `Day ${selectedDay + 1}` : ""}
+              {selectedDay >= activeDay && selectedDay < program.totalDays && (
+                <span className="flex items-center gap-1 opacity-50">
+                  <Lock className="size-3" /> Day {selectedDay + 1}
+                </span>
+              )}
+              <ArrowRight className="size-4" />
+            </button>
+          </div>
 
       {/* ── Day Objectives ── */}
       {todayContent?.day_objective && todayContent.day_objective.length > 0 && (
@@ -776,6 +842,48 @@ export function JourneyClient({
             </ul>
           </div>
         </section>
+      )}
+
+      {/* ── Day Complete Banner ── */}
+      {showDayComplete && (
+        <div
+          className="flex items-center justify-between rounded-2xl border-2 p-5"
+          style={{
+            borderColor: `${activePhase.color}40`,
+            backgroundColor: `${activePhase.color}08`,
+          }}
+        >
+          <div className="flex items-center gap-3">
+            <div
+              className="flex size-10 items-center justify-center rounded-full text-white"
+              style={{ backgroundColor: activePhase.color }}
+            >
+              <CheckCircle2 className="size-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-extrabold text-foreground">
+                Day {selectedDay} Complete!
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Great work. Your responses are saved to your portfolio.
+              </p>
+            </div>
+          </div>
+          {activeDay <= program.totalDays && (
+            <Button
+              size="lg"
+              className="rounded-xl font-bold text-white"
+              style={{ backgroundColor: activePhase.color }}
+              onClick={() => {
+                setSelectedDay(activeDay)
+                setShowDayComplete(false)
+              }}
+            >
+              Continue to Day {activeDay}
+              <ArrowRight className="ml-2 size-4" />
+            </Button>
+          )}
+        </div>
       )}
 
       {/* ── Session Content: Sections ── */}
@@ -827,15 +935,67 @@ export function JourneyClient({
               </div>
 
               {/* Section content blocks */}
-              {section.content && section.content.length > 0 && (
+              {section.content && (Array.isArray(section.content) ? section.content : []).length > 0 && (
                 <div className="space-y-3 px-5 py-4">
-                  {section.content.map((item, i) => (
+                  {(Array.isArray(section.content) ? section.content : []).map((item: Record<string, unknown>, i: number) => (
                     <ContentBlock
                       key={i}
                       item={item}
                       phaseColor={activePhase.color}
                     />
                   ))}
+                </div>
+              )}
+
+              {/* Artifact creation textarea */}
+              {section.section_type === "artifact_creation" && (
+                <div className="border-t px-5 py-4">
+                  <div className="mb-2 flex items-center gap-2">
+                    <FileText className="size-4" style={{ color: activePhase.color }} />
+                    <label className="text-sm font-bold text-foreground">
+                      Your Artifact
+                    </label>
+                    <span className="text-[10px] text-muted-foreground">
+                      {isViewingPastDay ? "(read only)" : "(saved to your portfolio)"}
+                    </span>
+                    {!isViewingPastDay && savingResponseKey === section.id && (
+                      <span
+                        className="ml-auto flex items-center gap-1 text-[10px] font-medium"
+                        style={{ color: activePhase.color }}
+                      >
+                        <Save className="size-3" />
+                        Saving...
+                      </span>
+                    )}
+                  </div>
+                  {isViewingPastDay ? (
+                    (responses[section.id] ?? "") ? (
+                      <div className="rounded-lg border bg-muted/30 px-3 py-2.5 text-sm leading-relaxed text-foreground whitespace-pre-wrap">
+                        {responses[section.id]}
+                      </div>
+                    ) : (
+                      <p className="text-xs italic text-muted-foreground/60">
+                        No artifact recorded
+                      </p>
+                    )
+                  ) : (
+                    <>
+                      <textarea
+                        value={responses[section.id] ?? ""}
+                        onChange={(e) =>
+                          handleResponseChange(section.id, e.target.value, false, selectedDay)
+                        }
+                        placeholder="Write your artifact here: decision memo, escalation email, executive summary, recommendation brief..."
+                        rows={8}
+                        className="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                      />
+                      {(responses[section.id] ?? "").length > 0 && (
+                        <p className="mt-1 text-[10px] text-muted-foreground">
+                          {(responses[section.id] ?? "").length} characters
+                        </p>
+                      )}
+                    </>
+                  )}
                 </div>
               )}
 
@@ -861,6 +1021,12 @@ export function JourneyClient({
                         isCompleted={done}
                         onToggle={() => toggleAction(selectedDay, actionIndex)}
                         saving={saving}
+                        responseText={responses[exercise.id] ?? ""}
+                        onResponseChange={(text) =>
+                          handleResponseChange(exercise.id, text, true, selectedDay)
+                        }
+                        savingResponse={savingResponseKey === exercise.id}
+                        readOnly={isViewingPastDay}
                       />
                     )
                   })}
@@ -890,8 +1056,10 @@ export function JourneyClient({
         )}
 
         {/* ── Behaviors Instilled ── */}
-        {todayContent?.behaviors_instilled &&
-          todayContent.behaviors_instilled.length > 0 && (
+        {(() => {
+          const raw = todayContent?.behaviors_instilled
+          const items = Array.isArray(raw) ? raw : (raw as { behaviors?: string[] })?.behaviors ?? []
+          return items.length > 0 ? (
             <section className="overflow-hidden rounded-2xl border bg-card">
               <div
                 className="flex items-center gap-3 px-5 py-3.5"
@@ -909,7 +1077,7 @@ export function JourneyClient({
               </div>
               <div className="px-5 py-4">
                 <ul className="space-y-2">
-                  {todayContent.behaviors_instilled.map((b, i) => (
+                  {items.map((b: string, i: number) => (
                     <li
                       key={i}
                       className="flex items-start gap-3 text-sm text-muted-foreground"
@@ -924,11 +1092,14 @@ export function JourneyClient({
                 </ul>
               </div>
             </section>
-          )}
+          ) : null
+        })()}
 
         {/* ── End of Day Outcomes ── */}
-        {todayContent?.end_of_day_outcomes &&
-          todayContent.end_of_day_outcomes.length > 0 && (
+        {(() => {
+          const raw = todayContent?.end_of_day_outcomes
+          const items = Array.isArray(raw) ? raw : (raw as { outcomes?: string[] })?.outcomes ?? []
+          return items.length > 0 ? (
             <section className="overflow-hidden rounded-2xl border bg-card">
               <div
                 className="flex items-center gap-3 px-5 py-3.5"
@@ -946,7 +1117,7 @@ export function JourneyClient({
               </div>
               <div className="px-5 py-4">
                 <ul className="space-y-2">
-                  {todayContent.end_of_day_outcomes.map((o, i) => (
+                  {items.map((o: string, i: number) => (
                     <li
                       key={i}
                       className="flex items-start gap-3 text-sm text-muted-foreground"
@@ -961,29 +1132,59 @@ export function JourneyClient({
                 </ul>
               </div>
             </section>
-          )}
+          ) : null
+        })()}
 
         {/* ── Facilitator Close ── */}
-        {todayContent?.facilitator_close && (
-          <div
-            className="rounded-2xl p-5"
-            style={{ backgroundColor: activePhase.color }}
-          >
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10 rounded-2xl" />
-              <div className="relative z-10">
-                <p className="text-base font-semibold leading-relaxed text-white">
-                  {todayContent.facilitator_close.message}
-                </p>
-                {todayContent.facilitator_close.preview && (
-                  <p className="mt-3 text-sm font-medium text-white/70">
-                    {todayContent.facilitator_close.preview}
-                  </p>
-                )}
+        {(() => {
+          const raw = todayContent?.facilitator_close
+          if (!raw) return null
+          // Support both {close: [...]} and {message, preview} formats
+          const closeItems = (raw as { close?: string[] })?.close
+          const message = (raw as { message?: string })?.message
+          if (closeItems && closeItems.length > 0) {
+            return (
+              <div
+                className="overflow-hidden rounded-2xl p-5"
+                style={{ backgroundColor: activePhase.color }}
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10 rounded-2xl" />
+                  <div className="relative z-10 space-y-3">
+                    {closeItems.map((line: string, i: number) => (
+                      <p key={i} className="text-base font-semibold leading-relaxed text-white">
+                        {line}
+                      </p>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        )}
+            )
+          }
+          if (message) {
+            return (
+              <div
+                className="overflow-hidden rounded-2xl p-5"
+                style={{ backgroundColor: activePhase.color }}
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10 rounded-2xl" />
+                  <div className="relative z-10">
+                    <p className="text-base font-semibold leading-relaxed text-white">
+                      {message}
+                    </p>
+                    {(raw as { preview?: string })?.preview && (
+                      <p className="mt-3 text-sm font-medium text-white/70">
+                        {(raw as { preview?: string }).preview}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )
+          }
+          return null
+        })()}
 
         {/* All actions completed */}
         {todayProgress === 100 && todayActionsTotal > 0 && (
@@ -1016,6 +1217,127 @@ export function JourneyClient({
           </div>
         )}
       </div>
+        </div>{/* end left column */}
+
+        {/* ── RIGHT: Progress side tile ── */}
+        <aside className="w-full shrink-0 lg:sticky lg:top-24 lg:w-72 lg:self-start">
+          <div className="rounded-2xl border bg-card">
+            {/* Overall progress header */}
+            <div className="flex items-center gap-3 border-b p-4">
+              <div className="relative flex size-12 items-center justify-center">
+                <svg className="size-12 -rotate-90" viewBox="0 0 48 48">
+                  <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="3" className="text-muted/40" />
+                  <circle
+                    cx="24" cy="24" r="20" fill="none" strokeWidth="3" strokeLinecap="round"
+                    stroke={activePhase.color}
+                    strokeDasharray={`${overallPct * 1.257} 125.7`}
+                  />
+                </svg>
+                <span className="absolute text-xs font-extrabold text-foreground">{overallPct}%</span>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-foreground">Overall Progress</p>
+                <p className="text-xs text-muted-foreground">{overallCompleted}/{overallTotal} days</p>
+              </div>
+            </div>
+
+            {/* Phase rows */}
+            <div className="divide-y">
+              {phaseStats.map((phase) => {
+                const PhaseIcon = phase.icon
+                const isCurrentPhase = activeDay >= phase.dayStart && activeDay <= phase.dayEnd
+                return (
+                  <div key={phase.id} className="p-3">
+                    <div className="mb-2 flex items-center gap-2">
+                      <div
+                        className="flex size-7 items-center justify-center rounded-lg text-white"
+                        style={{ backgroundColor: phase.color }}
+                      >
+                        <PhaseIcon className="size-3.5" />
+                      </div>
+                      <span className="flex-1 text-xs font-bold text-foreground">
+                        {phase.label}
+                      </span>
+                      {isCurrentPhase && (
+                        <span className="size-2 rounded-full" style={{ backgroundColor: phase.color }} />
+                      )}
+                      <span className="text-[10px] font-bold text-muted-foreground">
+                        {phase.completed}/{phase.total}
+                      </span>
+                    </div>
+                    {/* Day dots */}
+                    <div className="flex gap-1">
+                      {phase.days.map((day) => {
+                        const isSelected = day === selectedDay
+                          const isLocked = day > activeDay
+                        const completed = isDayCompleted(day)
+                        return (
+                          <button
+                            key={day}
+                            onClick={() => !isLocked && setSelectedDay(day)}
+                            disabled={isLocked}
+                            title={`Day ${day}`}
+                            className={`flex size-7 items-center justify-center rounded-md text-[10px] font-bold transition-all ${
+                              isSelected
+                                ? "text-white shadow-sm"
+                                : completed
+                                ? "bg-card text-foreground"
+                                : isLocked
+                                ? "bg-muted/50 text-muted-foreground/30"
+                                : "bg-muted/70 text-foreground hover:bg-muted"
+                            }`}
+                            style={
+                              isSelected
+                                ? { backgroundColor: phase.color }
+                                : completed
+                                ? {
+                                    backgroundColor: `${phase.color}15`,
+                                    color: phase.color,
+                                  }
+                                : undefined
+                            }
+                          >
+                            {completed && !isSelected ? (
+                              <CheckCircle2 className="size-3.5" style={{ color: phase.color }} />
+                            ) : isLocked ? (
+                              <Lock className="size-2.5" />
+                            ) : (
+                              day
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Today's session stats */}
+            {todayActionsTotal > 0 && (
+              <div className="border-t p-4">
+                <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Day {selectedDay} actions
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${todayProgress}%`,
+                        backgroundColor: activePhase.color,
+                      }}
+                    />
+                  </div>
+                  <span className="text-xs font-bold" style={{ color: activePhase.color }}>
+                    {todayActionsDone}/{todayActionsTotal}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        </aside>
+      </div>{/* end flex row */}
     </div>
   )
 }

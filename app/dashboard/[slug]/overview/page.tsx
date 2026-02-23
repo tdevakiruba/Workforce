@@ -25,7 +25,7 @@ export default async function OverviewPage({
 
   if (!program) redirect("/dashboard")
 
-  // Get enrollment
+  // Get enrollment (layout already ensures enrollment exists via auto-enroll)
   const { data: enrollment } = await supabase
     .from("enrollments")
     .select("id, current_day, started_at, status")
@@ -34,7 +34,7 @@ export default async function OverviewPage({
     .eq("status", "active")
     .maybeSingle()
 
-  if (!enrollment) redirect(`/programs/${slug}`)
+  if (!enrollment) redirect("/dashboard")
 
   // Get subscription
   const { data: subscription } = await supabase
