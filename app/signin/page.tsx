@@ -33,6 +33,7 @@ function SignInForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const redirect = searchParams.get("redirect") || "/dashboard"
+  const reason = searchParams.get("reason")
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -86,6 +87,11 @@ function SignInForm() {
         </div>
 
         <div className="rounded-2xl border bg-card p-6 shadow-sm">
+          {reason === "session_expired" && (
+            <div className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
+              Your session expired due to inactivity. Please sign in again.
+            </div>
+          )}
           {/* OAuth Buttons */}
           <div className="flex flex-col gap-3">
             <Button

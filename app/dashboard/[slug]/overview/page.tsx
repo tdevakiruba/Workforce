@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { OverviewClient } from "./overview-client"
 
+export const dynamic = "force-dynamic"
+
 export default async function OverviewPage({
   params,
 }: {
