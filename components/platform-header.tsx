@@ -2,9 +2,10 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { TrendingUp, Menu, X } from "lucide-react"
+import { TrendingUp, Menu, X, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 const navLinks = [
   { href: "/programs", label: "Programs" },
@@ -13,7 +14,18 @@ const navLinks = [
 
 export function PlatformHeader({ user }: { user: { email?: string } | null }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  async function handleLogout() {
+    setLoggingOut(true)
+    try {
+      await fetch("/api/auth/signout", { method: "POST" })
+    } finally {
+      router.push("/signin")
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
@@ -48,13 +60,25 @@ export function PlatformHeader({ user }: { user: { email?: string } | null }) {
         {/* Auth buttons */}
         <div className="hidden items-center gap-2 md:flex">
           {user ? (
-            <Button
-              asChild
-              size="sm"
-              className="rounded-lg bg-wf-mint text-white hover:bg-wf-mint-light"
-            >
-              <Link href="/dashboard">Dashboard</Link>
-            </Button>
+            <>
+              <Button
+                asChild
+                size="sm"
+                className="rounded-lg bg-wf-mint text-white hover:bg-wf-mint-light"
+              >
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="text-muted-foreground hover:text-destructive"
+              >
+                <LogOut className="mr-1.5 size-3.5" />
+                {loggingOut ? "..." : "Sign Out"}
+              </Button>
+            </>
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild>
@@ -106,12 +130,23 @@ export function PlatformHeader({ user }: { user: { email?: string } | null }) {
           </nav>
           <div className="mt-3 flex flex-col gap-2 border-t pt-3">
             {user ? (
-              <Button
-                asChild
-                className="rounded-lg bg-wf-mint text-white hover:bg-wf-mint-light"
-              >
-                <Link href="/dashboard">Dashboard</Link>
-              </Button>
+              <>
+                <Button
+                  asChild
+                  className="rounded-lg bg-wf-mint text-white hover:bg-wf-mint-light"
+                >
+                  <Link href="/dashboard">Dashboard</Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                  className="justify-start text-muted-foreground hover:text-destructive"
+                >
+                  <LogOut className="mr-1.5 size-3.5" />
+                  {loggingOut ? "Signing out..." : "Sign Out"}
+                </Button>
+              </>
             ) : (
               <>
                 <Button variant="ghost" asChild>

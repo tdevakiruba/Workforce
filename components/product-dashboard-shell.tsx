@@ -12,11 +12,13 @@ import {
   GraduationCap,
   LayoutDashboard,
   FlaskConical,
+  LogOut,
   Menu,
   Award,
   X,
 } from "lucide-react"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { SessionActivityTracker } from "@/components/session-activity-tracker"
 
 interface ProductDashboardShellProps {
@@ -60,7 +62,18 @@ export function ProductDashboardShell({
   children,
 }: ProductDashboardShellProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  async function handleLogout() {
+    setLoggingOut(true)
+    try {
+      await fetch("/api/auth/signout", { method: "POST" })
+    } finally {
+      router.push("/signin")
+    }
+  }
 
   const activeTab =
     sidebarTabs.find((tab) =>
@@ -125,30 +138,6 @@ export function ProductDashboardShell({
             </div>
           </div>
 
-          {/* Progress */}
-          <div className="border-b px-4 py-3">
-            <div className="mb-1.5 flex items-center justify-between text-xs">
-              <span className="font-medium text-muted-foreground">
-                Day {enrollment.currentDay} of {enrollment.totalDays}
-              </span>
-              <span
-                className="font-bold"
-                style={{ color: program.badgeColor }}
-              >
-                {enrollment.progress}%
-              </span>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-              <div
-                className="h-full rounded-full transition-all duration-500"
-                style={{
-                  width: `${enrollment.progress}%`,
-                  backgroundColor: program.badgeColor,
-                }}
-              />
-            </div>
-          </div>
-
           {/* Nav tabs */}
           <nav className="flex-1 px-2 py-3">
             <ul className="flex flex-col gap-0.5">
@@ -204,6 +193,14 @@ export function ProductDashboardShell({
               <GraduationCap className="size-3" />
               <span className="capitalize">{enrollment.planTier} Plan</span>
             </div>
+            <button
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="mt-3 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+            >
+              <LogOut className="size-3.5" />
+              {loggingOut ? "Signing out..." : "Sign Out"}
+            </button>
           </div>
         </div>
       </aside>
@@ -299,6 +296,14 @@ export function ProductDashboardShell({
                 <ArrowLeft className="size-3.5" />
                 Back to All Programs
               </Link>
+              <button
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="mt-3 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+              >
+                <LogOut className="size-3.5" />
+                {loggingOut ? "Signing out..." : "Sign Out"}
+              </button>
             </div>
           </div>
         </>
