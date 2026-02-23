@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { DashboardClient } from "./dashboard-client"
 
+export const dynamic = "force-dynamic"
+
 export const metadata = {
   title: "Dashboard",
   description: "Your Workforce learning dashboard",
@@ -78,15 +80,9 @@ export default async function DashboardPage() {
 
     const durationMatch = program?.duration?.match(/(\d+)/)
     const totalDays = durationMatch ? parseInt(durationMatch[1], 10) : 21
-    let currentDay = 1
-    if (enrollment.started_at) {
-      const start = new Date(enrollment.started_at)
-      const now = new Date()
-      const diffDays = Math.floor(
-        (now.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
-      )
-      currentDay = Math.min(Math.max(diffDays + 1, 1), totalDays)
-    }
+    // Use the enrollment's current_day (advanced by the progress API when all
+    // actions for a day are completed), consistent with all other pages.
+    const currentDay = Math.min(enrollment.current_day ?? 1, totalDays)
 
     return {
       enrollmentId: enrollment.id,

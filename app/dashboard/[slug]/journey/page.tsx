@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { JourneyClient } from "./journey-client"
 
+export const dynamic = "force-dynamic"
+
 export default async function JourneyPage({
   params,
 }: {

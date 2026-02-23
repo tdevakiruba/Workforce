@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react"
 import { useState } from "react"
+import { SessionActivityTracker } from "@/components/session-activity-tracker"
 
 interface ProductDashboardShellProps {
   program: {
@@ -71,6 +72,7 @@ export function ProductDashboardShell({
 
   return (
     <div className="flex min-h-[calc(100vh-64px)]">
+      <SessionActivityTracker />
       {/* Desktop Sidebar */}
       <aside className="hidden w-64 shrink-0 border-r bg-card lg:block">
         <div className="sticky top-16 flex h-[calc(100vh-64px)] flex-col">
