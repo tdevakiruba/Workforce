@@ -37,41 +37,58 @@ export default async function CertificatesPage({
 
   const durationMatch = program.duration?.match(/(\d+)/)
   const totalDays = durationMatch ? parseInt(durationMatch[1], 10) : 21
-  // Use the enrollment's current_day (advanced by the progress API when all
-  // actions for a day are completed), consistent with all other pages.
   const currentDay = Math.min(enrollment.current_day ?? 1, totalDays)
 
-  // Fetch phases for milestone certificates
+  // Fetch phases using correct DB columns: name, letter, days, description, sort_order
   const { data: phases } = await supabase
     .from("program_phases")
-    .select("phase_number, title, day_start, day_end")
+    .select("name, letter, days, description, sort_order")
     .eq("program_id", program.id)
     .order("sort_order")
 
-  // Build certificates data
-  const certificates = (phases ?? []).map((phase) => {
-    const dayEnd = phase.day_end ?? totalDays
-    const isEarned = currentDay > dayEnd
+  // Parse "Days X-Y" string into { start, end }
+  function parseDays(daysStr: string | null): { start: number; end: number } {
+    const match = daysStr?.match(/(\d+)\s*-\s*(\d+)/)
+    if (match) return { start: parseInt(match[1], 10), end: parseInt(match[2], 10) }
+    const single = daysStr?.match(/(\d+)/)
+    if (single) return { start: parseInt(single[1], 10), end: parseInt(single[1], 10) }
+    return { start: 1, end: totalDays }
+  }
+
+  // Build certificates from phases
+  const certificates = (phases ?? []).map((phase, idx) => {
+    const { start, end } = parseDays(phase.days)
+    const isEarned = currentDay > end
     return {
-      id: `phase-${phase.phase_number}`,
-      title: `${phase.title} Mastery`,
-      description: `Completed Phase ${phase.phase_number}: ${phase.title} (Days ${phase.day_start ?? 1}-${dayEnd})`,
+      id: `phase-${idx + 1}`,
+      title: `${phase.name} Mastery`,
+      phaseName: phase.name,
+      phaseLetter: phase.letter,
+      description: phase.description ?? `Phase ${idx + 1}: ${phase.name} (${phase.days})`,
+      daysLabel: phase.days ?? `Days ${start}-${end}`,
       isEarned,
-      earnedDate: isEarned ? enrollment.started_at : null,
-      phaseNumber: phase.phase_number,
+      earnedDate: isEarned && enrollment.started_at ? new Date(enrollment.started_at).toISOString() : null,
+      phaseNumber: idx + 1,
     }
   })
 
-  // Add program completion certificate
+  // Program completion certificate
   const programComplete = currentDay >= totalDays
   certificates.push({
     id: "program-complete",
     title: `${program.name} -- Program Completion`,
+    phaseName: "Program Completion",
+    phaseLetter: "W",
     description: `Successfully completed the entire ${totalDays}-day ${program.name} program.`,
+    daysLabel: `Days 1-${totalDays}`,
     isEarned: programComplete,
-    earnedDate: programComplete ? enrollment.started_at : null,
+    earnedDate: programComplete && enrollment.started_at ? new Date(enrollment.started_at).toISOString() : null,
     phaseNumber: (phases?.length ?? 0) + 1,
   })
+
+  const userName = user.user_metadata?.first_name
+    ? `${user.user_metadata.first_name} ${user.user_metadata.last_name ?? ""}`.trim()
+    : user.email?.split("@")[0] ?? "Participant"
 
   return (
     <CertificatesClient
@@ -79,16 +96,14 @@ export default async function CertificatesPage({
         slug: program.slug,
         name: program.name,
         badgeColor: program.color ?? "#00c892",
-        signalAcronym: program.badge ?? "",
+        badge: program.badge ?? "WFR",
         totalDays,
       }}
+      enrollmentId={enrollment.id}
       currentDay={currentDay}
       certificates={certificates}
-      userName={
-        user.user_metadata?.first_name
-          ? `${user.user_metadata.first_name} ${user.user_metadata.last_name ?? ""}`.trim()
-          : user.email?.split("@")[0] ?? "Participant"
-      }
+      userName={userName}
+      userEmail={user.email ?? ""}
     />
   )
 }
