@@ -1,67 +1,141 @@
--- Day 11: Risk & Escalation in AI-Driven Decisions
--- Week 3: Professional Communication & Impact
+-- ============================================================
+-- Day 11 — Risk & Escalation in AI-Driven Decisions (ContentBlock format)
+-- program_id: 7da8d569-d5a3-47d8-9101-e8142b44822e
+-- ============================================================
 
-DELETE FROM curriculum_days WHERE program_id = '7da8d569-d5a3-47d8-9101-e8142b44822e' AND day_number = 11;
+WITH
+params AS (
+  SELECT '7da8d569-d5a3-47d8-9101-e8142b44822e'::uuid AS program_id, 11::int AS day_number
+),
 
-INSERT INTO curriculum_days (program_id, day_number, title, theme, day_objective, key_teaching_quote)
-VALUES (
-  '7da8d569-d5a3-47d8-9101-e8142b44822e',
-  11,
-  'Risk & Escalation in AI-Driven Decisions',
-  'Speed increases risk. Professionals manage it.',
-  '["Understand risk identification in AI-assisted workflows", "Learn when and how to escalate decisions appropriately", "Develop judgment for distinguishing routine from high-stakes situations", "Build frameworks for communicating risk to leadership"]'::jsonb,
-  'Speed increases risk. Professionals manage it.'
-);
+del_day AS (
+  DELETE FROM public.curriculum_days d
+  USING params p
+  WHERE d.program_id = p.program_id AND d.day_number = p.day_number
+  RETURNING d.id
+),
 
-DO $$
-DECLARE
-  v_day_id uuid;
-  v_section_id uuid;
-BEGIN
-  SELECT id INTO v_day_id FROM curriculum_days
-  WHERE program_id = '7da8d569-d5a3-47d8-9101-e8142b44822e' AND day_number = 11;
+ins_day AS (
+  INSERT INTO public.curriculum_days
+  (program_id, day_number, title, theme, day_objective, lesson_flow, key_teaching_quote, behaviors_instilled, end_of_day_outcomes, facilitator_close)
+  SELECT
+    p.program_id,
+    p.day_number,
+    'Risk & Escalation in AI-Driven Decisions'::text,
+    'Speed increases risk. Professionals manage it.'::text,
 
-  INSERT INTO curriculum_sections (day_id, sort_order, section_type, title, content)
-  VALUES (v_day_id, 1, 'reality_briefing', 'Reality Mapping',
-    '[{"text": "REPLACE WITH REALITY BRIEFING CONTENT", "type": "facilitator_script"}]'::jsonb
-  );
+    jsonb_build_object(
+      'objective',
+      'By the end of today, you will learn how to identify risk in AI-generated recommendations and escalate concerns responsibly, using evidence and options, without appearing defensive or resistant to innovation.'
+    ),
 
-  INSERT INTO curriculum_sections (day_id, sort_order, section_type, title, content)
-  VALUES (v_day_id, 2, 'workplace_scenario', 'Workplace Scenario',
-    '[{"text": "REPLACE WITH WORKPLACE SCENARIO CONTENT", "type": "facilitator_script"}]'::jsonb
-  );
+    to_jsonb(ARRAY['reality_briefing','workplace_scenario','decision_challenge','artifact_creation','reflection','professional_upgrade']),
 
-  INSERT INTO curriculum_sections (day_id, sort_order, section_type, title, content)
-  VALUES (v_day_id, 3, 'decision_challenge', 'Decision Challenge',
-    '[{"text": "REPLACE WITH DECISION CHALLENGE CONTENT", "type": "facilitator_script"}]'::jsonb
-  ) RETURNING id INTO v_section_id;
+    'Escalation is not resistance; it is leadership.'::text,
 
-  INSERT INTO curriculum_exercises (section_id, sort_order, question, question_type, options, thinking_prompts)
-  VALUES
-    (v_section_id, 1, 'REPLACE WITH MULTIPLE CHOICE QUESTION', 'multiple_choice',
-     '[{"label": "A", "text": "Option A", "is_best": false}, {"label": "B", "text": "Option B", "is_best": true}, {"label": "C", "text": "Option C", "is_best": false}, {"label": "D", "text": "Option D", "is_best": false}]'::jsonb, NULL),
-    (v_section_id, 2, 'REPLACE WITH OPEN-ENDED QUESTION', 'open_ended', NULL,
-     '["thinking prompt 1", "thinking prompt 2", "thinking prompt 3"]'::jsonb),
-    (v_section_id, 3, 'REPLACE WITH OPEN-ENDED QUESTION 2', 'open_ended', NULL,
-     '["thinking prompt 1", "thinking prompt 2", "thinking prompt 3"]'::jsonb);
+    jsonb_build_object('behaviors', jsonb_build_array(
+      'I identify risk early and communicate it clearly using evidence, not emotion.',
+      'I escalate responsibly by proposing options, mitigations, and validation steps.',
+      'I protect long-term trust and reputation even when short-term speed is tempting.'
+    )),
 
-  INSERT INTO curriculum_sections (day_id, sort_order, section_type, title, content)
-  VALUES (v_day_id, 4, 'artifact_creation', 'Artifact Creation',
-    '[{"text": "REPLACE WITH ARTIFACT CREATION CONTENT", "type": "facilitator_script"}]'::jsonb
-  );
+    jsonb_build_object('outcomes', jsonb_build_array(
+      'You create a Risk Escalation Note that frames risk with clarity, impact, and action options.',
+      'You practice raising concerns without killing momentum or sounding anti-AI.',
+      'You build an escalation reflex that protects trust, compliance, and reputation.'
+    )),
 
-  INSERT INTO curriculum_sections (day_id, sort_order, section_type, title, content)
-  VALUES (v_day_id, 5, 'reflection', 'Reflection',
-    '[{"text": "Take a moment to reflect on today''s lesson.", "type": "facilitator_script"}]'::jsonb
-  ) RETURNING id INTO v_section_id;
+    jsonb_build_object('close', jsonb_build_array(
+      'Risk ignored becomes regret.',
+      'Professionals protect the business by escalating early and constructively.',
+      'Tomorrow, you will learn how to translate AI output into business impact that leaders can act on.'
+    ))
+  FROM params p
+  RETURNING id
+),
 
-  INSERT INTO curriculum_exercises (section_id, sort_order, question, question_type)
-  VALUES
-    (v_section_id, 1, 'REPLACE WITH REFLECTION QUESTION 1', 'reflection'),
-    (v_section_id, 2, 'REPLACE WITH REFLECTION QUESTION 2', 'reflection');
+ins_sections AS (
+  INSERT INTO public.curriculum_sections (day_id, sort_order, section_type, title, content)
+  SELECT d.id, s.sort_order, s.section_type, s.title, s.content::jsonb
+  FROM ins_day d
+  CROSS JOIN (
+    VALUES
+      (1,'reality_briefing','Reality Briefing', $$[
+        {"type":"mapping","text":"AI accelerates decisions. AI identifies patterns quickly. AI increases execution speed. AI suggests confident conclusions. But: AI does NOT evaluate reputational risk. AI does NOT understand political sensitivity. AI does NOT absorb consequences of failure. Humans do."},
+        {"type":"facilitator_script","text":"AI output can feel decisive because it is confident and fast, but speed does not remove consequences. When AI recommends a move, your job is to scan for risk the model cannot feel: reputation damage, customer backlash, legal exposure, compliance gaps, and internal stakeholder fallout."},
+        {"type":"teaching_moment","title":"Risk is Invisible Until It’s Public","text":"The fastest way to lose trust is to move fast in the wrong direction. Escalation is how professionals protect outcomes without slowing progress unnecessarily."}
+      ]$$),
 
-  INSERT INTO curriculum_sections (day_id, sort_order, section_type, title, content)
-  VALUES (v_day_id, 6, 'professional_upgrade', 'Professional Upgrade',
-    '[{"text": "REPLACE WITH PROFESSIONAL UPGRADE CONTENT", "type": "facilitator_script"}]'::jsonb
-  );
-END $$;
+      (2,'workplace_scenario','Workplace Scenario', $$[
+        {"type":"scenario_setup","text":"An AI system recommends a bold pricing shift that promises short-term revenue growth. You can see the move might alienate a loyal customer segment and trigger negative brand perception if the change feels unfair or sudden."},
+        {"type":"manager_quote","text":"This looks like a big win. Can you support the recommendation so we can move quickly?"},
+        {"type":"narrative","text":"You are not being asked to be negative. You are being asked to be responsible. Your job is to protect the business from avoidable damage while keeping momentum alive."}
+      ]$$),
+
+      (3,'decision_challenge','Decision Challenge', $$[
+        {"type":"challenge","text":"Decide how you will raise concerns without undermining momentum. You must identify the risk clearly, explain why it matters, and recommend a path that includes mitigation or validation so leadership can move forward intelligently rather than blindly."},
+        {"type":"instruction","text":"Frame the escalation using a professional structure: risk statement, impact, confidence level, options, and the smallest validation step that protects the decision."}
+      ]$$),
+
+      (4,'artifact_creation','Artifact Creation', $$[
+        {"type":"assignment","title":"Risk Escalation Note","structure":[
+          "Summarize the AI recommendation in one sentence.",
+          "State the risk in one sentence (reputation, compliance, trust, fairness, etc.).",
+          "Describe the impact if wrong in 2–3 sentences.",
+          "Propose 2 options: ‘move with guardrails’ and ‘validate then move.’",
+          "Name the smallest validation step and who should approve."
+        ],"length":"10–14 sentences"},
+        {"type":"skills_trained","items":["risk scanning","escalation","stakeholder communication","judgment","decision framing"]}
+      ]$$),
+
+      (5,'reflection','Reflection', $$[
+        {"type":"instruction","text":"Reflect on whether you feel comfortable challenging optimistic projections when you detect risk. Identify what makes you hesitate: fear of conflict, fear of looking inexperienced, or pressure to move fast."},
+        {"type":"instruction","text":"Then write the sentence you will use to escalate professionally. It must be calm, evidence-based, and focused on protecting outcomes, not criticizing people."}
+      ]$$),
+
+      (6,'professional_upgrade','Professional Upgrade', $$[
+        {"type":"callout","text":"Escalation is a trust skill, not a personality trait."},
+        {"type":"facilitator_script","text":"Professionals who manage risk intelligently are trusted more than those who blindly support aggressive automation. When you escalate with options and mitigation, leaders see you as someone who protects the business while still moving forward."}
+      ]$$)
+  ) AS s(sort_order, section_type, title, content)
+  RETURNING id, section_type
+),
+
+section_lookup AS (SELECT id AS section_id, section_type FROM ins_sections),
+
+ins_exercises AS (
+  INSERT INTO public.curriculum_exercises (section_id, sort_order, question, question_type, options, thinking_prompts)
+  SELECT sl.section_id, e.sort_order, e.question, e.question_type, e.options::jsonb, e.thinking_prompts::jsonb
+  FROM section_lookup sl
+  JOIN (
+    VALUES
+      ('decision_challenge',1,'Why does speed increase risk in AI-driven decisions, and what risks are most invisible to AI?','open_ended', $$null$$,
+        $$["Explain why confidence can be misleading.","List 2–3 risks AI cannot feel (reputation, politics, fairness, trust).","Describe how you would surface the risk without killing momentum."]$$),
+      ('decision_challenge',2,'Which escalation approach is most professional in an AI-enabled workplace?','multiple_choice', $$[
+        {"label":"A","text":"Say nothing and move forward to avoid conflict."},
+        {"label":"B","text":"Reject the AI recommendation as unreliable."},
+        {"label":"C","text":"Flag the risk with evidence, propose options, and recommend a small validation step before full rollout."},
+        {"label":"D","text":"Escalate emotionally to ensure leadership takes you seriously."}
+      ]$$,
+        $$["What keeps your tone constructive?","How do options preserve momentum?","What validation step reduces risk fastest?"]$$),
+      ('decision_challenge',3,'What is the best “smallest validation step” before a risky AI-recommended change?','multiple_choice', $$[
+        {"label":"A","text":"Announce the change broadly and see what happens."},
+        {"label":"B","text":"Run a controlled pilot with monitoring metrics and clear rollback criteria."},
+        {"label":"C","text":"Ask AI to be more confident."},
+        {"label":"D","text":"Wait indefinitely for perfect certainty."}
+      ]$$,
+        $$["Why is a pilot safer than a full rollout?","What metrics would you monitor?","What rollback criteria protects reputation?"]$$),
+      ('reflection',1,'What makes you hesitate to escalate risk, and how will you overcome it?','open_ended', $$null$$,
+        $$["Name the fear honestly.","Describe a strategy to stay calm and evidence-based.","Describe how you will frame escalation as protection, not resistance."]$$),
+      ('reflection',2,'Write your one-sentence escalation opener that you will use in real meetings.','open_ended', $$null$$,
+        $$["Make it calm and direct.","Reference impact and protection.","Include an option or validation step."]$$)
+  ) AS e(section_type, sort_order, question, question_type, options, thinking_prompts)
+    ON e.section_type = sl.section_type
+  RETURNING id
+)
+
+SELECT
+  (SELECT count(*) FROM del_day) AS days_deleted,
+  (SELECT count(*) FROM ins_day) AS days_inserted,
+  (SELECT count(*) FROM ins_sections) AS sections_inserted,
+  (SELECT count(*) FROM ins_exercises) AS exercises_inserted;
