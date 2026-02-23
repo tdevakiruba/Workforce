@@ -67,7 +67,6 @@ export async function POST(request: Request) {
       .eq("day_number", dayNumber)
 
     const completedCount = (dayActions ?? []).filter((a) => a.completed).length
-    console.log("[v0] Progress check - completedCount:", completedCount, "totalActions:", totalActions, "dayNumber:", dayNumber, "current_day:", enrollment.current_day)
 
     if (completedCount >= totalActions) {
       // All actions done for this day - advance enrollment current_day

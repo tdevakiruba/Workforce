@@ -643,7 +643,6 @@ export function JourneyClient({
         }),
       })
       const data = await res.json()
-      console.log("[v0] toggleAction response:", JSON.stringify(data), "dayNum:", dayNum, "activeDay:", activeDay, "totalForDay:", totalForDay)
 
       // Day was advanced on the server -- update local state & auto-navigate
       if (data.dayAdvanced && dayNum === activeDay) {
