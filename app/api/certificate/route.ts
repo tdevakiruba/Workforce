@@ -54,10 +54,10 @@ export async function GET(request: NextRequest) {
   const totalDays = durationMatch ? parseInt(durationMatch[1], 10) : 21
   const currentDay = Math.min(enrollment.current_day ?? 1, totalDays)
 
-  // Fetch phases
+  // Fetch phases -- actual DB columns: title, description, day_range, sort_order
   const { data: phases } = await supabase
     .from("program_phases")
-    .select("name, letter, days, description, sort_order")
+    .select("title, description, day_range, sort_order")
     .eq("program_id", program.id)
     .order("sort_order")
 
@@ -65,11 +65,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "No phases found" }, { status: 404 })
   }
 
-  // Parse phase days (e.g. "Days 1-7" → { start: 1, end: 7 })
-  function parseDays(daysStr: string | null): { start: number; end: number } {
-    const match = daysStr?.match(/(\d+)\s*-\s*(\d+)/)
+  // Parse "Days X-Y" string into { start, end }
+  function parseDays(dayRange: string | null): { start: number; end: number } {
+    const match = dayRange?.match(/(\d+)\s*-\s*(\d+)/)
     if (match) return { start: parseInt(match[1], 10), end: parseInt(match[2], 10) }
-    const single = daysStr?.match(/(\d+)/)
+    const single = dayRange?.match(/(\d+)/)
     if (single) return { start: parseInt(single[1], 10), end: parseInt(single[1], 10) }
     return { start: 1, end: totalDays }
   }
@@ -100,16 +100,16 @@ export async function GET(request: NextRequest) {
         credentialId,
         userName,
         programName: program.name,
-        title: `${program.name} -- Program Completion`,
-        subtitle: `Successfully completed the entire ${totalDays}-day ${program.name} program`,
+        title: "AI Workforce Readiness Certification",
+        subtitle: `Completed the ${totalDays}-Day AI Workforce Accelerator`,
         issuedDate,
         issuer: "Transformer Hub",
         totalDays,
         color: program.color ?? "#00c892",
         phases: phases.map((p) => ({
-          name: p.name,
-          letter: p.letter,
-          days: p.days,
+          name: p.title,
+          letter: (p.title ?? "P")[0],
+          days: p.day_range,
           description: p.description,
         })),
       },
@@ -123,7 +123,7 @@ export async function GET(request: NextRequest) {
   }
 
   const phase = phases[phaseIndex]
-  const { end: dayEnd } = parseDays(phase.days)
+  const { end: dayEnd } = parseDays(phase.day_range)
 
   if (currentDay <= dayEnd) {
     return NextResponse.json({ error: "Phase not yet completed" }, { status: 403 })
@@ -135,15 +135,15 @@ export async function GET(request: NextRequest) {
       credentialId,
       userName,
       programName: program.name,
-      title: `${phase.name} Mastery`,
-      subtitle: `Completed Phase ${phaseIndex + 1}: ${phase.name} (${phase.days})`,
+      title: `${phase.title} Mastery`,
+      subtitle: `Completed Phase ${phaseIndex + 1}: ${phase.title} (${phase.day_range})`,
       issuedDate,
       issuer: "Transformer Hub",
       totalDays,
       color: program.color ?? "#00c892",
-      phaseName: phase.name,
-      phaseLetter: phase.letter,
-      phaseDays: phase.days,
+      phaseName: phase.title,
+      phaseLetter: (phase.title ?? "P")[0],
+      phaseDays: phase.day_range,
       phaseDescription: phase.description,
       phaseNumber: phaseIndex + 1,
       totalPhases: phases.length,
