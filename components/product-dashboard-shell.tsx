@@ -12,11 +12,13 @@ import {
   GraduationCap,
   LayoutDashboard,
   FlaskConical,
+  LogOut,
   Menu,
   Award,
   X,
 } from "lucide-react"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { SessionActivityTracker } from "@/components/session-activity-tracker"
 
 interface ProductDashboardShellProps {
@@ -60,7 +62,18 @@ export function ProductDashboardShell({
   children,
 }: ProductDashboardShellProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  async function handleLogout() {
+    setLoggingOut(true)
+    try {
+      await fetch("/api/auth/signout", { method: "POST" })
+    } finally {
+      router.push("/signin")
+    }
+  }
 
   const activeTab =
     sidebarTabs.find((tab) =>
@@ -180,6 +193,14 @@ export function ProductDashboardShell({
               <GraduationCap className="size-3" />
               <span className="capitalize">{enrollment.planTier} Plan</span>
             </div>
+            <button
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="mt-3 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+            >
+              <LogOut className="size-3.5" />
+              {loggingOut ? "Signing out..." : "Sign Out"}
+            </button>
           </div>
         </div>
       </aside>
@@ -275,6 +296,14 @@ export function ProductDashboardShell({
                 <ArrowLeft className="size-3.5" />
                 Back to All Programs
               </Link>
+              <button
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="mt-3 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+              >
+                <LogOut className="size-3.5" />
+                {loggingOut ? "Signing out..." : "Sign Out"}
+              </button>
             </div>
           </div>
         </>
