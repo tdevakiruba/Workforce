@@ -307,7 +307,7 @@ export function FrameworksClient({
                     href={
                       isLocked
                         ? "#"
-                        : `/dashboard/${program.slug}/journey`
+                        : `/dashboard/${program.slug}/journey?day=${day.day_number}`
                     }
                     onClick={(e) => isLocked && e.preventDefault()}
                     className={`group flex items-start gap-3 rounded-xl border bg-card p-4 transition-all ${

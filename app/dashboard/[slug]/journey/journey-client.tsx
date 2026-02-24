@@ -113,6 +113,7 @@ interface JourneyClientProps {
   }
   enrollmentId: string
   currentDay: number
+  initialDay?: number
   curriculum: CurriculumDay[]
   userActions: {
     day_number: number
@@ -507,12 +508,13 @@ export function JourneyClient({
   program,
   enrollmentId,
   currentDay,
+  initialDay,
   curriculum,
   userActions,
   userSectionProgress,
   userResponses,
 }: JourneyClientProps) {
-  const [selectedDay, setSelectedDayRaw] = useState(currentDay)
+  const [selectedDay, setSelectedDayRaw] = useState(initialDay ?? currentDay)
   const [activeDay, setActiveDay] = useState(currentDay)
 
   // Wrap setSelectedDay to dismiss the completion banner on navigation
