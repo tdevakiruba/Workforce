@@ -310,7 +310,7 @@ export function FrameworksClient({
                         : `/dashboard/${program.slug}/journey`
                     }
                     onClick={(e) => isLocked && e.preventDefault()}
-                    className={`group flex items-start gap-3 rounded-xl border-2 bg-card p-4 transition-all ${
+                    className={`group flex items-start gap-3 rounded-xl border bg-card p-4 transition-all ${
                       isCurrent
                         ? "shadow-md"
                         : isLocked
@@ -320,9 +320,7 @@ export function FrameworksClient({
                     style={{
                       borderColor: isCurrent
                         ? phase.color
-                        : isCompleted
-                        ? `${phase.color}25`
-                        : "transparent",
+                        : undefined,
                     }}
                   >
                     {/* Day number badge */}
