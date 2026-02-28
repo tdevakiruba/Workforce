@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   }
 
   const { data, error } = await supabase
-    .from("user_exercise_responses")
+    .from("wf-user_exercise_responses")
     .select("id, exercise_id, section_id, day_number, response_text, updated_at")
     .eq("enrollment_id", enrollmentId)
 
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
   // Reject edits for completed (past) days
   const { data: enrollment } = await supabase
-    .from("enrollments")
+    .from("wf-enrollments")
     .select("current_day")
     .eq("id", enrollmentId)
     .eq("user_id", user.id)
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
   if (sectionId) row.section_id = sectionId
 
   const { error } = await supabase
-    .from("user_exercise_responses")
+    .from("wf-user_exercise_responses")
     .upsert(row, { onConflict })
 
   if (error) {

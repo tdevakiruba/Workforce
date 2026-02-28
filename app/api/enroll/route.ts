@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
   // Get program (include duration for dynamic subscription length)
   const { data: program, error: programError } = await supabase
-    .from("programs")
+    .from("wf-programs")
     .select("id, slug, name, duration")
     .eq("slug", programSlug)
     .single()
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
 
   // Check if already enrolled
   const { data: existingEnrollment } = await supabase
-    .from("enrollments")
+    .from("wf-enrollments")
     .select("id")
     .eq("user_id", user.id)
     .eq("program_id", program.id)
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
   if (existingEnrollment) {
     // Check if subscription exists
     const { data: existingSub } = await supabase
-      .from("subscriptions")
+      .from("wf-subscriptions")
       .select("id, status")
       .eq("user_id", user.id)
       .eq("program_id", program.id)
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
   endDate.setDate(endDate.getDate() + durationDays)
 
   // Create subscription record
-  const { error: subError } = await supabase.from("subscriptions").insert({
+  const { error: subError } = await supabase.from("wf-subscriptions").insert({
     user_id: user.id,
     program_id: program.id,
     plan_tier: planTier,
@@ -83,7 +83,7 @@ export async function POST(request: Request) {
   // Create enrollment (or reactivate existing)
   if (existingEnrollment) {
     const { error: updateError } = await supabase
-      .from("enrollments")
+      .from("wf-enrollments")
       .update({
         status: "active",
         current_day: 1,
@@ -102,7 +102,7 @@ export async function POST(request: Request) {
   }
 
   const { data: enrollment, error: enrollError } = await supabase
-    .from("enrollments")
+    .from("wf-enrollments")
     .insert({
       user_id: user.id,
       program_id: program.id,
@@ -119,7 +119,7 @@ export async function POST(request: Request) {
   }
 
   // Create streak record
-  await supabase.from("user_streaks").insert({
+  await supabase.from("wf-user_streaks").insert({
     user_id: user.id,
     enrollment_id: enrollment.id,
     current_streak: 0,

@@ -20,28 +20,28 @@ export default async function DashboardPage() {
 
   // Get profile
   const { data: profile } = await supabase
-    .from("profiles")
+    .from("wf-profiles")
     .select("first_name, last_name")
     .eq("id", user.id)
     .maybeSingle()
 
   // Get ALL active subscriptions for this user
   const { data: subscriptions } = await supabase
-    .from("subscriptions")
+    .from("wf-subscriptions")
     .select("*")
     .eq("user_id", user.id)
     .eq("status", "active")
 
   // Get ALL active enrollments with their program data
   const { data: enrollments } = await supabase
-    .from("enrollments")
-    .select("*, programs(id, slug, name, tagline, audience, duration, color, badge)")
+    .from("wf-enrollments")
+    .select("*, wf-programs(id, slug, name, tagline, audience, duration, color, badge)")
     .eq("user_id", user.id)
     .eq("status", "active")
 
   // If exactly one active enrollment, auto-redirect to that program's dashboard
   if (enrollments && enrollments.length === 1) {
-    const singleProgram = enrollments[0].programs as {
+    const singleProgram = (enrollments[0] as any)["wf-programs"] as {
       slug: string
     } | null
     if (singleProgram?.slug) {
@@ -52,7 +52,7 @@ export default async function DashboardPage() {
   // If no enrollments, check if there's only one program -- redirect and let layout auto-enroll
   if (!enrollments || enrollments.length === 0) {
     const { data: availablePrograms } = await supabase
-      .from("programs")
+      .from("wf-programs")
       .select("slug")
       .eq("is_active", true)
 
@@ -63,7 +63,7 @@ export default async function DashboardPage() {
 
   // Build journey data for each enrollment (only shown for 0 or 2+ enrollments)
   const journeys = (enrollments ?? []).map((enrollment) => {
-    const program = enrollment.programs as {
+    const program = (enrollment as any)["wf-programs"] as {
       id: string
       slug: string
       name: string
@@ -103,7 +103,7 @@ export default async function DashboardPage() {
 
   // Get all programs for "Discover more" section
   const { data: allPrograms } = await supabase
-    .from("programs")
+    .from("wf-programs")
     .select("id, name, slug, tagline, duration, color, badge, audience")
     .eq("is_active", true)
     .order("sort_order")

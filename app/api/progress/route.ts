@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
   // Reject toggling actions for already-completed days
   const { data: enrollment } = await supabase
-    .from("enrollments")
+    .from("wf-enrollments")
     .select("current_day")
     .eq("id", enrollmentId)
     .eq("user_id", user.id)
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
   // Upsert action progress
   const { error } = await supabase
-    .from("user_actions")
+    .from("wf-user_actions")
     .upsert(
       {
         user_id: user.id,
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
   let dayAdvanced = false
   if (completed && totalActions != null && totalActions > 0) {
     const { data: dayActions } = await supabase
-      .from("user_actions")
+      .from("wf-user_actions")
       .select("action_index, completed")
       .eq("enrollment_id", enrollmentId)
       .eq("day_number", dayNumber)
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     if (completedCount >= totalActions) {
       // All actions done for this day - advance enrollment current_day
       const { data: currentEnrollment } = await supabase
-        .from("enrollments")
+        .from("wf-enrollments")
         .select("current_day")
         .eq("id", enrollmentId)
         .single()
@@ -79,13 +79,13 @@ export async function POST(request: Request) {
       if (currentEnrollment && currentEnrollment.current_day <= dayNumber) {
         const nextDay = dayNumber + 1
         await supabase
-          .from("enrollments")
+          .from("wf-enrollments")
           .update({ current_day: nextDay })
           .eq("id", enrollmentId)
 
         // Record day completion in user_day_progress
         await supabase
-          .from("user_day_progress")
+          .from("wf-user_day_progress")
           .upsert(
             {
               user_id: user.id,
@@ -99,7 +99,7 @@ export async function POST(request: Request) {
 
         // Create a placeholder row for the next day (not completed yet)
         await supabase
-          .from("user_day_progress")
+          .from("wf-user_day_progress")
           .upsert(
             {
               user_id: user.id,

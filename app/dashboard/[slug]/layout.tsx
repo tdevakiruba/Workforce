@@ -10,7 +10,7 @@ export async function generateMetadata({
   const { slug } = await params
   const supabase = await createClient()
   const { data: program } = await supabase
-    .from("programs")
+    .from("wf-programs")
     .select("name")
     .eq("slug", slug)
     .maybeSingle()
@@ -38,7 +38,7 @@ export default async function ProductDashboardLayout({
 
   // Fetch program
   const { data: program } = await supabase
-    .from("programs")
+    .from("wf-programs")
     .select("id, slug, name, tagline, color, badge, duration, audience")
     .eq("slug", slug)
     .maybeSingle()
@@ -47,7 +47,7 @@ export default async function ProductDashboardLayout({
 
   // Verify active enrollment -- auto-enroll if not found
   let { data: enrollment } = await supabase
-    .from("enrollments")
+    .from("wf-enrollments")
     .select("id, status, current_day, started_at")
     .eq("user_id", user.id)
     .eq("program_id", program.id)
@@ -57,7 +57,7 @@ export default async function ProductDashboardLayout({
   if (!enrollment) {
     // Auto-enroll the user
     const { data: newEnrollment } = await supabase
-      .from("enrollments")
+      .from("wf-enrollments")
       .upsert(
         {
           user_id: user.id,
@@ -77,7 +77,7 @@ export default async function ProductDashboardLayout({
 
     // Also create a default subscription if none exists
     const { data: existingSub } = await supabase
-      .from("subscriptions")
+      .from("wf-subscriptions")
       .select("id")
       .eq("user_id", user.id)
       .eq("program_id", program.id)
@@ -85,7 +85,7 @@ export default async function ProductDashboardLayout({
       .maybeSingle()
 
     if (!existingSub) {
-      await supabase.from("subscriptions").insert({
+      await supabase.from("wf-subscriptions").insert({
         user_id: user.id,
         program_id: program.id,
         plan_tier: "individual",
@@ -99,7 +99,7 @@ export default async function ProductDashboardLayout({
 
   // Get subscription info
   const { data: subscription } = await supabase
-    .from("subscriptions")
+    .from("wf-subscriptions")
     .select("plan_tier, current_period_start, current_period_end")
     .eq("user_id", user.id)
     .eq("program_id", program.id)

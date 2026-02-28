@@ -18,7 +18,7 @@ export default async function CertificatesPage({
   if (!user) redirect("/signin")
 
   const { data: program } = await supabase
-    .from("programs")
+    .from("wf-programs")
     .select("id, slug, name, color, badge, duration")
     .eq("slug", slug)
     .single()
@@ -26,7 +26,7 @@ export default async function CertificatesPage({
   if (!program) redirect("/dashboard")
 
   const { data: enrollment } = await supabase
-    .from("enrollments")
+    .from("wf-enrollments")
     .select("id, current_day, started_at")
     .eq("user_id", user.id)
     .eq("program_id", program.id)
@@ -41,7 +41,7 @@ export default async function CertificatesPage({
 
   // Fetch phases -- actual DB columns: title, description, day_range, sort_order
   const { data: phases } = await supabase
-    .from("program_phases")
+    .from("wf-program_phases")
     .select("title, description, day_range, sort_order")
     .eq("program_id", program.id)
     .order("sort_order")
