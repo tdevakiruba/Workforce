@@ -7,14 +7,14 @@ WITH
 params AS (SELECT '7da8d569-d5a3-47d8-9101-e8142b44822e'::uuid AS program_id, 10::int AS day_number),
 
 del_day AS (
-  DELETE FROM public.curriculum_days d
+  DELETE FROM public."wf-curriculum_days" d
   USING params p
   WHERE d.program_id = p.program_id AND d.day_number = p.day_number
   RETURNING d.id
 ),
 
 ins_day AS (
-  INSERT INTO public.curriculum_days
+  INSERT INTO public."wf-curriculum_days"
   (program_id, day_number, title, theme, day_objective, lesson_flow, key_teaching_quote, behaviors_instilled, end_of_day_outcomes, facilitator_close)
   SELECT
     p.program_id,
@@ -47,7 +47,7 @@ ins_day AS (
 ),
 
 ins_sections AS (
-  INSERT INTO public.curriculum_sections (day_id, sort_order, section_type, title, content)
+  INSERT INTO public."wf-curriculum_sections" (day_id, sort_order, section_type, title, content)
   SELECT d.id, s.sort_order, s.section_type, s.title, s.content::jsonb
   FROM ins_day d
   CROSS JOIN (
@@ -96,7 +96,7 @@ ins_sections AS (
 section_lookup AS (SELECT id AS section_id, section_type FROM ins_sections),
 
 ins_exercises AS (
-  INSERT INTO public.curriculum_exercises (section_id, sort_order, question, question_type, options, thinking_prompts)
+  INSERT INTO public."wf-curriculum_exercises" (section_id, sort_order, question, question_type, options, thinking_prompts)
   SELECT sl.section_id, e.sort_order, e.question, e.question_type, e.options::jsonb, e.thinking_prompts::jsonb
   FROM section_lookup sl
   JOIN (
