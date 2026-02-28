@@ -51,9 +51,9 @@ export default async function JourneyPage({
       day_objective, lesson_flow,
       key_teaching_quote, behaviors_instilled,
       end_of_day_outcomes, facilitator_close,
-      curriculum_sections (
+      "wf-curriculum_sections" (
         id, sort_order, section_type, title, content,
-        curriculum_exercises (
+        "wf-curriculum_exercises" (
           id, sort_order, question, question_type, options, thinking_prompts
         )
       )
@@ -62,13 +62,13 @@ export default async function JourneyPage({
     .order("day_number")
 
   // Sort nested sections and exercises by sort_order
-  const curriculum = (curriculumDays ?? []).map((day) => ({
+  const curriculum = (curriculumDays ?? []).map((day: any) => ({
     ...day,
-    curriculum_sections: (day.curriculum_sections ?? [])
+    curriculum_sections: ((day as any)["wf-curriculum_sections"] ?? [])
       .sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order)
-      .map((section: { curriculum_exercises?: { sort_order: number }[] }) => ({
+      .map((section: any) => ({
         ...section,
-        curriculum_exercises: (section.curriculum_exercises ?? [])
+        curriculum_exercises: ((section as any)["wf-curriculum_exercises"] ?? [])
           .sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order),
       })),
   }))
