@@ -43,34 +43,53 @@ export default async function JourneyPage({
   const totalDays = durationMatch ? parseInt(durationMatch[1], 10) : 21
   const currentDay = Math.min(enrollment.current_day ?? 1, totalDays)
 
-  // Fetch curriculum days with nested sections and exercises
+  // Fetch curriculum days, sections, and exercises separately
+  // (nested FK joins don't work with hyphenated table names in Supabase JS)
   const { data: curriculumDays } = await supabase
     .from("wf-curriculum_days")
-    .select(`
-      id, day_number, title, theme,
-      day_objective, lesson_flow,
-      key_teaching_quote, behaviors_instilled,
-      end_of_day_outcomes, facilitator_close,
-      "wf-curriculum_sections" (
-        id, sort_order, section_type, title, content,
-        "wf-curriculum_exercises" (
-          id, sort_order, question, question_type, options, thinking_prompts
-        )
-      )
-    `)
+    .select("id, day_number, title, theme, day_objective, lesson_flow, key_teaching_quote, behaviors_instilled, end_of_day_outcomes, facilitator_close")
     .eq("program_id", program.id)
     .order("day_number")
 
-  // Sort nested sections and exercises by sort_order
-  const curriculum = (curriculumDays ?? []).map((day: any) => ({
+  const dayIds = (curriculumDays ?? []).map((d) => d.id)
+
+  const { data: sections } = dayIds.length
+    ? await supabase
+        .from("wf-curriculum_sections")
+        .select("id, day_id, sort_order, section_type, title, content")
+        .in("day_id", dayIds)
+        .order("sort_order")
+    : { data: [] as any[] }
+
+  const sectionIds = (sections ?? []).map((s) => s.id)
+
+  const { data: exercises } = sectionIds.length
+    ? await supabase
+        .from("wf-curriculum_exercises")
+        .select("id, section_id, sort_order, question, question_type, options, thinking_prompts")
+        .in("section_id", sectionIds)
+        .order("sort_order")
+    : { data: [] as any[] }
+
+  // Assemble nested structure
+  const exercisesBySection = new Map<string, any[]>()
+  for (const ex of exercises ?? []) {
+    const arr = exercisesBySection.get(ex.section_id) ?? []
+    arr.push(ex)
+    exercisesBySection.set(ex.section_id, arr)
+  }
+
+  const sectionsByDay = new Map<string, any[]>()
+  for (const sec of sections ?? []) {
+    const arr = sectionsByDay.get(sec.day_id) ?? []
+    arr.push({ ...sec, curriculum_exercises: exercisesBySection.get(sec.id) ?? [] })
+    sectionsByDay.set(sec.day_id, arr)
+  }
+
+  const curriculum = (curriculumDays ?? []).map((day) => ({
     ...day,
-    curriculum_sections: ((day as any)["wf-curriculum_sections"] ?? [])
-      .sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order)
-      .map((section: any) => ({
-        ...section,
-        curriculum_exercises: ((section as any)["wf-curriculum_exercises"] ?? [])
-          .sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order),
-      })),
+    curriculum_sections: (sectionsByDay.get(day.id) ?? [])
+      .sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order),
   }))
 
   // Fetch user action progress
