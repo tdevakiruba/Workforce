@@ -19,7 +19,7 @@ export default async function JourneyPage({
   if (!user) redirect("/signin")
 
   const { data: program } = await supabase
-    .from("programs")
+    .from("wf-programs")
     .select("id, slug, name, color, badge, duration")
     .eq("slug", slug)
     .single()
@@ -27,7 +27,7 @@ export default async function JourneyPage({
   if (!program) redirect("/dashboard")
 
   const { data: enrollment } = await supabase
-    .from("enrollments")
+    .from("wf-enrollments")
     .select("id, current_day, started_at")
     .eq("user_id", user.id)
     .eq("program_id", program.id)
@@ -45,7 +45,7 @@ export default async function JourneyPage({
 
   // Fetch curriculum days with nested sections and exercises
   const { data: curriculumDays } = await supabase
-    .from("curriculum_days")
+    .from("wf-curriculum_days")
     .select(`
       id, day_number, title, theme,
       day_objective, lesson_flow,
@@ -75,19 +75,19 @@ export default async function JourneyPage({
 
   // Fetch user action progress
   const { data: userActions } = await supabase
-    .from("user_actions")
+    .from("wf-user_actions")
     .select("day_number, action_index, completed")
     .eq("enrollment_id", enrollment.id)
 
   // Fetch user section progress
   const { data: userSectionProgress } = await supabase
-    .from("user_section_progress")
+    .from("wf-user_section_progress")
     .select("section_id, completed")
     .eq("enrollment_id", enrollment.id)
 
   // Fetch saved exercise/artifact responses for portfolio
   const { data: userResponses } = await supabase
-    .from("user_exercise_responses")
+    .from("wf-user_exercise_responses")
     .select("exercise_id, section_id, day_number, response_text")
     .eq("enrollment_id", enrollment.id)
 

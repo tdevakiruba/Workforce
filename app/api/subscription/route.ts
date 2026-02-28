@@ -14,8 +14,8 @@ export async function GET() {
 
   // Get active subscription with program info
   const { data: subscription } = await supabase
-    .from("subscriptions")
-    .select("*, programs(id, slug, name, duration)")
+    .from("wf-subscriptions")
+    .select("*, wf-programs(id, slug, name, duration)")
     .eq("user_id", user.id)
     .eq("status", "active")
     .order("created_at", { ascending: false })
@@ -28,7 +28,7 @@ export async function GET() {
 
   // Get enrollment
   const { data: enrollment } = await supabase
-    .from("enrollments")
+    .from("wf-enrollments")
     .select("*")
     .eq("user_id", user.id)
     .eq("program_id", subscription.program_id)

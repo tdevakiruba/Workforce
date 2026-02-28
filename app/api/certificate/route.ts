@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
   // Fetch enrollment
   const { data: enrollment } = await supabase
-    .from("enrollments")
+    .from("wf-enrollments")
     .select("id, current_day, started_at, completed_at, program_id, user_id")
     .eq("id", enrollmentId)
     .eq("user_id", user.id)
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 
   // Fetch program
   const { data: program } = await supabase
-    .from("programs")
+    .from("wf-programs")
     .select("id, slug, name, duration, color, badge")
     .eq("id", enrollment.program_id)
     .single()
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
 
   // Fetch phases -- actual DB columns: title, description, day_range, sort_order
   const { data: phases } = await supabase
-    .from("program_phases")
+    .from("wf-program_phases")
     .select("title, description, day_range, sort_order")
     .eq("program_id", program.id)
     .order("sort_order")

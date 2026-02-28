@@ -20,7 +20,7 @@ export default async function OverviewPage({
 
   // Get program
   const { data: program } = await supabase
-    .from("programs")
+    .from("wf-programs")
     .select("id, slug, name, tagline, color, badge, duration, audience, short_description")
     .eq("slug", slug)
     .single()
@@ -29,7 +29,7 @@ export default async function OverviewPage({
 
   // Get enrollment (layout already ensures enrollment exists via auto-enroll)
   const { data: enrollment } = await supabase
-    .from("enrollments")
+    .from("wf-enrollments")
     .select("id, current_day, started_at, status")
     .eq("user_id", user.id)
     .eq("program_id", program.id)
@@ -40,7 +40,7 @@ export default async function OverviewPage({
 
   // Get subscription
   const { data: subscription } = await supabase
-    .from("subscriptions")
+    .from("wf-subscriptions")
     .select("plan_tier, current_period_start, current_period_end")
     .eq("user_id", user.id)
     .eq("program_id", program.id)
@@ -55,14 +55,14 @@ export default async function OverviewPage({
 
   // Get user actions completed
   const { count: actionsCompleted } = await supabase
-    .from("user_actions")
+    .from("wf-user_actions")
     .select("*", { count: "exact", head: true })
     .eq("enrollment_id", enrollment.id)
     .eq("completed", true)
 
   // Get streak
   const { data: streak } = await supabase
-    .from("user_streaks")
+    .from("wf-user_streaks")
     .select("current_streak, longest_streak, last_activity_date")
     .eq("enrollment_id", enrollment.id)
     .maybeSingle()
@@ -70,7 +70,7 @@ export default async function OverviewPage({
   // Get today's insight (title + theme for the daily quote tile)
   let dailyInsight: { title: string; keyTheme: string } | null = null
   const { data: dayData } = await supabase
-    .from("curriculum_days")
+    .from("wf-curriculum_days")
     .select("title, theme")
     .eq("program_id", program.id)
     .eq("day_number", currentDay)
