@@ -11,7 +11,7 @@ params AS (
 ),
 
 del_day AS (
-  DELETE FROM public.curriculum_days d
+  DELETE FROM public."wf-curriculum_days" d
   USING params p
   WHERE d.program_id = p.program_id
     AND d.day_number = p.day_number
@@ -19,7 +19,7 @@ del_day AS (
 ),
 
 ins_day AS (
-  INSERT INTO public.curriculum_days
+  INSERT INTO public."wf-curriculum_days"
   (
     program_id, day_number, title, theme,
     day_objective, lesson_flow, key_teaching_quote,
@@ -78,7 +78,7 @@ ins_day AS (
 ),
 
 ins_sections AS (
-  INSERT INTO public.curriculum_sections
+  INSERT INTO public."wf-curriculum_sections"
   (day_id, sort_order, section_type, title, content)
   SELECT
     d.id,
@@ -187,7 +187,7 @@ section_lookup AS (
 ),
 
 ins_exercises AS (
-  INSERT INTO public.curriculum_exercises
+  INSERT INTO public."wf-curriculum_exercises"
   (section_id, sort_order, question, question_type, options, thinking_prompts)
   SELECT
     sl.section_id,
