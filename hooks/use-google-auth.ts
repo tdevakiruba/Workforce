@@ -38,24 +38,38 @@ export function useGoogleAuth(onCredential: (idToken: string) => void) {
 
   const triggerGoogleSignIn = useCallback(() => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+    console.log("[v0] triggerGoogleSignIn called, clientId:", clientId ? "SET" : "NOT SET")
     if (!clientId) {
       console.error("[v0] NEXT_PUBLIC_GOOGLE_CLIENT_ID is not set")
+      alert("Google Client ID is not configured. Please set NEXT_PUBLIC_GOOGLE_CLIENT_ID.")
       return
     }
 
     function attemptInit(retries = 0) {
+      console.log("[v0] attemptInit retry:", retries, "google available:", !!window.google?.accounts?.id)
       if (window.google?.accounts?.id) {
         window.google.accounts.id.initialize({
           client_id: clientId,
           callback: (response: { credential: string }) => {
+            console.log("[v0] Google credential received, length:", response.credential?.length)
             callbackRef.current(response.credential)
           },
           ux_mode: "popup",
         })
-        window.google.accounts.id.prompt()
+        window.google.accounts.id.prompt((notification: { getMomentType: () => string; getSkippedReason?: () => string; getDismissedReason?: () => string }) => {
+          console.log("[v0] Google prompt moment:", notification.getMomentType())
+          if (notification.getMomentType() === "skipped") {
+            console.log("[v0] Skipped reason:", notification.getSkippedReason?.())
+          }
+          if (notification.getMomentType() === "dismissed") {
+            console.log("[v0] Dismissed reason:", notification.getDismissedReason?.())
+          }
+        })
       } else if (retries < 20) {
-        // Script may still be loading, retry after a short delay
         setTimeout(() => attemptInit(retries + 1), 150)
+      } else {
+        console.error("[v0] Google GSI script failed to load after 20 retries")
+        alert("Google Sign-In failed to load. Please refresh and try again.")
       }
     }
 
