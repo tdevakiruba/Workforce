@@ -61,9 +61,7 @@ function SignInForm() {
   })
 
   async function handleOAuth(provider: "google" | "apple") {
-    console.log("[v0] handleOAuth called with provider:", provider)
     if (provider === "google") {
-      console.log("[v0] Using popup-based Google sign-in")
       triggerGoogleSignIn()
       return
     }
