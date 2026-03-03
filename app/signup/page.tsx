@@ -46,7 +46,7 @@ export default function SignUpPage() {
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+        redirectTo: `https://workforce.transformerhub.com/auth/callback?next=/dashboard`,
       },
     })
     if (oauthError) {
@@ -65,7 +65,7 @@ export default function SignUpPage() {
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `https://workforce.transformerhub.com/auth/callback`,
         data: {
           first_name: firstName,
           last_name: lastName,

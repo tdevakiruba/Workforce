@@ -271,7 +271,7 @@ export function ProgramDetail({
 
   async function handleEnroll(tier: PricingTier) {
     if (!isLoggedIn) {
-      router.push(`/signin?redirect=/programs/${program.slug}`)
+      router.push(`/signin?redirect=/dashboard/${program.slug}/overview`)
       return
     }
     if (hasSubscription) {
