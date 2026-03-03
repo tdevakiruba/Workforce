@@ -1,5 +1,6 @@
 "use client"
 
+// Google Identity Services popup-based auth (no server redirects)
 import { useEffect, useCallback, useRef } from "react"
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
