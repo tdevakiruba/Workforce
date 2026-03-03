@@ -45,7 +45,7 @@ function SignInForm() {
     setError("")
     setOauthLoading(provider)
     const supabase = createClient()
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://workforce.transformerhub.com"
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider,
       options: {

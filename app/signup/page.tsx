@@ -43,7 +43,7 @@ export default function SignUpPage() {
     setError("")
     setOauthLoading(provider)
     const supabase = createClient()
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://workforce.transformerhub.com"
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
@@ -66,7 +66,7 @@ export default function SignUpPage() {
       email,
       password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/auth/callback`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "https://workforce.transformerhub.com"}/auth/callback`,
         data: {
           first_name: firstName,
           last_name: lastName,
