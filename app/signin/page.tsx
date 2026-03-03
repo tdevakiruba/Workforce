@@ -46,8 +46,7 @@ function SignInForm() {
     setOauthLoading(provider)
     const supabase = createClient()
     const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirect)}`
-    console.log("[v0] OAuth redirectTo:", redirectTo)
-    console.log("[v0] window.location.origin:", window.location.origin)
+    alert(`[DEBUG] redirectTo being sent to Supabase:\n${redirectTo}`)
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
