@@ -45,11 +45,10 @@ function SignInForm() {
     setError("")
     setOauthLoading(provider)
     const supabase = createClient()
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://workforce.transformerhub.com"
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${siteUrl}/auth/callback?next=${encodeURIComponent(redirect)}`,
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirect)}`,
       },
     })
     if (oauthError) {
