@@ -123,12 +123,39 @@ export default async function ProgramPage({
     key_theme: d.theme,
   }))
 
+  // Transform DB pricing rows to the PricingTier interface the component expects
+  const mappedPricing = (pricing ?? []).map((row: Record<string, unknown>) => ({
+    id: row.id as string,
+    tier: row.plan_tier as string,
+    name: row.label as string,
+    subtitle: row.description as string | null,
+    price:
+      row.plan_tier === "enterprise"
+        ? null
+        : row.plan_tier === "starter"
+          ? "Free"
+          : `$${((row.price_cents as number) / 100).toFixed(0)}`,
+    original_price: null,
+    price_note:
+      row.plan_tier === "individual" ? "one-time payment" : null,
+    features: Array.isArray(row.features) ? row.features : [],
+    cta_label:
+      row.plan_tier === "enterprise"
+        ? "Contact Sales"
+        : row.plan_tier === "starter"
+          ? "Get Started Free"
+          : "Enroll Now",
+    cta_href: row.plan_tier === "enterprise" ? "/organizations" : null,
+    highlighted: row.is_popular === true,
+    sort_order: row.sort_order as number,
+  }))
+
   return (
     <ProgramDetail
       program={{ ...program, leaders }}
       features={features ?? []}
       phases={phases ?? []}
-      pricing={pricing ?? []}
+      pricing={mappedPricing}
       curriculum={curriculum}
       isLoggedIn={!!user}
       hasSubscription={hasSubscription}
