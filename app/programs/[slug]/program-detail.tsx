@@ -754,57 +754,49 @@ export function ProgramDetail({
           {/* ─────────── PRICING (full section, visible on all sizes) ─────────── */}
           {pricing.length > 0 && (
             <section id="pricing" className="py-14 border-b">
-              <div className="text-center max-w-2xl mx-auto">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-wf-mint/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-wf-mint mb-4">
-                  <Zap className="size-3.5" /> Investment
-                </span>
-                <h2 className="font-serif text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl text-balance">
-                  Choose Your Plan
-                </h2>
-                <p className="mt-3 text-base text-foreground/60 leading-relaxed text-pretty">
-                  Start your {program.duration}-day transformation with {program.name}. Pick the plan that fits your journey.
-                </p>
-              </div>
+              <h2 className="font-serif text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+                Choose Your Plan
+              </h2>
+              <p className="mt-2 text-base text-foreground/60">
+                {"Get started with Workforce Ready\u2122 today."}
+              </p>
 
-              <div
-                className={`mt-10 grid grid-cols-1 gap-5 items-start ${
-                  pricing.length === 1
-                    ? "max-w-sm mx-auto"
-                    : pricing.length === 2
-                    ? "sm:grid-cols-2 max-w-2xl mx-auto"
-                    : "sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto"
-                }`}
-              >
+              <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 max-w-3xl">
                 {pricing.map((tier) => (
                   <div
                     key={tier.id}
-                    className={`relative flex flex-col rounded-2xl border bg-card p-6 transition-shadow duration-200 ${
+                    className={`flex flex-col rounded-2xl border bg-card p-7 ${
                       tier.highlighted
-                        ? "ring-2 ring-wf-mint shadow-lg scale-[1.02] lg:scale-105 z-10"
-                        : "hover:shadow-md"
+                        ? "border-wf-mint border-2 shadow-md"
+                        : "border-border"
                     }`}
                   >
+                    {/* Recommended badge */}
                     {tier.highlighted && (
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full bg-wf-mint px-4 py-1 text-xs font-bold text-white shadow-sm">
-                        <Star className="size-3" /> Most Popular
+                      <span className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-wf-mint/10 px-3.5 py-1 text-xs font-semibold text-wf-mint">
+                        <Star className="size-3.5" /> Recommended
                       </span>
                     )}
-                    <h3 className="font-serif text-lg font-bold text-card-foreground">
+
+                    {/* Tier name & subtitle */}
+                    <h3 className="font-serif text-xl font-bold text-card-foreground">
                       {tier.name}
                     </h3>
                     {tier.subtitle && (
-                      <p className="mt-1 text-sm text-foreground/60 leading-relaxed">
+                      <p className="mt-1 text-sm text-foreground/60">
                         {tier.subtitle}
                       </p>
                     )}
-                    <div className="mt-5 pb-5 border-b">
+
+                    {/* Price block */}
+                    <div className="mt-5 mb-6">
                       {tier.price ? (
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-serif text-4xl font-extrabold text-foreground">
+                        <div className="flex items-baseline gap-2.5">
+                          <span className="font-serif text-5xl font-extrabold text-foreground">
                             {tier.price}
                           </span>
                           {tier.original_price && (
-                            <span className="text-base text-muted-foreground line-through">
+                            <span className="text-lg text-muted-foreground line-through">
                               {tier.original_price}
                             </span>
                           )}
@@ -815,18 +807,15 @@ export function ProgramDetail({
                           )}
                         </div>
                       ) : (
-                        <div>
-                          <span className="font-serif text-2xl font-extrabold text-foreground">
-                            Custom Pricing
-                          </span>
-                          <p className="text-sm text-foreground/50 mt-0.5">
-                            Tailored to your team size
-                          </p>
-                        </div>
+                        <span className="font-serif text-2xl font-bold text-foreground">
+                          Custom Pricing
+                        </span>
                       )}
                     </div>
+
+                    {/* Feature list */}
                     {tier.features && tier.features.length > 0 && (
-                      <ul className="mt-5 flex flex-1 flex-col gap-3">
+                      <ul className="flex flex-1 flex-col gap-3">
                         {tier.features.map((f, i) => (
                           <li
                             key={i}
@@ -838,13 +827,15 @@ export function ProgramDetail({
                         ))}
                       </ul>
                     )}
+
+                    {/* CTA button */}
                     <Button
-                      className={`mt-6 w-full rounded-xl h-11 font-semibold ${
+                      className={`mt-8 w-full rounded-xl h-12 text-base font-semibold ${
                         tier.highlighted
-                          ? "bg-wf-mint text-white hover:bg-wf-mint-light shadow-sm"
-                          : ""
+                          ? "bg-wf-mint text-white hover:bg-wf-mint/90"
+                          : "bg-muted text-foreground hover:bg-muted/80"
                       }`}
-                      variant={tier.highlighted ? "default" : "outline"}
+                      variant={tier.highlighted ? "default" : "secondary"}
                       onClick={() => handleEnroll(tier)}
                       disabled={enrollingTier === tier.id}
                     >
@@ -855,38 +846,12 @@ export function ProgramDetail({
                         </>
                       ) : hasSubscription ? (
                         "Go to Dashboard"
-                      ) : !isLoggedIn ? (
-                        tier.cta_label || "Start Free Trial"
                       ) : (
-                        tier.cta_label || "Enroll Now"
+                        tier.cta_label || "Get Started"
                       )}
                     </Button>
-                    {!isLoggedIn && (
-                      <p className="mt-3 text-center text-xs text-foreground/50">
-                        {"Don't have an account? "}
-                        <Link
-                          href="/signup"
-                          className="font-semibold text-wf-mint hover:underline"
-                        >
-                          Create account
-                        </Link>
-                      </p>
-                    )}
                   </div>
                 ))}
-              </div>
-
-              {/* Trust indicators */}
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <Lock className="size-3.5" /> Secure checkout
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="size-3.5 text-wf-mint" /> 7-day money-back guarantee
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Users className="size-3.5" /> Join thousands of learners
-                </span>
               </div>
             </section>
           )}

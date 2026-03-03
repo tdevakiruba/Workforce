@@ -132,19 +132,16 @@ export default async function ProgramPage({
     price:
       row.plan_tier === "enterprise"
         ? null
-        : row.plan_tier === "starter"
-          ? "Free"
-          : `$${((row.price_cents as number) / 100).toFixed(0)}`,
-    original_price: null,
+        : `$${((row.price_cents as number) / 100).toFixed(0)}`,
+    original_price:
+      row.plan_tier === "individual" ? "$99" : null,
     price_note:
       row.plan_tier === "individual" ? "one-time payment" : null,
     features: Array.isArray(row.features) ? row.features : [],
     cta_label:
       row.plan_tier === "enterprise"
         ? "Contact Sales"
-        : row.plan_tier === "starter"
-          ? "Get Started Free"
-          : "Enroll Now",
+        : "Get Started",
     cta_href: row.plan_tier === "enterprise" ? "/organizations" : null,
     highlighted: row.is_popular === true,
     sort_order: row.sort_order as number,
