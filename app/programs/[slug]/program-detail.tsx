@@ -757,31 +757,28 @@ export function ProgramDetail({
               <h2 className="font-serif text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
                 Choose Your Plan
               </h2>
-              <p className="mt-3 text-base text-foreground/70">
-                Get started with {program.name} today.
+              <p className="mt-2 text-base text-foreground/60">
+                {"Get started with Workforce Ready\u2122 today."}
               </p>
 
-              <div
-                className={`mt-8 grid grid-cols-1 gap-6 ${
-                  pricing.length === 1
-                    ? "max-w-sm"
-                    : pricing.length === 2
-                    ? "sm:grid-cols-2 max-w-2xl"
-                    : "sm:grid-cols-2 lg:grid-cols-3"
-                }`}
-              >
+              <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 max-w-3xl">
                 {pricing.map((tier) => (
                   <div
                     key={tier.id}
-                    className={`flex flex-col rounded-2xl border bg-card p-6 ${
-                      tier.highlighted ? "ring-2 ring-wf-mint shadow-lg" : ""
+                    className={`flex flex-col rounded-2xl border bg-card p-7 ${
+                      tier.highlighted
+                        ? "border-wf-mint border-2 shadow-md"
+                        : "border-border"
                     }`}
                   >
+                    {/* Recommended badge */}
                     {tier.highlighted && (
-                      <span className="mb-3 inline-flex w-fit items-center gap-1.5 rounded-full bg-wf-mint/10 px-4 py-1.5 text-xs font-bold text-wf-mint">
+                      <span className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-wf-mint/10 px-3.5 py-1 text-xs font-semibold text-wf-mint">
                         <Star className="size-3.5" /> Recommended
                       </span>
                     )}
+
+                    {/* Tier name & subtitle */}
                     <h3 className="font-serif text-xl font-bold text-card-foreground">
                       {tier.name}
                     </h3>
@@ -790,31 +787,35 @@ export function ProgramDetail({
                         {tier.subtitle}
                       </p>
                     )}
-                    <div className="mt-4">
+
+                    {/* Price block */}
+                    <div className="mt-5 mb-6">
                       {tier.price ? (
-                        <div className="flex items-baseline gap-2">
-                          <span className="font-serif text-4xl font-extrabold text-foreground">
+                        <div className="flex items-baseline gap-2.5">
+                          <span className="font-serif text-5xl font-extrabold text-foreground">
                             {tier.price}
                           </span>
                           {tier.original_price && (
-                            <span className="text-base text-muted-foreground line-through">
+                            <span className="text-lg text-muted-foreground line-through">
                               {tier.original_price}
                             </span>
                           )}
                           {tier.price_note && (
-                            <span className="text-sm text-foreground/60">
+                            <span className="text-sm text-foreground/50">
                               {tier.price_note}
                             </span>
                           )}
                         </div>
                       ) : (
-                        <span className="font-serif text-xl font-bold text-foreground">
+                        <span className="font-serif text-2xl font-bold text-foreground">
                           Custom Pricing
                         </span>
                       )}
                     </div>
+
+                    {/* Feature list */}
                     {tier.features && tier.features.length > 0 && (
-                      <ul className="mt-5 flex flex-1 flex-col gap-2.5">
+                      <ul className="flex flex-1 flex-col gap-3">
                         {tier.features.map((f, i) => (
                           <li
                             key={i}
@@ -826,13 +827,15 @@ export function ProgramDetail({
                         ))}
                       </ul>
                     )}
+
+                    {/* CTA button */}
                     <Button
-                      className={`mt-6 w-full rounded-xl ${
+                      className={`mt-8 w-full rounded-xl h-12 text-base font-semibold ${
                         tier.highlighted
-                          ? "bg-wf-mint text-white hover:bg-wf-mint-light"
-                          : ""
+                          ? "bg-wf-mint text-white hover:bg-wf-mint/90"
+                          : "bg-muted text-foreground hover:bg-muted/80"
                       }`}
-                      variant={tier.highlighted ? "default" : "outline"}
+                      variant={tier.highlighted ? "default" : "secondary"}
                       onClick={() => handleEnroll(tier)}
                       disabled={enrollingTier === tier.id}
                     >
@@ -843,34 +846,10 @@ export function ProgramDetail({
                         </>
                       ) : hasSubscription ? (
                         "Go to Dashboard"
-                      ) : !isLoggedIn ? (
-                        "Start Free Trial"
                       ) : (
-                        tier.cta_label || "Enroll Now"
+                        tier.cta_label || "Get Started"
                       )}
                     </Button>
-                    {!isLoggedIn && (
-                      <div className="mt-3 flex flex-col gap-2">
-                        <Button
-                          asChild
-                          variant="outline"
-                          className="w-full rounded-xl"
-                        >
-                          <Link href={`/signin?redirect=/programs/${program.slug}`}>
-                            Sign In
-                          </Link>
-                        </Button>
-                        <p className="text-center text-sm text-foreground/60">
-                          {"Don't have an account? "}
-                          <Link
-                            href="/signup"
-                            className="font-semibold text-wf-mint hover:underline"
-                          >
-                            Create account
-                          </Link>
-                        </p>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>
