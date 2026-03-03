@@ -6,6 +6,23 @@ const SESSION_IDLE_LIMIT_MS = 15 * 60 * 1000 // 15 minutes
 const ACTIVITY_COOKIE = 'wf_last_activity'
 
 export async function updateSession(request: NextRequest) {
+  // If we receive a ?code= param on any page OTHER than /auth/callback,
+  // it means Supabase redirected to the wrong path (e.g. site root).
+  // Forward it to /auth/callback so the code exchange still happens.
+  const authCode = request.nextUrl.searchParams.get('code')
+  if (
+    authCode &&
+    !request.nextUrl.pathname.startsWith('/auth/callback')
+  ) {
+    const callbackUrl = request.nextUrl.clone()
+    callbackUrl.pathname = '/auth/callback'
+    // Preserve the code param; add a default next if missing
+    if (!callbackUrl.searchParams.has('next')) {
+      callbackUrl.searchParams.set('next', '/dashboard')
+    }
+    return NextResponse.redirect(callbackUrl)
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
   })
