@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { DM_Sans, Inter } from "next/font/google"
+import Script from "next/script"
 import { Analytics } from "@vercel/analytics/next"
 import { PlatformShell } from "@/components/platform-shell"
 import "./globals.css"
@@ -24,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-sans antialiased">
+        <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
         <PlatformShell>{children}</PlatformShell>
         <Analytics />
       </body>

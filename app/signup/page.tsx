@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { createClient } from "@/lib/supabase/client"
+import { useGoogleAuth } from "@/hooks/use-google-auth"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -39,7 +40,29 @@ export default function SignUpPage() {
   const [oauthLoading, setOauthLoading] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
 
+  // Popup-based Google sign-in (no server redirects)
+  const { triggerGoogleSignIn } = useGoogleAuth(async (idToken) => {
+    setOauthLoading("google")
+    setError("")
+    const supabase = createClient()
+    const { error: tokenError } = await supabase.auth.signInWithIdToken({
+      provider: "google",
+      token: idToken,
+    })
+    if (tokenError) {
+      setError(tokenError.message)
+      setOauthLoading(null)
+      return
+    }
+    router.push("/dashboard")
+    router.refresh()
+  })
+
   async function handleOAuth(provider: "google" | "apple") {
+    if (provider === "google") {
+      triggerGoogleSignIn()
+      return
+    }
     setError("")
     setOauthLoading(provider)
     const supabase = createClient()
