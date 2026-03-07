@@ -146,7 +146,7 @@ function ContentBlock({
   switch (item.type) {
     case "facilitator_script":
       return (
-        <p className="text-base leading-relaxed text-muted-foreground">
+        <p className="text-lg leading-relaxed text-muted-foreground">
           {item.text as string}
         </p>
       )
@@ -154,16 +154,16 @@ function ContentBlock({
       const itemsA = item.items_a as string[]
       const itemsB = item.items_b as string[]
       return (
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border-2 border-red-200 bg-red-50/50 p-4 dark:border-red-900 dark:bg-red-950/20">
-            <p className="mb-2 text-xs font-bold uppercase tracking-wider text-red-600 dark:text-red-400">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-xl border-2 border-red-200 bg-red-50/50 p-5 dark:border-red-900 dark:bg-red-950/20">
+            <p className="mb-3 text-sm font-bold uppercase tracking-wider text-red-600 dark:text-red-400">
               {item.label_a as string}
             </p>
-            <ul className="space-y-1">
+            <ul className="space-y-2">
               {itemsA.map((t, i) => (
                 <li
                   key={i}
-                  className="text-sm text-red-700 dark:text-red-300"
+                  className="text-base text-red-700 dark:text-red-300"
                 >
                   {t}
                 </li>
@@ -171,21 +171,21 @@ function ContentBlock({
             </ul>
           </div>
           <div
-            className="rounded-xl border-2 p-4"
+            className="rounded-xl border-2 p-5"
             style={{
               borderColor: `${phaseColor}30`,
               backgroundColor: `${phaseColor}08`,
             }}
           >
             <p
-              className="mb-2 text-xs font-bold uppercase tracking-wider"
+              className="mb-3 text-sm font-bold uppercase tracking-wider"
               style={{ color: phaseColor }}
             >
               {item.label_b as string}
             </p>
-            <ul className="space-y-1">
+            <ul className="space-y-2">
               {itemsB.map((t, i) => (
-                <li key={i} className="text-sm" style={{ color: phaseColor }}>
+                <li key={i} className="text-base" style={{ color: phaseColor }}>
                   {t}
                 </li>
               ))}
@@ -197,76 +197,76 @@ function ContentBlock({
     case "callout":
       return (
         <div
-          className="rounded-xl border-l-4 px-4 py-3"
+          className="rounded-xl border-l-4 px-5 py-4"
           style={{
             borderColor: phaseColor,
             backgroundColor: `${phaseColor}08`,
           }}
         >
-          <p className="text-sm font-bold" style={{ color: phaseColor }}>
+          <p className="text-base font-bold" style={{ color: phaseColor }}>
             {item.text as string}
           </p>
         </div>
       )
     case "scenario_setup":
       return (
-        <div className="rounded-xl bg-muted/50 p-4">
-          <p className="text-sm font-medium text-foreground">
+        <div className="rounded-xl bg-muted/50 p-5">
+          <p className="text-base font-medium text-foreground">
             {item.text as string}
           </p>
         </div>
       )
     case "manager_quote":
       return (
-        <div className="flex gap-3 rounded-xl border bg-card p-4">
-          <Quote className="mt-0.5 size-5 shrink-0 text-muted-foreground/50" />
-          <p className="text-sm italic leading-relaxed text-foreground">
+        <div className="flex gap-4 rounded-xl border bg-card p-5">
+          <Quote className="mt-0.5 size-6 shrink-0 text-muted-foreground/50" />
+          <p className="text-base italic leading-relaxed text-foreground">
             {'"'}{item.text as string}{'"'}
           </p>
         </div>
       )
     case "narrative":
       return (
-        <p className="text-sm leading-relaxed text-muted-foreground">
+        <p className="text-lg leading-relaxed text-muted-foreground">
           {item.text as string}
         </p>
       )
     case "challenge":
       return (
         <div
-          className="rounded-xl border-2 p-4"
+          className="rounded-xl border-2 p-5"
           style={{
             borderColor: `${phaseColor}40`,
             backgroundColor: `${phaseColor}06`,
           }}
         >
-          <p className="text-sm font-semibold text-foreground">
+          <p className="text-base font-semibold text-foreground">
             {item.text as string}
           </p>
         </div>
       )
     case "instruction":
       return (
-        <p className="text-sm leading-relaxed text-muted-foreground">
+        <p className="text-lg leading-relaxed text-muted-foreground">
           {item.text as string}
         </p>
       )
     case "assignment": {
       const structure = item.structure as string[]
       return (
-        <div className="rounded-xl border bg-card p-4">
-          <h4 className="mb-3 text-base font-bold text-foreground">
+        <div className="rounded-xl border bg-card p-5">
+          <h4 className="mb-4 text-lg font-bold text-foreground">
             {item.title as string}
           </h4>
-          <ol className="list-inside list-decimal space-y-1.5">
+          <ol className="list-inside list-decimal space-y-2">
             {structure.map((s, i) => (
-              <li key={i} className="text-sm text-muted-foreground">
+              <li key={i} className="text-base text-muted-foreground">
                 {s}
               </li>
             ))}
           </ol>
           {item.length && (
-            <p className="mt-3 text-xs font-medium text-muted-foreground">
+            <p className="mt-4 text-sm font-medium text-muted-foreground">
               Target length: {item.length as string}
             </p>
           )}
@@ -276,11 +276,11 @@ function ContentBlock({
     case "skills_trained": {
       const items = item.items as string[]
       return (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3">
           {items.map((s, i) => (
             <span
               key={i}
-              className="rounded-full px-3 py-1 text-xs font-bold capitalize"
+              className="rounded-full px-4 py-2 text-sm font-bold capitalize"
               style={{
                 backgroundColor: `${phaseColor}12`,
                 color: phaseColor,
@@ -295,39 +295,39 @@ function ContentBlock({
     case "teaching_moment":
       return (
         <div
-          className="rounded-xl border-l-4 px-4 py-3"
+          className="rounded-xl border-l-4 px-5 py-4"
           style={{
             borderColor: phaseColor,
             backgroundColor: `${phaseColor}06`,
           }}
         >
           <p
-            className="mb-1 text-xs font-bold uppercase tracking-wider"
+            className="mb-2 text-sm font-bold uppercase tracking-wider"
             style={{ color: phaseColor }}
           >
             {item.title as string}
           </p>
-          <p className="text-sm leading-relaxed text-foreground">
+          <p className="text-base leading-relaxed text-foreground">
             {item.text as string}
           </p>
         </div>
       )
     case "text":
       return (
-        <p className="text-base leading-relaxed text-muted-foreground">
+        <p className="text-lg leading-relaxed text-muted-foreground">
           {item.text as string}
         </p>
       )
     case "mapping":
       return (
         <div
-          className="rounded-xl border-l-4 px-4 py-3"
+          className="rounded-xl border-l-4 px-5 py-4"
           style={{
             borderColor: phaseColor,
             backgroundColor: `${phaseColor}08`,
           }}
         >
-          <p className="text-sm font-medium leading-relaxed text-foreground">
+          <p className="text-base font-medium leading-relaxed text-foreground">
             {item.text as string}
           </p>
         </div>
@@ -336,7 +336,7 @@ function ContentBlock({
       // Fallback: render text if present
       if (item.text) {
         return (
-          <p className="text-base leading-relaxed text-muted-foreground">
+          <p className="text-lg leading-relaxed text-muted-foreground">
             {item.text as string}
           </p>
         )
@@ -394,7 +394,7 @@ function ExerciseBlock({
         className={`group flex w-full items-start gap-4 text-left ${readOnly ? "cursor-default" : ""}`}
       >
         <div
-          className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
+          className={`mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
             isCompleted ? "border-transparent" : ""
           }`}
           style={
@@ -403,11 +403,11 @@ function ExerciseBlock({
               : { borderColor: `${phaseColor}40` }
           }
         >
-          {isCompleted && <CheckCircle2 className="size-5 text-white" />}
+          {isCompleted && <CheckCircle2 className="size-6 text-white" />}
         </div>
         <div className="min-w-0 flex-1">
           <h4
-            className={`text-base font-bold ${
+            className={`text-xl font-bold ${
               isCompleted
                 ? "text-muted-foreground line-through"
                 : "text-foreground"
@@ -416,16 +416,16 @@ function ExerciseBlock({
             {exercise.question}
           </h4>
           {exercise.question_type === "multiple_choice" && options && (
-            <div className="mt-2 space-y-1.5">
+            <div className="mt-3 space-y-2">
               {options.map((opt, i) => {
                 const o = opt as Record<string, unknown>
                 return (
                   <div
                     key={i}
-                    className="flex items-center gap-2 text-sm text-muted-foreground"
+                    className="flex items-center gap-3 text-lg text-muted-foreground"
                   >
                     <span
-                      className="flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold"
+                      className="flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-bold"
                       style={{
                         backgroundColor: `${phaseColor}15`,
                         color: phaseColor,
@@ -440,11 +440,11 @@ function ExerciseBlock({
             </div>
           )}
           {exercise.thinking_prompts && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
+            <div className="mt-3 flex flex-wrap gap-2">
               {exercise.thinking_prompts.map((p, i) => (
                 <span
                   key={i}
-                  className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+                  className="rounded-md bg-muted px-3 py-1 text-sm text-muted-foreground"
                 >
                   {p}
                 </span>
@@ -456,14 +456,14 @@ function ExerciseBlock({
 
       {/* Response textarea */}
       {needsTextResponse && (
-        <div className="mt-3 ml-11">
+        <div className="mt-4 ml-12">
           {readOnly ? (
             responseText ? (
-              <div className="rounded-lg border bg-muted/30 px-3 py-2.5 text-sm leading-relaxed text-foreground">
+              <div className="rounded-lg border bg-muted/30 px-4 py-3 text-base leading-relaxed text-foreground">
                 {responseText}
               </div>
             ) : (
-              <p className="text-xs italic text-muted-foreground/60">
+              <p className="text-sm italic text-muted-foreground/60">
                 No response recorded
               </p>
             )
@@ -478,11 +478,11 @@ function ExerciseBlock({
                     : "Type your response here..."
                 }
                 rows={4}
-                className="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                className="w-full resize-y rounded-lg border bg-background px-4 py-3 text-base leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-offset-1"
                 style={{ focusRingColor: phaseColor } as React.CSSProperties}
               />
-              <div className="mt-1.5 flex items-center justify-between">
-                <span className="text-[10px] text-muted-foreground">
+              <div className="mt-2 flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">
                   {responseText.length > 0
                     ? `${responseText.length} characters`
                     : "Your answer is saved to your portfolio"}
@@ -955,29 +955,24 @@ export function JourneyClient({
                     <label className="text-sm font-bold text-foreground">
                       Your Artifact
                     </label>
-                    <span className="text-[10px] text-muted-foreground">
-                      {isViewingPastDay ? "(read only)" : "(saved to your portfolio)"}
-                    </span>
-                    {!isViewingPastDay && savingResponseKey === section.id && (
-                      <span
-                        className="ml-auto flex items-center gap-1 text-[10px] font-medium"
-                        style={{ color: activePhase.color }}
-                      >
-                        <Save className="size-3" />
-                        Saving...
-                      </span>
-                    )}
-                  </div>
-                  {isViewingPastDay ? (
-                    (responses[section.id] ?? "") ? (
-                      <div className="rounded-lg border bg-muted/30 px-3 py-2.5 text-sm leading-relaxed text-foreground whitespace-pre-wrap">
-                        {responses[section.id]}
-                      </div>
-                    ) : (
-                      <p className="text-xs italic text-muted-foreground/60">
-                        No artifact recorded
-                      </p>
-                    )
+                <span className="text-sm text-muted-foreground">
+                  {responseText.length > 0
+                    ? `${responseText.length} characters`
+                    : "Your answer is saved to your portfolio"}
+                </span>
+                {savingResponse && (
+                  <span className="flex items-center gap-1 text-xs font-medium" style={{ color: phaseColor }}>
+                    <Save className="size-4" />
+                    Saving...
+                  </span>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  )
                   ) : (
                     <>
                       <textarea
