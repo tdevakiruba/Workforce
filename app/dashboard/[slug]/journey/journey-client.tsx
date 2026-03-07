@@ -694,11 +694,11 @@ export function JourneyClient({
   const overallPct = overallTotal > 0 ? Math.round((overallCompleted / overallTotal) * 100) : 0
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="mx-auto w-full">
       {/* ── Two-column: Main content + Side progress tile ── */}
-      <div className="flex flex-col gap-5 lg:flex-row">
+      <div className="flex flex-col gap-8 lg:flex-row">
         {/* LEFT: Main lesson content ── */}
-        <div className="min-w-0 flex-1 space-y-8">
+        <div className="min-w-0 flex-1 space-y-10">
           {/* Active Day Hero Card */}
           <div
             className="overflow-hidden rounded-3xl"
@@ -1220,12 +1220,12 @@ export function JourneyClient({
         </div>{/* end left column */}
 
         {/* ── RIGHT: Progress side tile ── */}
-        <aside className="w-full shrink-0 lg:sticky lg:top-24 lg:w-72 lg:self-start">
-          <div className="rounded-2xl border bg-card">
+        <aside className="w-full shrink-0 lg:sticky lg:top-24 lg:w-96 lg:self-start">
+          <div className="rounded-3xl border bg-card">
             {/* Overall progress header */}
-            <div className="flex items-center gap-3 border-b p-4">
-              <div className="relative flex size-12 items-center justify-center">
-                <svg className="size-12 -rotate-90" viewBox="0 0 48 48">
+            <div className="flex items-center gap-4 border-b p-6">
+              <div className="relative flex size-16 items-center justify-center">
+                <svg className="size-16 -rotate-90" viewBox="0 0 48 48">
                   <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="3" className="text-muted/40" />
                   <circle
                     cx="24" cy="24" r="20" fill="none" strokeWidth="3" strokeLinecap="round"
@@ -1233,11 +1233,11 @@ export function JourneyClient({
                     strokeDasharray={`${overallPct * 1.257} 125.7`}
                   />
                 </svg>
-                <span className="absolute text-xs font-extrabold text-foreground">{overallPct}%</span>
+                <span className="absolute text-lg font-extrabold text-foreground">{overallPct}%</span>
               </div>
               <div>
-                <p className="text-sm font-bold text-foreground">Overall Progress</p>
-                <p className="text-xs text-muted-foreground">{overallCompleted}/{overallTotal} days</p>
+                <p className="text-lg font-bold text-foreground">Overall Progress</p>
+                <p className="text-base text-muted-foreground">{overallCompleted}/{overallTotal} days</p>
               </div>
             </div>
 
@@ -1247,26 +1247,26 @@ export function JourneyClient({
                 const PhaseIcon = phase.icon
                 const isCurrentPhase = activeDay >= phase.dayStart && activeDay <= phase.dayEnd
                 return (
-                  <div key={phase.id} className="p-3">
-                    <div className="mb-2 flex items-center gap-2">
+                  <div key={phase.id} className="p-5">
+                    <div className="mb-3 flex items-center gap-3">
                       <div
-                        className="flex size-7 items-center justify-center rounded-lg text-white"
+                        className="flex size-9 items-center justify-center rounded-lg text-white"
                         style={{ backgroundColor: phase.color }}
                       >
-                        <PhaseIcon className="size-3.5" />
+                        <PhaseIcon className="size-5" />
                       </div>
-                      <span className="flex-1 text-xs font-bold text-foreground">
+                      <span className="flex-1 text-base font-bold text-foreground">
                         {phase.label}
                       </span>
                       {isCurrentPhase && (
-                        <span className="size-2 rounded-full" style={{ backgroundColor: phase.color }} />
+                        <span className="size-3 rounded-full" style={{ backgroundColor: phase.color }} />
                       )}
-                      <span className="text-[10px] font-bold text-muted-foreground">
+                      <span className="text-sm font-bold text-muted-foreground">
                         {phase.completed}/{phase.total}
                       </span>
                     </div>
                     {/* Day dots */}
-                    <div className="flex gap-1">
+                    <div className="flex gap-2">
                       {phase.days.map((day) => {
                         const isSelected = day === selectedDay
                           const isLocked = day > activeDay
