@@ -696,9 +696,9 @@ export function JourneyClient({
   return (
     <div className="mx-auto w-full">
       {/* ── Two-column: Main content + Side progress tile ── */}
-      <div className="flex flex-col gap-8 lg:flex-row">
+      <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
         {/* LEFT: Main lesson content ── */}
-        <div className="min-w-0 flex-1 space-y-10">
+        <div className="min-w-0 flex-1 space-y-10 w-full lg:w-auto">
           {/* Active Day Hero Card */}
           <div
             className="overflow-hidden rounded-3xl"
