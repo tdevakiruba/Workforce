@@ -387,7 +387,7 @@ function drawCertificate(
     fY + 22
   )
   centerText(
-    `Issued by ${data.issuer} | Credential ID: ${data.credentialId} | Verify at workforce.transformerhub.com`,
+    `Issued by ${data.issuer} | Credential ID: ${data.credentialId} | Verify at www.workforceready.ai`,
     CX,
     fY + 40
   )
@@ -450,7 +450,7 @@ export function CertificatesClient({
   const handleLinkedIn = useCallback((cert: Certificate) => {
     const certTitle = encodeURIComponent(cert.title)
     const issuer = encodeURIComponent("Transformer Hub")
-    const url = `https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=${certTitle}&organizationName=${issuer}&certUrl=${encodeURIComponent("https://workforce.transformerhub.com")}`
+    const url = `https://www.linkedin.com/profile/add?startTask=CERTIFICATION_NAME&name=${certTitle}&organizationName=${issuer}&certUrl=${encodeURIComponent("https://www.workforceready.ai")}`
     window.open(url, "_blank", "noopener,noreferrer")
   }, [])
 
@@ -458,7 +458,7 @@ export function CertificatesClient({
     (cert: Certificate) => {
       const subject = encodeURIComponent(`Digital Credential: ${cert.title}`)
       const body = encodeURIComponent(
-        `I have earned the "${cert.title}" digital credential, issued by Transformer Hub.\n\nProgram: ${program.name}\nCredential: ${cert.title}\n${cert.description}\n\nVerify at: https://workforce.transformerhub.com\n\n--\n${userName}`
+        `I have earned the "${cert.title}" digital credential, issued by Transformer Hub.\n\nProgram: ${program.name}\nCredential: ${cert.title}\n${cert.description}\n\nVerify at: https://www.workforceready.ai\n\n--\n${userName}`
       )
       window.location.href = `mailto:?subject=${subject}&body=${body}`
     },
