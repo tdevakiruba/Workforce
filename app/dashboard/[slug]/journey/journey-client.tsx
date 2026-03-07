@@ -697,64 +697,64 @@ export function JourneyClient({
     <div className="mx-auto max-w-5xl">
       {/* ── Two-column: Main content + Side progress tile ── */}
       <div className="flex flex-col gap-5 lg:flex-row">
-        {/* ── LEFT: Main lesson content ── */}
-        <div className="min-w-0 flex-1 space-y-5">
+        {/* LEFT: Main lesson content ── */}
+        <div className="min-w-0 flex-1 space-y-8">
           {/* Active Day Hero Card */}
           <div
-            className="overflow-hidden rounded-2xl"
+            className="overflow-hidden rounded-3xl"
             style={{ backgroundColor: activePhase.color }}
           >
-            <div className="relative p-5 sm:p-6">
+            <div className="relative p-10 sm:p-12">
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20" />
               <div className="relative z-10">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-5">
                   {iconSrc && (
                     <Image
                       src={iconSrc}
                       alt=""
-                      width={40}
-                      height={40}
+                      width={56}
+                      height={56}
                       className="shrink-0 drop-shadow-lg"
                     />
                   )}
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-widest text-white/70">
+                    <span className="text-lg font-bold uppercase tracking-widest text-white/70">
                       {activePhase.label} &middot; Day {selectedDay}
                     </span>
-                    <h2 className="text-xl font-extrabold text-white sm:text-2xl">
+                    <h2 className="text-4xl font-extrabold text-white sm:text-5xl">
                       {todayContent?.title ?? `Day ${selectedDay}`}
                     </h2>
                   </div>
                 </div>
                 {todayContent?.theme && (
-                  <p className="mt-2 text-base text-white/80">
+                  <p className="mt-4 text-xl text-white/80">
                     {todayContent.theme}
                   </p>
                 )}
-                <div className="mt-4 flex flex-wrap items-center gap-3">
+                <div className="mt-6 flex flex-wrap items-center gap-4">
                   {isViewingPastDay ? (
                     <>
-                      <div className="flex items-center gap-2 rounded-full bg-white/20 px-4 py-2">
-                        <CheckCircle2 className="size-4 text-white" />
-                        <span className="text-sm font-bold text-white">
+                      <div className="flex items-center gap-3 rounded-full bg-white/20 px-6 py-3">
+                        <CheckCircle2 className="size-6 text-white" />
+                        <span className="text-lg font-bold text-white">
                           Completed &middot; Review only
                         </span>
                       </div>
                       <Button
                         size="lg"
-                        className="rounded-xl bg-white px-5 font-bold shadow-lg hover:bg-white/90"
+                        className="rounded-xl bg-white px-8 py-6 text-lg font-bold shadow-lg hover:bg-white/90 h-auto"
                         style={{ color: activePhase.color }}
                         onClick={() => setSelectedDay(activeDay)}
                       >
                         Continue to Day {activeDay}
-                        <ArrowRight className="ml-2 size-4" />
+                        <ArrowRight className="ml-3 size-6" />
                       </Button>
                     </>
                   ) : (
                     <>
                       <Button
                         size="lg"
-                        className="rounded-xl bg-white px-5 font-bold shadow-lg hover:bg-white/90"
+                        className="rounded-xl bg-white px-8 py-6 text-lg font-bold shadow-lg hover:bg-white/90 h-auto"
                         style={{ color: activePhase.color }}
                         onClick={() =>
                           document
@@ -762,11 +762,11 @@ export function JourneyClient({
                             ?.scrollIntoView({ behavior: "smooth" })
                         }
                       >
-                        <Play className="mr-2 size-4" />
+                        <Play className="mr-3 size-6" />
                         Start Session
                       </Button>
-                      <div className="flex items-center gap-2 rounded-full bg-white/15 px-4 py-2">
-                        <span className="text-sm font-bold text-white">
+                      <div className="flex items-center gap-3 rounded-full bg-white/15 px-6 py-3">
+                        <span className="text-lg font-bold text-white">
                           {todayActionsDone}/{todayActionsTotal} actions
                         </span>
                       </div>
@@ -784,9 +784,9 @@ export function JourneyClient({
                 selectedDay > 1 && setSelectedDay(selectedDay - 1)
               }
               disabled={selectedDay <= 1}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground disabled:opacity-30"
+              className="flex items-center gap-3 rounded-lg px-6 py-3 text-lg font-semibold text-muted-foreground hover:text-foreground disabled:opacity-30"
             >
-              <ArrowLeft className="size-4" />
+              <ArrowLeft className="size-6" />
               Day {selectedDay - 1 > 0 ? selectedDay - 1 : ""}
             </button>
             <button
@@ -794,46 +794,46 @@ export function JourneyClient({
                 selectedDay < activeDay && setSelectedDay(selectedDay + 1)
               }
               disabled={selectedDay >= activeDay}
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground disabled:opacity-30"
+              className="flex items-center gap-3 rounded-lg px-6 py-3 text-lg font-semibold text-muted-foreground hover:text-foreground disabled:opacity-30"
             >
               {selectedDay < activeDay ? `Day ${selectedDay + 1}` : ""}
               {selectedDay >= activeDay && selectedDay < program.totalDays && (
-                <span className="flex items-center gap-1 opacity-50">
-                  <Lock className="size-3" /> Day {selectedDay + 1}
+                <span className="flex items-center gap-2 opacity-50">
+                  <Lock className="size-5" /> Day {selectedDay + 1}
                 </span>
               )}
-              <ArrowRight className="size-4" />
+              <ArrowRight className="size-6" />
             </button>
           </div>
 
       {/* ── Day Objectives ── */}
       {todayContent?.day_objective && todayContent.day_objective.length > 0 && (
-        <section className="overflow-hidden rounded-2xl border bg-card">
+        <section className="overflow-hidden rounded-3xl border bg-card">
           <div
-            className="flex items-center gap-3 px-5 py-3.5"
+            className="flex items-center gap-4 px-8 py-6"
             style={{ backgroundColor: `${activePhase.color}08` }}
           >
             <div
-              className="flex size-9 items-center justify-center rounded-lg text-white"
+              className="flex size-12 items-center justify-center rounded-lg text-white"
               style={{ backgroundColor: activePhase.color }}
             >
-              <Target className="size-4" />
+              <Target className="size-6" />
             </div>
             <div>
-              <h3 className="text-lg font-extrabold text-foreground">
+              <h3 className="text-2xl font-extrabold text-foreground">
                 Day Objective
               </h3>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-lg text-muted-foreground">
                 What you will learn today
               </span>
             </div>
           </div>
-          <div className="px-5 py-4">
-            <ul className="space-y-2">
+          <div className="px-8 py-6">
+            <ul className="space-y-3">
               {todayContent.day_objective.map((obj, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
+                <li key={i} className="flex items-start gap-4 text-lg text-muted-foreground">
                   <CheckCircle2
-                    className="mt-0.5 size-4 shrink-0"
+                    className="mt-1 size-6 shrink-0"
                     style={{ color: activePhase.color }}
                   />
                   <span>{obj}</span>

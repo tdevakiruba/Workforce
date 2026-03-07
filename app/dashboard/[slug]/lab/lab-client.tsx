@@ -176,54 +176,54 @@ export function LabClient({
   }
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto w-full">
       {/* Page header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
+      <div className="mb-10">
+        <h1 className="text-5xl font-extrabold tracking-tight text-foreground">
           Decision Lab
         </h1>
-        <p className="mt-2 text-base text-muted-foreground">
+        <p className="mt-4 text-xl text-muted-foreground">
           Submit challenging scenarios and career dilemmas for expert guidance
           during office hours
         </p>
       </div>
 
       {/* Main layout: 2-col on lg */}
-      <div className="flex flex-col gap-6 lg:flex-row">
+      <div className="flex flex-col gap-8 lg:flex-row">
         {/* Left column: Office Hours Banner + Form */}
-        <div className="flex-1 space-y-6">
+        <div className="flex-1 space-y-8">
           {/* ── Office Hours Banner ── */}
           {nextOfficeHours && (
             <div
-              className="relative overflow-hidden rounded-2xl p-6"
+              className="relative overflow-hidden rounded-3xl p-8"
               style={{
                 background: `linear-gradient(135deg, ${program.badgeColor}, ${program.badgeColor}cc)`,
               }}
             >
               {/* Decorative circles */}
               <div
-                className="absolute -right-8 -top-8 size-32 rounded-full opacity-10"
+                className="absolute -right-8 -top-8 size-40 rounded-full opacity-10"
                 style={{ backgroundColor: "white" }}
               />
               <div
-                className="absolute -bottom-4 -left-4 size-20 rounded-full opacity-10"
+                className="absolute -bottom-4 -left-4 size-24 rounded-full opacity-10"
                 style={{ backgroundColor: "white" }}
               />
 
-              <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-start gap-4">
-                  <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-                    <Calendar className="size-6 text-white" />
+              <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-start gap-6">
+                  <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
+                    <Calendar className="size-8 text-white" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-wider text-white/70">
+                    <p className="text-base font-bold uppercase tracking-wider text-white/70">
                       Next Office Hours
                     </p>
-                    <h3 className="mt-1 text-lg font-bold text-white">
+                    <h3 className="mt-2 text-2xl font-bold text-white">
                       {nextOfficeHours.title}
                     </h3>
-                    <p className="mt-0.5 flex items-center gap-1.5 text-sm text-white/80">
-                      <Clock className="size-3.5" />
+                    <p className="mt-1 flex items-center gap-2 text-lg text-white/80">
+                      <Clock className="size-5" />
                       {formatDate(nextOfficeHours.scheduled_at)} at{" "}
                       {formatTime(nextOfficeHours.scheduled_at)}
                     </p>
@@ -233,7 +233,7 @@ export function LabClient({
                   <Button
                     asChild
                     size="lg"
-                    className="shrink-0 rounded-full bg-white px-6 font-bold text-foreground shadow-lg hover:bg-white/90"
+                    className="shrink-0 rounded-full bg-white px-8 py-6 text-lg font-bold text-foreground shadow-lg hover:bg-white/90"
                   >
                     <a
                       href={nextOfficeHours.meeting_url}
@@ -241,7 +241,7 @@ export function LabClient({
                       rel="noopener noreferrer"
                     >
                       Join Meeting
-                      <ExternalLink className="ml-2 size-4" />
+                      <ExternalLink className="ml-3 size-6" />
                     </a>
                   </Button>
                 )}
@@ -250,22 +250,22 @@ export function LabClient({
           )}
 
           {/* ── Submission Form ── */}
-          <div className="rounded-2xl border bg-card p-6 shadow-sm">
-            <div className="mb-5 flex items-center gap-3">
+          <div className="rounded-3xl border bg-card p-8 shadow-sm">
+            <div className="mb-6 flex items-center gap-4">
               <div
-                className="flex size-10 items-center justify-center rounded-xl"
+                className="flex size-14 items-center justify-center rounded-xl"
                 style={{ backgroundColor: `${program.badgeColor}15` }}
               >
                 <FlaskConical
-                  className="size-5"
+                  className="size-7"
                   style={{ color: program.badgeColor }}
                 />
               </div>
               <div>
-                <h2 className="text-lg font-bold text-card-foreground">
+                <h2 className="text-2xl font-bold text-card-foreground">
                   Submit a Scenario
                 </h2>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-lg text-muted-foreground">
                   Share a real challenge you{"'"}re facing. Your scenario will be
                   discussed during the next office hours session.
                 </p>
@@ -274,8 +274,8 @@ export function LabClient({
 
             {/* Success message */}
             {submitSuccess && (
-              <div className="mb-4 flex items-center gap-2 rounded-xl bg-emerald-50 p-3 text-sm font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
-                <CheckCircle2 className="size-4 shrink-0" />
+              <div className="mb-5 flex items-center gap-3 rounded-xl bg-emerald-50 p-4 text-lg font-medium text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400">
+                <CheckCircle2 className="size-5 shrink-0" />
                 Scenario submitted successfully! It will be reviewed for the next
                 office hours.
               </div>
@@ -283,18 +283,18 @@ export function LabClient({
 
             {/* Error message */}
             {submitError && (
-              <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700 dark:bg-red-950/30 dark:text-red-400">
-                <AlertCircle className="size-4 shrink-0" />
+              <div className="mb-5 flex items-center gap-3 rounded-xl bg-red-50 p-4 text-lg font-medium text-red-700 dark:bg-red-950/30 dark:text-red-400">
+                <AlertCircle className="size-5 shrink-0" />
                 {submitError}
               </div>
             )}
 
             {/* Category selector */}
-            <div className="mb-5">
-              <label className="mb-2 block text-sm font-semibold text-card-foreground">
+            <div className="mb-6">
+              <label className="mb-3 block text-lg font-semibold text-card-foreground">
                 Category
               </label>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                 {categories.map((cat) => {
                   const Icon = cat.icon
                   const isActive = selectedCategory === cat.id
@@ -302,7 +302,7 @@ export function LabClient({
                     <button
                       key={cat.id}
                       onClick={() => setSelectedCategory(cat.id)}
-                      className={`flex flex-col items-start gap-2 rounded-xl border-2 p-3 text-left transition-all ${
+                      className={`flex flex-col items-start gap-3 rounded-xl border-2 p-4 text-left transition-all ${
                         isActive
                           ? "shadow-md"
                           : "border-transparent bg-muted/50 hover:border-muted-foreground/20"
@@ -317,7 +317,7 @@ export function LabClient({
                       }
                     >
                       <Icon
-                        className="size-5"
+                        className="size-7"
                         style={{
                           color: isActive
                             ? program.badgeColor
@@ -325,7 +325,7 @@ export function LabClient({
                         }}
                       />
                       <span
-                        className={`text-xs font-semibold ${
+                        className={`text-lg font-semibold ${
                           isActive ? "" : "text-muted-foreground"
                         }`}
                         style={isActive ? { color: program.badgeColor } : undefined}
@@ -339,10 +339,10 @@ export function LabClient({
             </div>
 
             {/* Title input */}
-            <div className="mb-4">
+            <div className="mb-5">
               <label
                 htmlFor="lab-title"
-                className="mb-1.5 block text-sm font-semibold text-card-foreground"
+                className="mb-2 block text-lg font-semibold text-card-foreground"
               >
                 Brief Title
               </label>
@@ -353,7 +353,7 @@ export function LabClient({
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={200}
                 placeholder="e.g., Handling resistance to a new initiative"
-                className="w-full rounded-xl border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2"
+                className="w-full rounded-xl border bg-background px-5 py-3 text-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2"
                 style={
                   { "--tw-ring-color": program.badgeColor } as React.CSSProperties
                 }
@@ -361,10 +361,10 @@ export function LabClient({
             </div>
 
             {/* Description textarea */}
-            <div className="mb-4">
+            <div className="mb-5">
               <label
                 htmlFor="lab-desc"
-                className="mb-1.5 block text-sm font-semibold text-card-foreground"
+                className="mb-2 block text-lg font-semibold text-card-foreground"
               >
                 Describe Your Scenario
               </label>
@@ -373,14 +373,14 @@ export function LabClient({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 maxLength={2000}
-                rows={6}
+                rows={8}
                 placeholder="Provide context about the situation, the stakeholders involved, what you've tried, and what outcome you're hoping for..."
-                className="w-full resize-y rounded-xl border bg-background px-4 py-3 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2"
+                className="w-full resize-y rounded-xl border bg-background px-5 py-3 text-lg leading-relaxed text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2"
                 style={
                   { "--tw-ring-color": program.badgeColor } as React.CSSProperties
                 }
               />
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-2 text-lg text-muted-foreground">
                 {description.length}/2000 characters
               </p>
             </div>
@@ -389,17 +389,17 @@ export function LabClient({
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting || !title.trim() || !description.trim()}
-              className="rounded-xl px-6 text-white"
+              className="rounded-xl px-8 py-6 text-lg font-bold text-white"
               style={{ backgroundColor: program.badgeColor }}
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  <Loader2 className="mr-3 size-5 animate-spin" />
                   Submitting...
                 </>
               ) : (
                 <>
-                  <Send className="mr-2 size-4" />
+                  <Send className="mr-3 size-5" />
                   Submit for Office Hours
                 </>
               )}
@@ -408,44 +408,44 @@ export function LabClient({
         </div>
 
         {/* Right column: Submissions + Tips */}
-        <div className="w-full space-y-6 lg:w-80">
+        <div className="w-full space-y-8 lg:w-96">
           {/* ── My Submissions ── */}
-          <div className="rounded-2xl border bg-card p-5 shadow-sm">
-            <div className="mb-4 flex items-center gap-2">
-              <Clock className="size-4 text-muted-foreground" />
-              <h3 className="text-base font-bold text-card-foreground">
+          <div className="rounded-3xl border bg-card p-6 shadow-sm">
+            <div className="mb-5 flex items-center gap-3">
+              <Clock className="size-6 text-muted-foreground" />
+              <h3 className="text-2xl font-bold text-card-foreground">
                 My Submissions
               </h3>
             </div>
 
             {submissions.length === 0 ? (
-              <div className="py-8 text-center">
-                <MessageSquare className="mx-auto mb-3 size-10 text-muted-foreground/30" />
-                <p className="text-sm font-medium text-muted-foreground">
+              <div className="py-10 text-center">
+                <MessageSquare className="mx-auto mb-4 size-14 text-muted-foreground/30" />
+                <p className="text-lg font-medium text-muted-foreground">
                   No submissions yet
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground/70">
+                <p className="mt-2 text-base text-muted-foreground/70">
                   Submit your first scenario above
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {submissions.map((sub) => {
                   const statusInfo = statusLabels[sub.status] ?? statusLabels.pending
                   const catInfo = categories.find((c) => c.id === sub.category)
                   return (
                     <div
                       key={sub.id}
-                      className="rounded-xl border bg-background p-3"
+                      className="rounded-xl border bg-background p-4"
                     >
-                      <div className="mb-1.5 flex items-start justify-between gap-2">
-                        <h4 className="text-xs font-bold text-card-foreground line-clamp-2">
+                      <div className="mb-2 flex items-start justify-between gap-2">
+                        <h4 className="text-lg font-bold text-card-foreground line-clamp-2">
                           {sub.title}
                         </h4>
                       </div>
                       <div className="flex items-center gap-2">
                         <span
-                          className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                          className="inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold"
                           style={{
                             backgroundColor: `${statusInfo.color}15`,
                             color: statusInfo.color,
@@ -454,12 +454,12 @@ export function LabClient({
                           {statusInfo.label}
                         </span>
                         {catInfo && (
-                          <span className="text-[10px] text-muted-foreground">
+                          <span className="text-base text-muted-foreground">
                             {catInfo.label}
                           </span>
                         )}
                       </div>
-                      <p className="mt-1.5 text-[10px] text-muted-foreground">
+                      <p className="mt-2 text-base text-muted-foreground">
                         {formatRelative(sub.created_at)}
                       </p>
                     </div>
@@ -470,24 +470,24 @@ export function LabClient({
           </div>
 
           {/* ── Submission Tips ── */}
-          <div className="rounded-2xl border bg-card p-5 shadow-sm">
-            <div className="mb-4 flex items-center gap-2">
+          <div className="rounded-3xl border bg-card p-6 shadow-sm">
+            <div className="mb-5 flex items-center gap-3">
               <Lightbulb
-                className="size-4"
+                className="size-6"
                 style={{ color: program.badgeColor }}
               />
-              <h3 className="text-base font-bold text-card-foreground">
+              <h3 className="text-2xl font-bold text-card-foreground">
                 Submission Tips
               </h3>
             </div>
-            <ul className="space-y-2.5">
+            <ul className="space-y-3">
               {submissionTips.map((tip, i) => (
-                <li key={i} className="flex items-start gap-2">
+                <li key={i} className="flex items-start gap-3">
                   <CheckCircle2
-                    className="mt-0.5 size-3.5 shrink-0"
+                    className="mt-1 size-5 shrink-0"
                     style={{ color: program.badgeColor }}
                   />
-                  <span className="text-xs leading-relaxed text-muted-foreground">
+                  <span className="text-base leading-relaxed text-muted-foreground">
                     {tip}
                   </span>
                 </li>

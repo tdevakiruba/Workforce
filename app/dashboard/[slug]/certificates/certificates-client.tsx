@@ -466,33 +466,33 @@ export function CertificatesClient({
   )
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto w-full">
       {/* Hidden canvas for rendering certificates */}
       <canvas ref={canvasRef} className="hidden" />
 
-      <div className="mb-6">
-        <h1 className="text-2xl font-extrabold text-foreground">
+      <div className="mb-8">
+        <h1 className="text-5xl font-extrabold text-foreground">
           Digital Credentials
         </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="mt-3 text-xl text-muted-foreground">
           Earn professional credentials as you progress through {program.name}.
           Complete each phase to unlock its digital badge -- downloadable, shareable on LinkedIn, or emailable.
         </p>
       </div>
 
       {/* Progress summary */}
-      <div className="mb-6 flex items-center gap-4 rounded-2xl border bg-card p-5">
+      <div className="mb-8 flex items-center gap-6 rounded-3xl border bg-card p-8">
         <div
-          className="flex size-12 items-center justify-center rounded-xl"
+          className="flex size-16 items-center justify-center rounded-xl"
           style={{ backgroundColor: `${program.badgeColor}15` }}
         >
-          <Shield className="size-6" style={{ color: program.badgeColor }} />
+          <Shield className="size-8" style={{ color: program.badgeColor }} />
         </div>
         <div className="flex-1">
-          <h3 className="text-sm font-bold text-card-foreground">
+          <h3 className="text-2xl font-bold text-card-foreground">
             {earnedCount} of {certificates.length} Credentials Earned
           </h3>
-          <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
+          <div className="mt-3 h-3 overflow-hidden rounded-full bg-muted">
             <div
               className="h-full rounded-full transition-all duration-700"
               style={{
@@ -505,11 +505,11 @@ export function CertificatesClient({
       </div>
 
       {/* Credential cards */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
         {certificates.map((cert) => (
           <div
             key={cert.id}
-            className={`relative flex flex-col overflow-hidden rounded-2xl border transition-all ${
+            className={`relative flex flex-col overflow-hidden rounded-3xl border transition-all ${
               cert.isEarned
                 ? "bg-card shadow-sm ring-1 ring-inset"
                 : "bg-muted/30 opacity-70"
@@ -522,7 +522,7 @@ export function CertificatesClient({
           >
             {/* Credential badge visual */}
             <div
-              className="relative flex items-center justify-center py-10"
+              className="relative flex items-center justify-center py-16"
               style={{
                 backgroundColor: cert.isEarned
                   ? `${program.badgeColor}08`
@@ -534,28 +534,28 @@ export function CertificatesClient({
                   {/* Badge circle */}
                   <div className="relative">
                     <div
-                      className="flex size-20 items-center justify-center rounded-full shadow-lg"
+                      className="flex size-28 items-center justify-center rounded-full shadow-lg"
                       style={{
                         background: `linear-gradient(135deg, ${program.badgeColor}, ${program.badgeColor}CC)`,
                       }}
                     >
-                      <div className="flex size-16 items-center justify-center rounded-full border-2 border-white/30">
-                        <span className="text-2xl font-extrabold text-white">
+                      <div className="flex size-24 items-center justify-center rounded-full border-2 border-white/30">
+                        <span className="text-4xl font-extrabold text-white">
                           {cert.phaseLetter}
                         </span>
                       </div>
                     </div>
                     {/* Checkmark overlay */}
                     <div
-                      className="absolute -bottom-1 -right-1 flex size-7 items-center justify-center rounded-full border-2 border-white"
+                      className="absolute -bottom-2 -right-2 flex size-10 items-center justify-center rounded-full border-2 border-white"
                       style={{ backgroundColor: program.badgeColor }}
                     >
-                      <CheckCircle2 className="size-4 text-white" />
+                      <CheckCircle2 className="size-6 text-white" />
                     </div>
                   </div>
-                  <div className="mt-3 flex items-center gap-1.5">
+                  <div className="mt-5 flex items-center gap-2">
                     <span
-                      className="text-[10px] font-bold tracking-widest"
+                      className="text-sm font-bold tracking-widest"
                       style={{ color: program.badgeColor }}
                     >
                       CREDENTIAL EARNED
@@ -564,10 +564,10 @@ export function CertificatesClient({
                 </div>
               ) : (
                 <div className="flex flex-col items-center">
-                  <div className="flex size-20 items-center justify-center rounded-full border-2 border-dashed border-muted-foreground/20 bg-muted/50">
-                    <Lock className="size-7 text-muted-foreground/40" />
+                  <div className="flex size-28 items-center justify-center rounded-full border-4 border-dashed border-muted-foreground/20 bg-muted/50">
+                    <Lock className="size-10 text-muted-foreground/40" />
                   </div>
-                  <span className="mt-3 text-[10px] font-bold tracking-widest text-muted-foreground">
+                  <span className="mt-5 text-sm font-bold tracking-widest text-muted-foreground">
                     LOCKED
                   </span>
                 </div>
@@ -575,45 +575,45 @@ export function CertificatesClient({
             </div>
 
             {/* Credential info */}
-            <div className="flex flex-1 flex-col border-t p-4">
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="text-sm font-bold text-card-foreground">
+            <div className="flex flex-1 flex-col border-t p-6">
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-xl font-bold text-card-foreground">
                   {cert.title}
                 </h3>
                 {cert.isEarned && (
                   <span
-                    className="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold text-white"
+                    className="shrink-0 rounded-full px-3 py-1 text-sm font-bold text-white"
                     style={{ backgroundColor: program.badgeColor }}
                   >
                     {cert.daysLabel}
                   </span>
                 )}
               </div>
-              <p className="mt-1 flex-1 text-xs leading-relaxed text-muted-foreground">
+              <p className="mt-2 flex-1 text-lg leading-relaxed text-muted-foreground">
                 {cert.description}
               </p>
 
               {cert.isEarned ? (
-                <div className="mt-3 space-y-2">
-                  <div className="flex items-center text-[10px] text-muted-foreground">
-                    <Award className="mr-1 size-3" />
+                <div className="mt-5 space-y-3">
+                  <div className="flex items-center text-base text-muted-foreground">
+                    <Award className="mr-2 size-5" />
                     Issued to {userName} by Transformer Hub
                   </div>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-2">
                     <Button
-                      size="sm"
+                      size="lg"
                       variant="outline"
-                      className="h-7 rounded-lg text-xs"
+                      className="rounded-lg text-base h-11"
                       onClick={() => handleDownload(cert)}
                       disabled={downloading === cert.id}
                     >
-                      <Download className="mr-1 size-3" />
+                      <Download className="mr-2 size-5" />
                       {downloading === cert.id ? "Generating..." : "Download"}
                     </Button>
                     <Button
-                      size="sm"
+                      size="lg"
                       variant="outline"
-                      className="h-7 rounded-lg text-xs"
+                      className="rounded-lg text-base h-11"
                       onClick={() => handleLinkedIn(cert)}
                     >
                       <Linkedin className="mr-1 size-3" />
