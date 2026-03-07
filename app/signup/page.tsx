@@ -69,7 +69,7 @@ export default function SignUpPage() {
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `https://workforce.transformerhub.com/auth/callback?next=/dashboard`,
+        redirectTo: `https://www.workforceready.ai/auth/callback?next=/dashboard`,
       },
     })
     if (oauthError) {
@@ -88,7 +88,7 @@ export default function SignUpPage() {
       email,
       password,
       options: {
-        emailRedirectTo: `https://workforce.transformerhub.com/auth/callback`,
+        emailRedirectTo: `https://www.workforceready.ai/auth/callback`,
         data: {
           first_name: firstName,
           last_name: lastName,
