@@ -122,71 +122,71 @@ export function FrameworksClient({
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-4">
+    <div className="mx-auto w-full space-y-8">
       {/* Header banner */}
       <div
-        className="relative overflow-hidden rounded-2xl p-5"
+        className="relative overflow-hidden rounded-3xl p-10"
         style={{ backgroundColor: program.badgeColor }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-black/5 to-black/20" />
         <div className="relative z-10 flex items-center justify-between gap-4">
           <div className="min-w-0">
             {currentPhase && (
-              <div className="mb-1 flex items-center gap-2">
-                <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+              <div className="mb-2 flex items-center gap-3">
+                <span className="rounded-full bg-white/20 px-4 py-1 text-sm font-bold uppercase tracking-wider text-white">
                   {currentPhase.label}
                 </span>
-                <span className="text-xs text-white/70">
+                <span className="text-lg text-white/70">
                   Day {currentDay}
                 </span>
               </div>
             )}
-            <h2 className="truncate text-xl font-extrabold text-white sm:text-2xl">
+            <h2 className="truncate text-4xl font-extrabold text-white sm:text-5xl">
               {recommendedDay?.title ?? `Day ${currentDay}`}
             </h2>
             {recommendedDay?.key_theme && (
-              <p className="mt-0.5 truncate text-sm text-white/80">
+              <p className="mt-2 truncate text-lg text-white/80">
                 {recommendedDay.key_theme}
               </p>
             )}
           </div>
           <Link
             href={`/dashboard/${program.slug}/journey`}
-            className="hidden shrink-0 items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-bold transition-all hover:shadow-lg sm:flex"
+            className="hidden shrink-0 items-center gap-2 rounded-xl bg-white px-8 py-4 text-lg font-bold transition-all hover:shadow-lg sm:flex"
             style={{ color: program.badgeColor }}
           >
             Continue
-            <ArrowRight className="size-3.5" />
+            <ArrowRight className="size-6" />
           </Link>
         </div>
       </div>
 
       {/* Progress + Search row */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-extrabold text-foreground">
+          <h2 className="text-3xl font-extrabold text-foreground">
             All Frameworks
           </h2>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-lg text-muted-foreground">
             {completedCount} completed &middot; {remaining} remaining
           </p>
         </div>
-        <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative w-full sm:w-80">
+          <Search className="absolute left-4 top-1/2 size-6 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search frameworks..."
-            className="rounded-xl pl-9"
+            className="rounded-xl pl-14 text-lg h-12"
           />
         </div>
       </div>
 
       {/* Phase filter pills */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-3">
         <button
           onClick={() => setActivePhaseId(null)}
-          className={`flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-bold transition-all ${
+          className={`flex items-center gap-2 rounded-full px-6 py-3 text-lg font-bold transition-all ${
             activePhaseId === null
               ? "text-white shadow-md"
               : "bg-muted text-muted-foreground hover:text-foreground"
@@ -218,7 +218,7 @@ export function FrameworksClient({
               onClick={() =>
                 setActivePhaseId(isActive ? null : phase.id)
               }
-              className={`flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-bold transition-all ${
+              className={`flex items-center gap-3 rounded-full px-6 py-3 text-lg font-bold transition-all ${
                 isActive
                   ? "text-white shadow-md"
                   : "bg-muted text-muted-foreground hover:text-foreground"
@@ -227,7 +227,7 @@ export function FrameworksClient({
                 isActive ? { backgroundColor: phase.color } : undefined
               }
             >
-              <PhaseIcon className="size-4" />
+              <PhaseIcon className="size-6" />
               {phase.label}
               <span className="opacity-70">
                 {phaseDone}/{phaseCount}
@@ -239,25 +239,25 @@ export function FrameworksClient({
 
       {/* Recommended next */}
       {recommendedDay && !activePhaseId && !search && (
-        <div className="flex items-center gap-3 rounded-xl border bg-card p-3.5">
+        <div className="flex items-center gap-4 rounded-xl border bg-card p-6">
           <Sparkles
-            className="size-5 shrink-0"
+            className="size-7 shrink-0"
             style={{ color: program.badgeColor }}
           />
           <div className="min-w-0 flex-1">
-            <span className="text-sm font-bold text-foreground">
+            <span className="text-lg font-bold text-foreground">
               Recommended Next
             </span>
-            <p className="truncate text-xs text-muted-foreground">
+            <p className="truncate text-base text-muted-foreground">
               Day {recommendedDay.day_number}: {recommendedDay.title}
             </p>
           </div>
           <Link
             href={`/dashboard/${program.slug}/journey`}
-            className="shrink-0 text-sm font-bold transition-colors hover:underline"
+            className="shrink-0 text-lg font-bold transition-colors hover:underline"
             style={{ color: program.badgeColor }}
           >
-            Start <ArrowRight className="ml-0.5 inline size-3" />
+            Start <ArrowRight className="ml-1 inline size-4" />
           </Link>
         </div>
       )}
@@ -276,25 +276,25 @@ export function FrameworksClient({
         return (
           <div key={phase.id}>
             {/* Phase section header */}
-            <div className="mb-3 flex items-center gap-3">
+            <div className="mb-5 flex items-center gap-4">
               <div
-                className="flex size-8 items-center justify-center rounded-lg text-white"
+                className="flex size-12 items-center justify-center rounded-lg text-white"
                 style={{ backgroundColor: phase.color }}
               >
-                <PhaseIcon className="size-4" />
+                <PhaseIcon className="size-7" />
               </div>
               <div>
-                <h3 className="text-lg font-extrabold text-foreground">
+                <h3 className="text-2xl font-extrabold text-foreground">
                   {phase.label}
                 </h3>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-lg text-muted-foreground">
                   {phase.tagline} &middot; Days {phase.dayStart}-{phase.dayEnd}
                 </p>
               </div>
             </div>
 
             {/* Day cards for this phase */}
-            <div className="mb-5 grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {phaseDays.map((day) => {
                 const status = getDayStatus(day.day_number)
                 const isLocked = status === "locked"
@@ -310,7 +310,7 @@ export function FrameworksClient({
                         : `/dashboard/${program.slug}/journey`
                     }
                     onClick={(e) => isLocked && e.preventDefault()}
-                    className={`group flex items-start gap-3 rounded-xl border-2 bg-card p-4 transition-all ${
+                    className={`group flex items-start gap-4 rounded-xl border-2 bg-card p-6 transition-all ${
                       isCurrent
                         ? "shadow-md"
                         : isLocked
@@ -327,7 +327,7 @@ export function FrameworksClient({
                   >
                     {/* Day number badge */}
                     <div
-                      className={`flex size-9 shrink-0 items-center justify-center rounded-lg text-sm font-extrabold ${
+                      className={`flex size-12 shrink-0 items-center justify-center rounded-lg text-lg font-extrabold ${
                         isCompleted
                           ? "text-white"
                           : isCurrent
@@ -343,26 +343,26 @@ export function FrameworksClient({
                       }
                     >
                       {isLocked ? (
-                        <Lock className="size-3.5" />
+                        <Lock className="size-6" />
                       ) : isCompleted ? (
-                        <CheckCircle2 className="size-4" />
+                        <CheckCircle2 className="size-6" />
                       ) : (
                         day.day_number
                       )}
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-bold leading-tight text-foreground line-clamp-2">
+                      <h4 className="text-lg font-bold leading-tight text-foreground line-clamp-2">
                         {day.title}
                       </h4>
                       {day.key_theme && (
-                        <p className="mt-1 text-xs text-muted-foreground line-clamp-1">
+                        <p className="mt-2 text-base text-muted-foreground line-clamp-1">
                           {day.key_theme}
                         </p>
                       )}
                       {isCurrent && (
                         <span
-                          className="mt-1.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-bold text-white"
+                          className="mt-3 inline-block rounded-full px-3 py-1 text-sm font-bold text-white"
                           style={{ backgroundColor: phase.color }}
                         >
                           Current
@@ -379,12 +379,12 @@ export function FrameworksClient({
 
       {/* Empty state */}
       {filtered.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <Search className="mb-2 size-8 text-muted-foreground/40" />
-          <p className="text-base font-bold text-muted-foreground">
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <Search className="mb-4 size-12 text-muted-foreground/40" />
+          <p className="text-xl font-bold text-muted-foreground">
             No frameworks found
           </p>
-          <p className="mt-1 text-sm text-muted-foreground/70">
+          <p className="mt-2 text-lg text-muted-foreground/70">
             Try adjusting your search or filter
           </p>
         </div>
