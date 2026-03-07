@@ -61,19 +61,18 @@ function SignInForm() {
   })
 
   async function handleOAuth(provider: "google" | "apple") {
-    if (provider === "google") {
-      triggerGoogleSignIn()
-      return
-    }
     setError("")
     setOauthLoading(provider)
+
     const supabase = createClient()
+
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
         redirectTo: `https://www.workforceready.ai/auth/callback?next=${encodeURIComponent(redirect)}`,
       },
     })
+
     if (oauthError) {
       setError(oauthError.message)
       setOauthLoading(null)
