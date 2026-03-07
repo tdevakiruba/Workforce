@@ -704,57 +704,57 @@ export function JourneyClient({
             className="overflow-hidden rounded-3xl"
             style={{ backgroundColor: activePhase.color }}
           >
-            <div className="relative p-10 sm:p-12">
+            <div className="relative p-12 sm:p-16">
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20" />
               <div className="relative z-10">
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-6">
                   {iconSrc && (
                     <Image
                       src={iconSrc}
                       alt=""
-                      width={56}
-                      height={56}
+                      width={80}
+                      height={80}
                       className="shrink-0 drop-shadow-lg"
                     />
                   )}
                   <div>
-                    <span className="text-lg font-bold uppercase tracking-widest text-white/70">
+                    <span className="text-2xl font-bold uppercase tracking-widest text-white/70">
                       {activePhase.label} &middot; Day {selectedDay}
                     </span>
-                    <h2 className="text-4xl font-extrabold text-white sm:text-5xl">
+                    <h2 className="text-5xl font-extrabold text-white sm:text-6xl">
                       {todayContent?.title ?? `Day ${selectedDay}`}
                     </h2>
                   </div>
                 </div>
                 {todayContent?.theme && (
-                  <p className="mt-4 text-xl text-white/80">
+                  <p className="mt-6 text-2xl text-white/80">
                     {todayContent.theme}
                   </p>
                 )}
-                <div className="mt-6 flex flex-wrap items-center gap-4">
+                <div className="mt-8 flex flex-wrap items-center gap-4">
                   {isViewingPastDay ? (
                     <>
-                      <div className="flex items-center gap-3 rounded-full bg-white/20 px-6 py-3">
-                        <CheckCircle2 className="size-6 text-white" />
-                        <span className="text-lg font-bold text-white">
+                      <div className="flex items-center gap-4 rounded-full bg-white/20 px-8 py-4">
+                        <CheckCircle2 className="size-7 text-white" />
+                        <span className="text-xl font-bold text-white">
                           Completed &middot; Review only
                         </span>
                       </div>
                       <Button
                         size="lg"
-                        className="rounded-xl bg-white px-8 py-6 text-lg font-bold shadow-lg hover:bg-white/90 h-auto"
+                        className="rounded-xl bg-white px-10 py-8 text-xl font-bold shadow-lg hover:bg-white/90 h-auto"
                         style={{ color: activePhase.color }}
                         onClick={() => setSelectedDay(activeDay)}
                       >
                         Continue to Day {activeDay}
-                        <ArrowRight className="ml-3 size-6" />
+                        <ArrowRight className="ml-3 size-7" />
                       </Button>
                     </>
                   ) : (
                     <>
                       <Button
                         size="lg"
-                        className="rounded-xl bg-white px-8 py-6 text-lg font-bold shadow-lg hover:bg-white/90 h-auto"
+                        className="rounded-xl bg-white px-10 py-8 text-xl font-bold shadow-lg hover:bg-white/90 h-auto"
                         style={{ color: activePhase.color }}
                         onClick={() =>
                           document
@@ -762,11 +762,11 @@ export function JourneyClient({
                             ?.scrollIntoView({ behavior: "smooth" })
                         }
                       >
-                        <Play className="mr-3 size-6" />
+                        <Play className="mr-4 size-7" />
                         Start Session
                       </Button>
-                      <div className="flex items-center gap-3 rounded-full bg-white/15 px-6 py-3">
-                        <span className="text-lg font-bold text-white">
+                      <div className="flex items-center gap-4 rounded-full bg-white/15 px-8 py-4">
+                        <span className="text-xl font-bold text-white">
                           {todayActionsDone}/{todayActionsTotal} actions
                         </span>
                       </div>
@@ -784,9 +784,9 @@ export function JourneyClient({
                 selectedDay > 1 && setSelectedDay(selectedDay - 1)
               }
               disabled={selectedDay <= 1}
-              className="flex items-center gap-3 rounded-lg px-6 py-3 text-lg font-semibold text-muted-foreground hover:text-foreground disabled:opacity-30"
+              className="flex items-center gap-4 rounded-lg px-8 py-4 text-xl font-semibold text-muted-foreground hover:text-foreground disabled:opacity-30"
             >
-              <ArrowLeft className="size-6" />
+              <ArrowLeft className="size-7" />
               Day {selectedDay - 1 > 0 ? selectedDay - 1 : ""}
             </button>
             <button
@@ -794,15 +794,15 @@ export function JourneyClient({
                 selectedDay < activeDay && setSelectedDay(selectedDay + 1)
               }
               disabled={selectedDay >= activeDay}
-              className="flex items-center gap-3 rounded-lg px-6 py-3 text-lg font-semibold text-muted-foreground hover:text-foreground disabled:opacity-30"
+              className="flex items-center gap-4 rounded-lg px-8 py-4 text-xl font-semibold text-muted-foreground hover:text-foreground disabled:opacity-30"
             >
               {selectedDay < activeDay ? `Day ${selectedDay + 1}` : ""}
               {selectedDay >= activeDay && selectedDay < program.totalDays && (
-                <span className="flex items-center gap-2 opacity-50">
-                  <Lock className="size-5" /> Day {selectedDay + 1}
+                <span className="flex items-center gap-2.5 opacity-50">
+                  <Lock className="size-6" /> Day {selectedDay + 1}
                 </span>
               )}
-              <ArrowRight className="size-6" />
+              <ArrowRight className="size-7" />
             </button>
           </div>
 
@@ -810,30 +810,30 @@ export function JourneyClient({
       {todayContent?.day_objective && todayContent.day_objective.length > 0 && (
         <section className="overflow-hidden rounded-3xl border bg-card">
           <div
-            className="flex items-center gap-4 px-8 py-6"
+            className="flex items-center gap-5 px-10 py-8"
             style={{ backgroundColor: `${activePhase.color}08` }}
           >
             <div
-              className="flex size-12 items-center justify-center rounded-lg text-white"
+              className="flex size-16 items-center justify-center rounded-lg text-white"
               style={{ backgroundColor: activePhase.color }}
             >
-              <Target className="size-6" />
+              <Target className="size-7" />
             </div>
             <div>
-              <h3 className="text-2xl font-extrabold text-foreground">
+              <h3 className="text-3xl font-extrabold text-foreground">
                 Day Objective
               </h3>
-              <span className="text-lg text-muted-foreground">
+              <span className="text-xl text-muted-foreground">
                 What you will learn today
               </span>
             </div>
           </div>
-          <div className="px-8 py-6">
-            <ul className="space-y-3">
+          <div className="px-10 py-8">
+            <ul className="space-y-4">
               {todayContent.day_objective.map((obj, i) => (
-                <li key={i} className="flex items-start gap-4 text-lg text-muted-foreground">
+                <li key={i} className="flex items-start gap-5 text-xl text-muted-foreground">
                   <CheckCircle2
-                    className="mt-1 size-6 shrink-0"
+                    className="mt-1 size-7 shrink-0"
                     style={{ color: activePhase.color }}
                   />
                   <span>{obj}</span>
@@ -847,24 +847,24 @@ export function JourneyClient({
       {/* ── Day Complete Banner ── */}
       {showDayComplete && (
         <div
-          className="flex items-center justify-between rounded-2xl border-2 p-5"
+          className="flex items-center justify-between rounded-2xl border-2 p-7"
           style={{
             borderColor: `${activePhase.color}40`,
             backgroundColor: `${activePhase.color}08`,
           }}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <div
-              className="flex size-10 items-center justify-center rounded-full text-white"
+              className="flex size-14 items-center justify-center rounded-full text-white"
               style={{ backgroundColor: activePhase.color }}
             >
-              <CheckCircle2 className="size-5" />
+              <CheckCircle2 className="size-7" />
             </div>
             <div>
-              <h3 className="text-lg font-extrabold text-foreground">
+              <h3 className="text-2xl font-extrabold text-foreground">
                 Day {selectedDay} Complete!
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-lg text-muted-foreground">
                 Great work. Your responses are saved to your portfolio.
               </p>
             </div>
@@ -880,14 +880,14 @@ export function JourneyClient({
               }}
             >
               Continue to Day {activeDay}
-              <ArrowRight className="ml-2 size-4" />
+              <ArrowRight className="ml-3 size-5" />
             </Button>
           )}
         </div>
       )}
 
       {/* ── Session Content: Sections ── */}
-      <div id="session-content" className="flex flex-col gap-5">
+      <div id="session-content" className="flex flex-col gap-6">
         {todayContent?.curriculum_sections?.map((section) => {
           const SectionIcon = SECTION_ICONS[section.section_type] ?? BookOpen
           const hasExercises = section.curriculum_exercises?.length > 0
@@ -900,28 +900,28 @@ export function JourneyClient({
             >
               {/* Section header */}
               <div
-                className="flex items-center justify-between px-5 py-3.5"
+                className="flex items-center justify-between px-8 py-5"
                 style={{ backgroundColor: `${activePhase.color}08` }}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4">
                   <div
-                    className="flex size-9 items-center justify-center rounded-lg text-white"
+                    className="flex size-12 items-center justify-center rounded-lg text-white"
                     style={{ backgroundColor: activePhase.color }}
                   >
-                    <SectionIcon className="size-4" />
+                    <SectionIcon className="size-5" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-extrabold text-foreground">
+                    <h3 className="text-2xl font-extrabold text-foreground">
                       {section.title}
                     </h3>
-                    <span className="text-xs capitalize text-muted-foreground">
+                    <span className="text-sm capitalize text-muted-foreground">
                       {section.section_type.replace(/_/g, " ")}
                     </span>
                   </div>
                 </div>
                 {hasExercises && (
                   <span
-                    className="rounded-full px-3 py-1 text-sm font-bold text-white"
+                    className="rounded-full px-4 py-2 text-base font-bold text-white"
                     style={{ backgroundColor: activePhase.color }}
                   >
                     {section.curriculum_exercises.filter((_, i) =>
@@ -936,7 +936,7 @@ export function JourneyClient({
 
               {/* Section content blocks */}
               {section.content && (Array.isArray(section.content) ? section.content : []).length > 0 && (
-                <div className="space-y-3 px-5 py-4">
+                <div className="space-y-4 px-8 py-5">
                   {(Array.isArray(section.content) ? section.content : []).map((item: Record<string, unknown>, i: number) => (
                     <ContentBlock
                       key={i}
@@ -1220,12 +1220,12 @@ export function JourneyClient({
         </div>{/* end left column */}
 
         {/* ── RIGHT: Progress side tile ── */}
-        <aside className="w-full shrink-0 lg:sticky lg:top-24 lg:w-96 lg:self-start">
+        <aside className="w-full shrink-0 lg:sticky lg:top-24 lg:w-[32rem] lg:self-start">
           <div className="rounded-3xl border bg-card">
             {/* Overall progress header */}
-            <div className="flex items-center gap-4 border-b p-6">
-              <div className="relative flex size-16 items-center justify-center">
-                <svg className="size-16 -rotate-90" viewBox="0 0 48 48">
+            <div className="flex items-center gap-6 border-b p-8">
+              <div className="relative flex size-32 items-center justify-center">
+                <svg className="size-32 -rotate-90" viewBox="0 0 48 48">
                   <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="3" className="text-muted/40" />
                   <circle
                     cx="24" cy="24" r="20" fill="none" strokeWidth="3" strokeLinecap="round"
@@ -1233,11 +1233,11 @@ export function JourneyClient({
                     strokeDasharray={`${overallPct * 1.257} 125.7`}
                   />
                 </svg>
-                <span className="absolute text-lg font-extrabold text-foreground">{overallPct}%</span>
+                <span className="absolute text-4xl font-extrabold text-foreground">{overallPct}%</span>
               </div>
               <div>
-                <p className="text-lg font-bold text-foreground">Overall Progress</p>
-                <p className="text-base text-muted-foreground">{overallCompleted}/{overallTotal} days</p>
+                <p className="text-2xl font-bold text-foreground">Overall Progress</p>
+                <p className="text-xl text-muted-foreground">{overallCompleted}/{overallTotal} days</p>
               </div>
             </div>
 
@@ -1247,26 +1247,26 @@ export function JourneyClient({
                 const PhaseIcon = phase.icon
                 const isCurrentPhase = activeDay >= phase.dayStart && activeDay <= phase.dayEnd
                 return (
-                  <div key={phase.id} className="p-5">
-                    <div className="mb-3 flex items-center gap-3">
+                  <div key={phase.id} className="p-6">
+                    <div className="mb-4 flex items-center gap-4">
                       <div
-                        className="flex size-9 items-center justify-center rounded-lg text-white"
+                        className="flex size-12 items-center justify-center rounded-lg text-white"
                         style={{ backgroundColor: phase.color }}
                       >
-                        <PhaseIcon className="size-5" />
+                        <PhaseIcon className="size-6" />
                       </div>
-                      <span className="flex-1 text-base font-bold text-foreground">
+                      <span className="flex-1 text-lg font-bold text-foreground">
                         {phase.label}
                       </span>
                       {isCurrentPhase && (
-                        <span className="size-3 rounded-full" style={{ backgroundColor: phase.color }} />
+                        <span className="size-4 rounded-full" style={{ backgroundColor: phase.color }} />
                       )}
-                      <span className="text-sm font-bold text-muted-foreground">
+                      <span className="text-base font-bold text-muted-foreground">
                         {phase.completed}/{phase.total}
                       </span>
                     </div>
                     {/* Day dots */}
-                    <div className="flex gap-2">
+                    <div className="flex gap-3">
                       {phase.days.map((day) => {
                         const isSelected = day === selectedDay
                           const isLocked = day > activeDay
@@ -1277,7 +1277,7 @@ export function JourneyClient({
                             onClick={() => !isLocked && setSelectedDay(day)}
                             disabled={isLocked}
                             title={`Day ${day}`}
-                            className={`flex size-7 items-center justify-center rounded-md text-[10px] font-bold transition-all ${
+                            className={`flex size-9 items-center justify-center rounded-md text-xs font-bold transition-all ${
                               isSelected
                                 ? "text-white shadow-sm"
                                 : completed
@@ -1298,9 +1298,9 @@ export function JourneyClient({
                             }
                           >
                             {completed && !isSelected ? (
-                              <CheckCircle2 className="size-3.5" style={{ color: phase.color }} />
+                              <CheckCircle2 className="size-4.5" style={{ color: phase.color }} />
                             ) : isLocked ? (
-                              <Lock className="size-2.5" />
+                              <Lock className="size-3.5" />
                             ) : (
                               day
                             )}
