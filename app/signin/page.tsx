@@ -71,7 +71,7 @@ function SignInForm() {
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `https://workforce.transformerhub.com/auth/callback?next=${encodeURIComponent(redirect)}`,
+        redirectTo: `https://www.workforceready.ai/auth/callback?next=${encodeURIComponent(redirect)}`,
       },
     })
     if (oauthError) {
