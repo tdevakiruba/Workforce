@@ -955,24 +955,17 @@ export function JourneyClient({
                     <label className="text-lg font-bold text-foreground">
                       Your Artifact
                     </label>
-                <span className="text-sm text-muted-foreground">
-                  {responseText.length > 0
-                    ? `${responseText.length} characters`
-                    : "Your answer is saved to your portfolio"}
-                </span>
-                {savingResponse && (
-                  <span className="flex items-center gap-1 text-xs font-medium" style={{ color: phaseColor }}>
-                    <Save className="size-4" />
-                    Saving...
-                  </span>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  )
+                  </div>
+                  {readOnly ? (
+                    responseText ? (
+                      <div className="rounded-lg border bg-muted/30 px-4 py-3 text-base leading-relaxed text-foreground">
+                        {responseText}
+                      </div>
+                    ) : (
+                      <p className="text-sm italic text-muted-foreground/60">
+                        No artifact recorded
+                      </p>
+                    )
                   ) : (
                     <>
                       <textarea
@@ -985,7 +978,7 @@ export function JourneyClient({
                         className="w-full resize-y rounded-lg border bg-background px-5 py-4 text-lg leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-offset-1"
                       />
                       {(responses[section.id] ?? "").length > 0 && (
-                        <p className="mt-1 text-[10px] text-muted-foreground">
+                        <p className="mt-1 text-sm text-muted-foreground">
                           {(responses[section.id] ?? "").length} characters
                         </p>
                       )}
