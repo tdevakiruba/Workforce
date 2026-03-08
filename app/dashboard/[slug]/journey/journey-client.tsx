@@ -376,7 +376,7 @@ function ExerciseBlock({
 
   return (
     <div
-      className={`rounded-xl border-2 p-4 transition-all ${
+      className={`rounded-xl border-2 p-7 transition-all ${
         isCompleted ? "border-transparent" : ""
       }`}
       style={
@@ -914,7 +914,7 @@ export function JourneyClient({
                     <h3 className="text-2xl font-extrabold text-foreground">
                       {section.title}
                     </h3>
-                    <span className="text-sm capitalize text-muted-foreground">
+                    <span className="text-base capitalize text-muted-foreground">
                       {section.section_type.replace(/_/g, " ")}
                     </span>
                   </div>
@@ -936,7 +936,7 @@ export function JourneyClient({
 
               {/* Section content blocks */}
               {section.content && (Array.isArray(section.content) ? section.content : []).length > 0 && (
-                <div className="space-y-4 px-8 py-5">
+                <div className="space-y-5 px-10 py-7">
                   {(Array.isArray(section.content) ? section.content : []).map((item: Record<string, unknown>, i: number) => (
                     <ContentBlock
                       key={i}
@@ -949,10 +949,10 @@ export function JourneyClient({
 
               {/* Artifact creation textarea */}
               {section.section_type === "artifact_creation" && (
-                <div className="border-t px-5 py-4">
-                  <div className="mb-2 flex items-center gap-2">
-                    <FileText className="size-4" style={{ color: activePhase.color }} />
-                    <label className="text-sm font-bold text-foreground">
+                <div className="border-t px-10 py-7">
+                  <div className="mb-3 flex items-center gap-3">
+                    <FileText className="size-5" style={{ color: activePhase.color }} />
+                    <label className="text-lg font-bold text-foreground">
                       Your Artifact
                     </label>
                 <span className="text-sm text-muted-foreground">
@@ -982,7 +982,7 @@ export function JourneyClient({
                         }
                         placeholder="Write your artifact here: decision memo, escalation email, executive summary, recommendation brief..."
                         rows={8}
-                        className="w-full resize-y rounded-lg border bg-background px-3 py-2.5 text-sm leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                        className="w-full resize-y rounded-lg border bg-background px-5 py-4 text-lg leading-relaxed text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-offset-1"
                       />
                       {(responses[section.id] ?? "").length > 0 && (
                         <p className="mt-1 text-[10px] text-muted-foreground">
@@ -996,7 +996,7 @@ export function JourneyClient({
 
               {/* Exercises within section */}
               {hasExercises && (
-                <div className="flex flex-col gap-2.5 border-t p-4">
+                <div className="flex flex-col gap-5 border-t p-8">
                   {section.curriculum_exercises.map((exercise, i) => {
                     const actionIndex = sectionExerciseStartIndex + i
                     const key = `${selectedDay}-${actionIndex}`
@@ -1034,17 +1034,17 @@ export function JourneyClient({
         {/* ── Key Teaching Quote ── */}
         {todayContent?.key_teaching_quote && (
           <div
-            className="flex items-start gap-4 rounded-2xl border-2 p-5"
+            className="flex items-start gap-6 rounded-2xl border-2 p-8"
             style={{
               borderColor: `${activePhase.color}30`,
               backgroundColor: `${activePhase.color}06`,
             }}
           >
             <Quote
-              className="mt-1 size-6 shrink-0"
+              className="mt-1 size-8 shrink-0"
               style={{ color: activePhase.color }}
             />
-            <p className="text-lg font-bold italic text-foreground">
+            <p className="text-2xl font-bold italic text-foreground">
               {todayContent.key_teaching_quote}
             </p>
           </div>
@@ -1057,28 +1057,28 @@ export function JourneyClient({
           return items.length > 0 ? (
             <section className="overflow-hidden rounded-2xl border bg-card">
               <div
-                className="flex items-center gap-3 px-5 py-3.5"
+                className="flex items-center gap-4 px-8 py-5"
                 style={{ backgroundColor: `${activePhase.color}08` }}
               >
                 <div
-                  className="flex size-9 items-center justify-center rounded-lg text-white"
+                  className="flex size-12 items-center justify-center rounded-lg text-white"
                   style={{ backgroundColor: activePhase.color }}
                 >
-                  <Sparkles className="size-4" />
+                  <Sparkles className="size-6" />
                 </div>
-                <h3 className="text-lg font-extrabold text-foreground">
+                <h3 className="text-2xl font-extrabold text-foreground">
                   Behaviors Instilled
                 </h3>
               </div>
-              <div className="px-5 py-4">
-                <ul className="space-y-2">
+              <div className="px-8 py-6">
+                <ul className="space-y-4">
                   {items.map((b: string, i: number) => (
                     <li
                       key={i}
-                      className="flex items-start gap-3 text-sm text-muted-foreground"
+                      className="flex items-start gap-4 text-lg text-muted-foreground"
                     >
                       <div
-                        className="mt-1.5 size-2 shrink-0 rounded-full"
+                        className="mt-2.5 size-3 shrink-0 rounded-full"
                         style={{ backgroundColor: activePhase.color }}
                       />
                       <span>{b}</span>
@@ -1097,28 +1097,28 @@ export function JourneyClient({
           return items.length > 0 ? (
             <section className="overflow-hidden rounded-2xl border bg-card">
               <div
-                className="flex items-center gap-3 px-5 py-3.5"
+                className="flex items-center gap-4 px-8 py-5"
                 style={{ backgroundColor: `${activePhase.color}08` }}
               >
                 <div
-                  className="flex size-9 items-center justify-center rounded-lg text-white"
+                  className="flex size-12 items-center justify-center rounded-lg text-white"
                   style={{ backgroundColor: activePhase.color }}
                 >
-                  <CheckCircle2 className="size-4" />
+                  <CheckCircle2 className="size-6" />
                 </div>
-                <h3 className="text-lg font-extrabold text-foreground">
+                <h3 className="text-2xl font-extrabold text-foreground">
                   End-of-Day Outcomes
                 </h3>
               </div>
-              <div className="px-5 py-4">
-                <ul className="space-y-2">
+              <div className="px-8 py-6">
+                <ul className="space-y-4">
                   {items.map((o: string, i: number) => (
                     <li
                       key={i}
-                      className="flex items-start gap-3 text-sm text-muted-foreground"
+                      className="flex items-start gap-4 text-lg text-muted-foreground"
                     >
                       <CheckCircle2
-                        className="mt-0.5 size-4 shrink-0"
+                        className="mt-0.5 size-6 shrink-0"
                         style={{ color: activePhase.color }}
                       />
                       <span>{o}</span>
@@ -1140,14 +1140,14 @@ export function JourneyClient({
           if (closeItems && closeItems.length > 0) {
             return (
               <div
-                className="overflow-hidden rounded-2xl p-5"
+                className="overflow-hidden rounded-2xl p-8"
                 style={{ backgroundColor: activePhase.color }}
               >
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10 rounded-2xl" />
-                  <div className="relative z-10 space-y-3">
+                  <div className="relative z-10 space-y-4">
                     {closeItems.map((line: string, i: number) => (
-                      <p key={i} className="text-base font-semibold leading-relaxed text-white">
+                      <p key={i} className="text-xl font-semibold leading-relaxed text-white">
                         {line}
                       </p>
                     ))}
@@ -1159,17 +1159,17 @@ export function JourneyClient({
           if (message) {
             return (
               <div
-                className="overflow-hidden rounded-2xl p-5"
+                className="overflow-hidden rounded-2xl p-8"
                 style={{ backgroundColor: activePhase.color }}
               >
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10 rounded-2xl" />
                   <div className="relative z-10">
-                    <p className="text-base font-semibold leading-relaxed text-white">
+                    <p className="text-xl font-semibold leading-relaxed text-white">
                       {message}
                     </p>
                     {(raw as { preview?: string })?.preview && (
-                      <p className="mt-3 text-sm font-medium text-white/70">
+                      <p className="mt-4 text-lg font-medium text-white/70">
                         {(raw as { preview?: string }).preview}
                       </p>
                     )}
@@ -1184,15 +1184,15 @@ export function JourneyClient({
         {/* All actions completed */}
         {todayProgress === 100 && todayActionsTotal > 0 && (
           <div
-            className="flex items-center gap-3 rounded-2xl px-5 py-4"
+            className="flex items-center gap-4 rounded-2xl px-7 py-5"
             style={{ backgroundColor: `${activePhase.color}10` }}
           >
             <Sparkles
-              className="size-5"
+              className="size-7"
               style={{ color: activePhase.color }}
             />
             <p
-              className="text-sm font-bold"
+              className="text-lg font-bold"
               style={{ color: activePhase.color }}
             >
               All actions completed for Day {selectedDay}! Great work.

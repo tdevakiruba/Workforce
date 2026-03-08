@@ -311,7 +311,7 @@ export function ProductDashboardShell({
 
       {/* Main content area */}
       <main className="min-w-0 flex-1 pt-12 lg:pt-0">
-        <div className="p-6 sm:p-10 lg:p-12">{children}</div>
+        <div className="p-4 sm:p-6 lg:p-8">{children}</div>
       </main>
     </div>
   )
