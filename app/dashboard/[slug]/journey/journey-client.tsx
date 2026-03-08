@@ -956,10 +956,10 @@ export function JourneyClient({
                       Your Artifact
                     </label>
                   </div>
-                  {readOnly ? (
-                    responseText ? (
+                  {isViewingPastDay ? (
+                    (responses[section.id] ?? "") ? (
                       <div className="rounded-lg border bg-muted/30 px-4 py-3 text-base leading-relaxed text-foreground">
-                        {responseText}
+                        {responses[section.id]}
                       </div>
                     ) : (
                       <p className="text-sm italic text-muted-foreground/60">

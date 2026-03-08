@@ -11,6 +11,8 @@ import {
   Sparkles,
   TrendingUp,
   ArrowRight,
+  Play,
+  Clock,
 } from "lucide-react"
 import { Input } from "@/components/ui/input"
 
@@ -24,6 +26,7 @@ const PHASES = [
     color: "#00c892",
     icon: Rocket,
     tagline: "Build your professional identity",
+    gradient: "from-emerald-500/20 to-emerald-500/5",
   },
   {
     id: "growth",
@@ -33,6 +36,7 @@ const PHASES = [
     color: "#0077b6",
     icon: TrendingUp,
     tagline: "Develop core leadership skills",
+    gradient: "from-blue-500/20 to-blue-500/5",
   },
   {
     id: "mastery",
@@ -42,6 +46,7 @@ const PHASES = [
     color: "#1b2a4a",
     icon: Crown,
     tagline: "Lead with influence and trust",
+    gradient: "from-slate-500/20 to-slate-500/5",
   },
 ]
 
@@ -121,145 +126,157 @@ export function FrameworksClient({
     return PHASES.find((p) => dayNum >= p.dayStart && dayNum <= p.dayEnd)
   }
 
+  // Calculate overall progress
+  const overallProgress = curriculum.length > 0 
+    ? Math.round((completedCount / curriculum.length) * 100) 
+    : 0
+
   return (
-    <div className="mx-auto w-full space-y-8">
-      {/* Header banner */}
-      <div
-        className="relative overflow-hidden rounded-3xl p-10"
-        style={{ backgroundColor: program.badgeColor }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-black/5 to-black/20" />
-        <div className="relative z-10 flex items-center justify-between gap-4">
-          <div className="min-w-0">
-            {currentPhase && (
-              <div className="mb-2 flex items-center gap-3">
-                <span className="rounded-full bg-white/20 px-4 py-1 text-sm font-bold uppercase tracking-wider text-white">
-                  {currentPhase.label}
+    <div className="mx-auto w-full space-y-10">
+      {/* Hero Header with Stats */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-10 lg:p-14">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+        <div className="relative z-10">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+            <div className="min-w-0 flex-1">
+              <div className="mb-4 flex items-center gap-3">
+                <span 
+                  className="rounded-full px-4 py-1.5 text-sm font-bold uppercase tracking-wider text-white"
+                  style={{ backgroundColor: program.badgeColor }}
+                >
+                  {currentPhase?.label ?? "In Progress"}
                 </span>
-                <span className="text-lg text-white/70">
-                  Day {currentDay}
+                <span className="text-lg text-white/60">
+                  Day {currentDay} of {program.totalDays}
                 </span>
               </div>
-            )}
-            <h2 className="truncate text-4xl font-extrabold text-white sm:text-5xl">
-              {recommendedDay?.title ?? `Day ${currentDay}`}
-            </h2>
-            {recommendedDay?.key_theme && (
-              <p className="mt-2 truncate text-lg text-white/80">
-                {recommendedDay.key_theme}
+              <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                Your Learning Path
+              </h1>
+              <p className="mt-4 max-w-2xl text-xl text-white/70">
+                Master AI-driven professional skills through {curriculum.length} focused frameworks across {PHASES.length} phases.
               </p>
-            )}
+            </div>
+
+            {/* Progress Ring */}
+            <div className="flex items-center gap-6 rounded-2xl bg-white/10 backdrop-blur-sm p-6">
+              <div className="relative flex size-24 items-center justify-center">
+                <svg className="size-24 -rotate-90" viewBox="0 0 48 48">
+                  <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="3" className="text-white/20" />
+                  <circle
+                    cx="24" cy="24" r="20" fill="none" strokeWidth="3" strokeLinecap="round"
+                    stroke={program.badgeColor}
+                    strokeDasharray={`${overallProgress * 1.257} 125.7`}
+                  />
+                </svg>
+                <span className="absolute text-2xl font-extrabold text-white">{overallProgress}%</span>
+              </div>
+              <div>
+                <p className="text-3xl font-extrabold text-white">{completedCount}/{curriculum.length}</p>
+                <p className="text-lg text-white/60">Frameworks Complete</p>
+              </div>
+            </div>
           </div>
-          <Link
-            href={`/dashboard/${program.slug}/journey`}
-            className="hidden shrink-0 items-center gap-2 rounded-xl bg-white px-8 py-4 text-lg font-bold transition-all hover:shadow-lg sm:flex"
-            style={{ color: program.badgeColor }}
-          >
-            Continue
-            <ArrowRight className="size-6" />
-          </Link>
+
+          {/* Phase Progress Bars */}
+          <div className="mt-10 grid gap-4 sm:grid-cols-3">
+            {PHASES.map((phase) => {
+              const PhaseIcon = phase.icon
+              const phaseCount = curriculum.filter(
+                (d) => d.day_number >= phase.dayStart && d.day_number <= phase.dayEnd
+              ).length
+              const phaseDone = curriculum.filter((d) => {
+                if (d.day_number < phase.dayStart || d.day_number > phase.dayEnd) return false
+                const c = completionMap[d.day_number]
+                return c && c.done > 0 && c.done >= c.total
+              }).length
+              const phaseProgress = phaseCount > 0 ? (phaseDone / phaseCount) * 100 : 0
+              
+              return (
+                <button
+                  key={phase.id}
+                  onClick={() => setActivePhaseId(activePhaseId === phase.id ? null : phase.id)}
+                  className={`group rounded-xl p-4 text-left transition-all ${
+                    activePhaseId === phase.id 
+                      ? "bg-white/20 ring-2 ring-white/40" 
+                      : "bg-white/5 hover:bg-white/10"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="flex size-10 items-center justify-center rounded-lg text-white"
+                      style={{ backgroundColor: phase.color }}
+                    >
+                      <PhaseIcon className="size-5" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-base font-bold text-white">{phase.label}</p>
+                      <p className="text-sm text-white/50">{phaseDone}/{phaseCount} complete</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+                    <div 
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${phaseProgress}%`, backgroundColor: phase.color }}
+                    />
+                  </div>
+                </button>
+              )
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Progress + Search row */}
+      {/* Search and Filter Row */}
       <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-3xl font-extrabold text-foreground">
-            All Frameworks
+            {activePhaseId ? PHASES.find(p => p.id === activePhaseId)?.label : "All Frameworks"}
           </h2>
           <p className="text-lg text-muted-foreground">
-            {completedCount} completed &middot; {remaining} remaining
+            {filtered.length} framework{filtered.length !== 1 ? "s" : ""} {search ? "found" : "available"}
           </p>
         </div>
-        <div className="relative w-full sm:w-80">
-          <Search className="absolute left-4 top-1/2 size-6 -translate-y-1/2 text-muted-foreground" />
+        <div className="relative w-full sm:w-96">
+          <Search className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search frameworks..."
-            className="rounded-xl pl-14 text-lg h-12"
+            placeholder="Search frameworks by title or theme..."
+            className="rounded-xl border-2 pl-12 text-lg h-14 focus:border-primary"
           />
         </div>
       </div>
 
-      {/* Phase filter pills */}
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          onClick={() => setActivePhaseId(null)}
-          className={`flex items-center gap-2 rounded-full px-6 py-3 text-lg font-bold transition-all ${
-            activePhaseId === null
-              ? "text-white shadow-md"
-              : "bg-muted text-muted-foreground hover:text-foreground"
-          }`}
-          style={
-            activePhaseId === null
-              ? { backgroundColor: program.badgeColor }
-              : undefined
-          }
-        >
-          All ({curriculum.length})
-        </button>
-        {PHASES.map((phase) => {
-          const PhaseIcon = phase.icon
-          const phaseCount = curriculum.filter(
-            (d) =>
-              d.day_number >= phase.dayStart && d.day_number <= phase.dayEnd
-          ).length
-          const phaseDone = curriculum.filter((d) => {
-            if (d.day_number < phase.dayStart || d.day_number > phase.dayEnd)
-              return false
-            const c = completionMap[d.day_number]
-            return c && c.done > 0 && c.done >= c.total
-          }).length
-          const isActive = activePhaseId === phase.id
-          return (
-            <button
-              key={phase.id}
-              onClick={() =>
-                setActivePhaseId(isActive ? null : phase.id)
-              }
-              className={`flex items-center gap-3 rounded-full px-6 py-3 text-lg font-bold transition-all ${
-                isActive
-                  ? "text-white shadow-md"
-                  : "bg-muted text-muted-foreground hover:text-foreground"
-              }`}
-              style={
-                isActive ? { backgroundColor: phase.color } : undefined
-              }
-            >
-              <PhaseIcon className="size-6" />
-              {phase.label}
-              <span className="opacity-70">
-                {phaseDone}/{phaseCount}
-              </span>
-            </button>
-          )
-        })}
-      </div>
-
-      {/* Recommended next */}
+      {/* Recommended Next Card */}
       {recommendedDay && !activePhaseId && !search && (
-        <div className="flex items-center gap-4 rounded-xl border bg-card p-6">
-          <Sparkles
-            className="size-7 shrink-0"
-            style={{ color: program.badgeColor }}
-          />
-          <div className="min-w-0 flex-1">
-            <span className="text-lg font-bold text-foreground">
-              Recommended Next
-            </span>
-            <p className="truncate text-base text-muted-foreground">
-              Day {recommendedDay.day_number}: {recommendedDay.title}
-            </p>
-          </div>
-          <Link
-            href={`/dashboard/${program.slug}/journey`}
-            className="shrink-0 text-lg font-bold transition-colors hover:underline"
-            style={{ color: program.badgeColor }}
+        <Link 
+          href={`/dashboard/${program.slug}/journey`}
+          className="group flex items-center gap-6 rounded-2xl border-2 bg-gradient-to-r from-card to-card/50 p-8 transition-all hover:shadow-lg hover:border-primary/30"
+          style={{ borderColor: `${program.badgeColor}30` }}
+        >
+          <div 
+            className="flex size-16 shrink-0 items-center justify-center rounded-2xl text-white shadow-lg"
+            style={{ backgroundColor: program.badgeColor }}
           >
-            Start <ArrowRight className="ml-1 inline size-4" />
-          </Link>
-        </div>
+            <Play className="size-7" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <Sparkles className="size-5" style={{ color: program.badgeColor }} />
+              <span className="text-base font-bold uppercase tracking-wider" style={{ color: program.badgeColor }}>
+                Continue Learning
+              </span>
+            </div>
+            <h3 className="mt-1 text-2xl font-extrabold text-foreground">
+              Day {recommendedDay.day_number}: {recommendedDay.title}
+            </h3>
+            {recommendedDay.key_theme && (
+              <p className="mt-1 text-lg text-muted-foreground">{recommendedDay.key_theme}</p>
+            )}
+          </div>
+          <ArrowRight className="size-8 text-muted-foreground transition-transform group-hover:translate-x-2" style={{ color: program.badgeColor }} />
+        </Link>
       )}
 
       {/* Phase-grouped framework cards */}
@@ -273,100 +290,148 @@ export function FrameworksClient({
         )
         if (phaseDays.length === 0) return null
 
+        const phaseDone = phaseDays.filter((d) => {
+          const c = completionMap[d.day_number]
+          return c && c.done > 0 && c.done >= c.total
+        }).length
+
         return (
-          <div key={phase.id}>
+          <div key={phase.id} className="space-y-6">
             {/* Phase section header */}
-            <div className="mb-5 flex items-center gap-4">
-              <div
-                className="flex size-12 items-center justify-center rounded-lg text-white"
-                style={{ backgroundColor: phase.color }}
-              >
-                <PhaseIcon className="size-7" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div
+                  className="flex size-14 items-center justify-center rounded-2xl text-white shadow-md"
+                  style={{ backgroundColor: phase.color }}
+                >
+                  <PhaseIcon className="size-7" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-extrabold text-foreground">
+                    {phase.label}
+                  </h3>
+                  <p className="text-lg text-muted-foreground">
+                    {phase.tagline}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-2xl font-extrabold text-foreground">
-                  {phase.label}
-                </h3>
-                <p className="text-lg text-muted-foreground">
-                  {phase.tagline} &middot; Days {phase.dayStart}-{phase.dayEnd}
-                </p>
+              <div className="hidden items-center gap-3 sm:flex">
+                <div className="flex items-center gap-2 rounded-full bg-muted px-4 py-2">
+                  <Clock className="size-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-muted-foreground">
+                    Days {phase.dayStart}-{phase.dayEnd}
+                  </span>
+                </div>
+                <div 
+                  className="flex items-center gap-2 rounded-full px-4 py-2 text-white"
+                  style={{ backgroundColor: phase.color }}
+                >
+                  <CheckCircle2 className="size-4" />
+                  <span className="text-sm font-bold">{phaseDone}/{phaseDays.length}</span>
+                </div>
               </div>
             </div>
 
-            {/* Day cards for this phase */}
-            <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {/* Day cards grid - larger, more visual cards */}
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {phaseDays.map((day) => {
                 const status = getDayStatus(day.day_number)
                 const isLocked = status === "locked"
                 const isCurrent = status === "current"
                 const isCompleted = status === "completed"
+                const completion = completionMap[day.day_number]
+                const progress = completion ? Math.round((completion.done / completion.total) * 100) : 0
 
                 return (
                   <Link
                     key={day.day_number}
-                    href={
-                      isLocked
-                        ? "#"
-                        : `/dashboard/${program.slug}/journey`
-                    }
+                    href={isLocked ? "#" : `/dashboard/${program.slug}/journey`}
                     onClick={(e) => isLocked && e.preventDefault()}
-                    className={`group flex items-start gap-4 rounded-xl border-2 bg-card p-6 transition-all ${
+                    className={`group relative overflow-hidden rounded-2xl border-2 bg-card transition-all duration-300 ${
                       isCurrent
-                        ? "shadow-md"
+                        ? "shadow-lg ring-2 ring-offset-2"
                         : isLocked
-                        ? "cursor-not-allowed opacity-40"
-                        : "hover:shadow-md"
+                        ? "cursor-not-allowed opacity-50"
+                        : "hover:shadow-xl hover:-translate-y-1"
                     }`}
                     style={{
-                      borderColor: isCurrent
-                        ? phase.color
-                        : isCompleted
-                        ? `${phase.color}25`
-                        : "transparent",
+                      borderColor: isCurrent || isCompleted ? phase.color : "transparent",
+                      ringColor: isCurrent ? phase.color : undefined,
                     }}
                   >
-                    {/* Day number badge */}
-                    <div
-                      className={`flex size-12 shrink-0 items-center justify-center rounded-lg text-lg font-extrabold ${
-                        isCompleted
-                          ? "text-white"
-                          : isCurrent
-                          ? "text-white"
-                          : isLocked
-                          ? "bg-muted text-muted-foreground"
-                          : "text-white"
-                      }`}
-                      style={
-                        !isLocked
-                          ? { backgroundColor: phase.color }
-                          : undefined
-                      }
+                    {/* Gradient header */}
+                    <div 
+                      className={`relative h-24 bg-gradient-to-br ${phase.gradient} p-5`}
+                      style={{ 
+                        background: isCompleted 
+                          ? `linear-gradient(135deg, ${phase.color}15, ${phase.color}05)` 
+                          : undefined 
+                      }}
                     >
-                      {isLocked ? (
-                        <Lock className="size-6" />
-                      ) : isCompleted ? (
-                        <CheckCircle2 className="size-6" />
-                      ) : (
-                        day.day_number
-                      )}
+                      <div className="flex items-start justify-between">
+                        <div
+                          className={`flex size-14 items-center justify-center rounded-xl text-xl font-extrabold shadow-md transition-transform group-hover:scale-105 ${
+                            isLocked ? "bg-muted text-muted-foreground" : "text-white"
+                          }`}
+                          style={!isLocked ? { backgroundColor: phase.color } : undefined}
+                        >
+                          {isLocked ? (
+                            <Lock className="size-6" />
+                          ) : isCompleted ? (
+                            <CheckCircle2 className="size-7" />
+                          ) : (
+                            day.day_number
+                          )}
+                        </div>
+                        {isCurrent && (
+                          <span 
+                            className="animate-pulse rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider text-white"
+                            style={{ backgroundColor: phase.color }}
+                          >
+                            Current
+                          </span>
+                        )}
+                        {isCompleted && (
+                          <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-bold uppercase tracking-wider" style={{ color: phase.color }}>
+                            Complete
+                          </span>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-lg font-bold leading-tight text-foreground line-clamp-2">
+                    {/* Card content */}
+                    <div className="p-5">
+                      <h4 className="text-xl font-bold leading-tight text-foreground line-clamp-2 group-hover:text-primary transition-colors">
                         {day.title}
                       </h4>
                       {day.key_theme && (
-                        <p className="mt-2 text-base text-muted-foreground line-clamp-1">
+                        <p className="mt-2 text-base text-muted-foreground line-clamp-2">
                           {day.key_theme}
                         </p>
                       )}
-                      {isCurrent && (
-                        <span
-                          className="mt-3 inline-block rounded-full px-3 py-1 text-sm font-bold text-white"
-                          style={{ backgroundColor: phase.color }}
-                        >
-                          Current
-                        </span>
+                      
+                      {/* Progress bar for incomplete days */}
+                      {!isLocked && !isCompleted && completion && (
+                        <div className="mt-4">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-muted-foreground">Progress</span>
+                            <span className="font-bold" style={{ color: phase.color }}>{progress}%</span>
+                          </div>
+                          <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
+                            <div 
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{ width: `${progress}%`, backgroundColor: phase.color }}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Action hint */}
+                      {!isLocked && (
+                        <div className="mt-4 flex items-center gap-2 text-sm font-medium transition-colors" style={{ color: phase.color }}>
+                          {isCompleted ? "Review" : isCurrent ? "Continue" : "Start"}
+                          <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                        </div>
                       )}
                     </div>
                   </Link>
@@ -379,14 +444,25 @@ export function FrameworksClient({
 
       {/* Empty state */}
       {filtered.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <Search className="mb-4 size-12 text-muted-foreground/40" />
-          <p className="text-xl font-bold text-muted-foreground">
+        <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed py-20 text-center">
+          <div className="flex size-20 items-center justify-center rounded-full bg-muted">
+            <Search className="size-10 text-muted-foreground/50" />
+          </div>
+          <h3 className="mt-6 text-2xl font-extrabold text-foreground">
             No frameworks found
+          </h3>
+          <p className="mt-2 max-w-md text-lg text-muted-foreground">
+            We couldn&apos;t find any frameworks matching your search. Try different keywords or clear your filters.
           </p>
-          <p className="mt-2 text-lg text-muted-foreground/70">
-            Try adjusting your search or filter
-          </p>
+          <button
+            onClick={() => {
+              setSearch("")
+              setActivePhaseId(null)
+            }}
+            className="mt-6 rounded-xl bg-primary px-6 py-3 text-lg font-bold text-primary-foreground transition-all hover:bg-primary/90"
+          >
+            Clear Filters
+          </button>
         </div>
       )}
     </div>
