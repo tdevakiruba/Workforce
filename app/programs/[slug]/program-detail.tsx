@@ -324,18 +324,18 @@ export function ProgramDetail({
         {/* Dark overlay for readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
 
-        <div className="relative mx-auto flex max-w-7xl flex-col items-center px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 py-24 sm:px-8 lg:px-12 lg:py-32">
           {/* White content tile */}
-          <div className="w-full max-w-5xl rounded-3xl bg-white/95 p-8 shadow-2xl backdrop-blur-md sm:p-12 lg:p-16">
+          <div className="w-full max-w-5xl rounded-3xl bg-white/95 p-12 shadow-2xl backdrop-blur-md sm:p-16 lg:p-20">
             {/* Logo + icon row */}
-            <div className="mb-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
+            <div className="mb-12 flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
               {heroIcon && (
                 <Image
                   src={heroIcon}
                   alt={`${program.name} icon`}
-                  width={128}
-                  height={128}
-                  className="size-20 shrink-0 sm:size-auto"
+                  width={160}
+                  height={160}
+                  className="size-28 shrink-0 sm:size-auto"
                   priority
                 />
               )}
@@ -343,13 +343,13 @@ export function ProgramDetail({
                 <Image
                   src={heroLogo}
                   alt={program.name}
-                  width={440}
-                  height={96}
-                  className="h-auto w-[80%] max-w-[440px] sm:w-auto"
+                  width={520}
+                  height={120}
+                  className="h-auto w-[80%] max-w-[520px] sm:w-auto"
                   priority
                 />
               ) : (
-                <h1 className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+                <h1 className="text-5xl font-extrabold tracking-tight text-foreground sm:text-6xl lg:text-7xl">
                   {program.name}
                 </h1>
               )}
@@ -357,31 +357,31 @@ export function ProgramDetail({
 
             {/* Duration badge */}
             <span
-              className="mb-6 inline-flex items-center gap-2.5 rounded-full px-5 py-2 text-base font-bold text-white"
+              className="mb-8 inline-flex items-center gap-3 rounded-full px-8 py-3 text-xl font-bold text-white"
               style={{ backgroundColor: program.color || "#00c892" }}
             >
-              <Clock className="size-5" />
+              <Clock className="size-7" />
               {program.duration}-Day Program
             </span>
 
             {/* Tagline */}
             {program.tagline && (
-              <p className="mt-3 text-2xl font-bold text-foreground sm:text-3xl">
+              <p className="mt-4 text-3xl font-bold text-foreground sm:text-4xl">
                 {program.tagline}
               </p>
             )}
 
             {/* Description */}
-            <p className="mt-4 max-w-3xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl">
+            <p className="mt-6 max-w-3xl text-pretty text-xl leading-relaxed text-muted-foreground sm:text-2xl">
               {program.long_description || program.short_description}
             </p>
 
             {/* Key outcomes pills */}
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-8 flex flex-wrap gap-4">
               {features.slice(0, 3).map((f) => (
                 <span
                   key={f.id}
-                  className="rounded-full border-2 px-5 py-2 text-base font-bold"
+                  className="rounded-full border-2 px-7 py-3 text-lg font-bold"
                   style={{
                     borderColor: `${program.color || "#00c892"}40`,
                     color: program.color || "#00c892",
@@ -394,12 +394,12 @@ export function ProgramDetail({
             </div>
 
             {/* CTA row */}
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="mt-10 flex flex-col gap-5 sm:flex-row sm:items-center">
               {hasSubscription && (
                 <Button
                   asChild
                   size="lg"
-                  className="h-14 rounded-xl px-10 text-lg font-bold text-white"
+                  className="h-16 rounded-xl px-12 text-xl font-bold text-white"
                   style={{ backgroundColor: program.color || "#00c892" }}
                 >
                   <Link href={`/dashboard/${program.slug}`}>Go to Dashboard</Link>
@@ -408,7 +408,7 @@ export function ProgramDetail({
               {!hasSubscription && (
                 <Button
                   size="lg"
-                  className="h-14 rounded-xl px-10 text-lg font-bold text-white"
+                  className="h-16 rounded-xl px-12 text-xl font-bold text-white"
                   style={{ backgroundColor: program.color || "#00c892" }}
                   onClick={() =>
                     document
@@ -417,7 +417,7 @@ export function ProgramDetail({
                   }
                 >
                   Start Free Trial
-                  <ArrowRight className="ml-2 size-5" />
+                  <ArrowRight className="ml-3 size-6" />
                 </Button>
               )}
               {!isLoggedIn && (
@@ -426,7 +426,7 @@ export function ProgramDetail({
                     asChild
                     size="lg"
                     variant="outline"
-                    className="rounded-xl px-8"
+                    className="h-16 rounded-xl px-10 text-lg"
                   >
                     <Link href={`/signin?redirect=/programs/${program.slug}`}>
                       Sign In
@@ -436,7 +436,7 @@ export function ProgramDetail({
                     asChild
                     size="lg"
                     variant="ghost"
-                    className="rounded-xl px-8"
+                    className="h-16 rounded-xl px-10 text-lg"
                   >
                     <Link href="/signup">
                       Create Account
@@ -450,29 +450,29 @@ export function ProgramDetail({
       </section>
 
       {/* Layout wrapper: main content + sticky sidebar on desktop */}
-      <div className="mx-auto flex max-w-7xl flex-col lg:flex-row lg:gap-8 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col lg:flex-row lg:gap-12 px-6 sm:px-8 lg:px-12">
         {/* ── Main content column ── */}
         <div className="flex-1 min-w-0">
           {/* ─────────── WHO IT'S FOR ─────────── */}
-          <section className="py-14 border-b">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          <section className="py-20 border-b">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
               Who This Program Is For
             </h2>
-            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
               {program.audience}
             </p>
             {program.leaders &&
               Array.isArray(program.leaders) &&
               program.leaders.length > 0 && (
-                <div className="mt-6">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                <div className="mt-8">
+                  <p className="mb-3 text-base font-semibold uppercase tracking-wider text-muted-foreground">
                     Inspired by leaders like
                   </p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-3">
                     {(program.leaders as string[]).slice(0, 8).map((name) => (
                       <span
                         key={name}
-                        className="rounded-full bg-wf-bg px-3 py-1 text-xs font-medium text-muted-foreground"
+                        className="rounded-full bg-wf-bg px-5 py-2 text-base font-medium text-muted-foreground"
                       >
                         {name}
                       </span>
@@ -483,18 +483,18 @@ export function ProgramDetail({
           </section>
 
           {/* ─────────── 3-PHASE JOURNEY PREVIEW ─────────── */}
-          <section className="py-14 border-b">
-            <h2 className="font-serif text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+          <section className="py-20 border-b">
+            <h2 className="font-serif text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
               Your {program.duration}-Day Journey
             </h2>
-            <p className="mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">
+            <p className="mt-4 max-w-xl text-xl leading-relaxed text-muted-foreground">
               Three phases designed to transform how you show up professionally.
             </p>
 
             {/* ── Phase timeline connector ── */}
-            <div className="relative mt-10 flex flex-col gap-0">
+            <div className="relative mt-14 flex flex-col gap-0">
               {/* Vertical connecting line */}
-              <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-[#00c892] via-[#3b82f6] to-[#a855f7] sm:left-8" />
+              <div className="absolute left-8 top-0 bottom-0 w-1 bg-gradient-to-b from-[#00c892] via-[#3b82f6] to-[#a855f7] sm:left-10" />
 
               {PROGRAM_PHASES.map((phase, phaseIdx) => {
                 const PhaseIcon = phase.icon
@@ -504,44 +504,44 @@ export function ProgramDetail({
                     d.day_number <= phase.dayEnd
                 )
                 return (
-                  <div key={phase.id} className="relative pb-10 last:pb-0">
+                  <div key={phase.id} className="relative pb-14 last:pb-0">
                     {/* ── Phase header row ── */}
-                    <div className="flex items-start gap-4 sm:gap-5">
+                    <div className="flex items-start gap-6 sm:gap-8">
                       {/* Phase icon (sits on the timeline) */}
                       <div
-                        className="relative z-10 flex size-12 shrink-0 items-center justify-center rounded-full text-white shadow-lg sm:size-16"
+                        className="relative z-10 flex size-16 shrink-0 items-center justify-center rounded-full text-white shadow-lg sm:size-20"
                         style={{ backgroundColor: phase.color }}
                       >
-                        <PhaseIcon className="size-5 sm:size-7" />
+                        <PhaseIcon className="size-7 sm:size-9" />
                       </div>
 
                       {/* Phase info */}
-                      <div className="flex-1 pt-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="font-serif text-xl font-extrabold text-foreground sm:text-2xl">
+                      <div className="flex-1 pt-2">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h3 className="font-serif text-2xl font-extrabold text-foreground sm:text-3xl">
                             {phase.label}
                           </h3>
                           <span
-                            className="rounded-full px-3 py-0.5 text-xs font-bold text-white"
+                            className="rounded-full px-5 py-1 text-base font-bold text-white"
                             style={{ backgroundColor: phase.color }}
                           >
                             Days {phase.dayStart}-{phase.dayEnd}
                           </span>
                         </div>
-                        <p className="mt-1 text-base text-muted-foreground">
+                        <p className="mt-2 text-lg text-muted-foreground">
                           {phase.tagline}
                         </p>
 
                         {/* Highlights as inline chips */}
-                        <div className="mt-3 flex flex-wrap gap-2">
+                        <div className="mt-4 flex flex-wrap gap-3">
                           {phase.highlights.map((h, i) => (
                             <span
                               key={i}
-                              className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm text-muted-foreground"
+                              className="inline-flex items-center gap-2 rounded-full border px-5 py-2 text-base text-muted-foreground"
                               style={{ borderColor: `${phase.color}30`, backgroundColor: `${phase.color}06` }}
                             >
                               <CheckCircle2
-                                className="size-3.5 shrink-0"
+                                className="size-5 shrink-0"
                                 style={{ color: phase.color }}
                               />
                               {h}
@@ -551,25 +551,25 @@ export function ProgramDetail({
 
                         {/* Day titles -- compact numbered list */}
                         {phaseDays.length > 0 && (
-                          <div className="mt-4 overflow-hidden rounded-xl border" style={{ borderColor: `${phase.color}20` }}>
+                          <div className="mt-6 overflow-hidden rounded-xl border" style={{ borderColor: `${phase.color}20` }}>
                             {phaseDays.map((day, i) => (
                               <div
                                 key={day.day_number}
-                                className={`flex items-center gap-3 px-4 py-2.5 ${
+                                className={`flex items-center gap-4 px-6 py-4 ${
                                   i < phaseDays.length - 1 ? "border-b" : ""
                                 }`}
                                 style={{ borderColor: `${phase.color}12` }}
                               >
                                 <span
-                                  className="flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white"
+                                  className="flex size-10 shrink-0 items-center justify-center rounded-full text-base font-bold text-white"
                                   style={{ backgroundColor: phase.color }}
                                 >
                                   {day.day_number}
                                 </span>
-                                <p className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
+                                <p className="min-w-0 flex-1 truncate text-lg font-semibold text-foreground">
                                   {day.title}
                                 </p>
-                                <Lock className="size-3.5 shrink-0 text-muted-foreground/30" />
+                                <Lock className="size-5 shrink-0 text-muted-foreground/30" />
                               </div>
                             ))}
                           </div>
@@ -582,10 +582,10 @@ export function ProgramDetail({
             </div>
 
             {/* CTA after journey preview */}
-            <div className="mt-10 text-center">
+            <div className="mt-14 text-center">
               <Button
                 size="lg"
-                className="rounded-xl px-10 py-3 text-base font-bold text-white shadow-md"
+                className="h-16 rounded-xl px-14 text-xl font-bold text-white shadow-md"
                 style={{ backgroundColor: program.color || "#00c892" }}
                 onClick={() =>
                   document
@@ -594,9 +594,9 @@ export function ProgramDetail({
                 }
               >
                 Unlock Full Journey
-                <ArrowRight className="ml-2 size-4" />
+                <ArrowRight className="ml-3 size-6" />
               </Button>
-              <p className="mt-3 text-sm text-muted-foreground">
+              <p className="mt-4 text-lg text-muted-foreground">
                 Get access to all {program.duration} days of daily content, actions & frameworks
               </p>
             </div>
@@ -604,21 +604,21 @@ export function ProgramDetail({
 
           {/* ─────────── WHAT YOU GET / FEATURES ─────────── */}
           {features.length > 0 && (
-            <section className="py-14 border-b">
-              <h2 className="font-serif text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+            <section className="py-20 border-b">
+              <h2 className="font-serif text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
                 {"What You'll Learn"}
               </h2>
-              <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2">
                 {features.map((feat) => (
-                  <div key={feat.id} className="flex gap-4 rounded-xl border bg-card p-6">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-wf-mint/10">
-                      <CheckCircle2 className="size-5 text-wf-mint" />
+                  <div key={feat.id} className="flex gap-5 rounded-2xl border bg-card p-8">
+                    <div className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-wf-mint/10">
+                      <CheckCircle2 className="size-7 text-wf-mint" />
                     </div>
                     <div>
-                      <h3 className="text-base font-bold text-card-foreground">
+                      <h3 className="text-xl font-bold text-card-foreground">
                         {feat.title}
                       </h3>
-                      <p className="mt-1 text-sm leading-relaxed text-foreground/70">
+                      <p className="mt-2 text-lg leading-relaxed text-foreground/70">
                         {feat.description}
                       </p>
                     </div>
@@ -629,14 +629,14 @@ export function ProgramDetail({
           )}
 
           {/* ─────────── DAILY CAREER OPERATING LOOP ─────────── */}
-          <section className="py-14 border-b">
-            <h2 className="font-serif text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+          <section className="py-20 border-b">
+            <h2 className="font-serif text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
               Daily Career Operating Loop
             </h2>
-            <p className="mt-3 max-w-xl text-base leading-relaxed text-foreground/70">
+            <p className="mt-4 max-w-xl text-xl leading-relaxed text-foreground/70">
               Every day follows this structure. No passive learning.
             </p>
-            <div className="mt-8 flex flex-col gap-4">
+            <div className="mt-10 flex flex-col gap-5">
               {[
                 {
                   icon: BookOpen,
@@ -676,33 +676,33 @@ export function ProgramDetail({
               ].map((step) => (
                 <div
                   key={step.title}
-                  className="flex items-start gap-4 rounded-xl border bg-card p-5"
+                  className="flex items-start gap-6 rounded-2xl border bg-card p-8"
                 >
                   <div
-                    className="flex size-11 shrink-0 items-center justify-center rounded-xl"
+                    className="flex size-16 shrink-0 items-center justify-center rounded-xl"
                     style={{
                       backgroundColor:
                         (program.color || "#00c892") + "18",
                     }}
                   >
                     <step.icon
-                      className="size-5"
+                      className="size-8"
                       style={{ color: program.color || "#00c892" }}
                     />
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <p className="text-xs font-bold uppercase tracking-wider text-foreground/50">
+                    <div className="flex items-center gap-4">
+                      <p className="text-base font-bold uppercase tracking-wider text-foreground/50">
                         Step {step.step}
                       </p>
-                      <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-foreground/60">
+                      <span className="rounded-full bg-muted px-4 py-1 text-base font-semibold text-foreground/60">
                         {step.time}
                       </span>
                     </div>
-                    <h3 className="mt-1 font-serif text-base font-bold text-card-foreground">
+                    <h3 className="mt-2 font-serif text-xl font-bold text-card-foreground">
                       {step.title}
                     </h3>
-                    <p className="mt-1 text-sm leading-relaxed text-foreground/70">
+                    <p className="mt-2 text-lg leading-relaxed text-foreground/70">
                       {step.desc}
                     </p>
                   </div>
@@ -713,23 +713,23 @@ export function ProgramDetail({
 
           {/* ─────────── TESTIMONIALS ─────────── */}
           {testimonials.length > 0 && (
-            <section className="py-14 border-b">
-              <h2 className="font-serif text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+            <section className="py-20 border-b">
+              <h2 className="font-serif text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
                 What Participants Say
               </h2>
-              <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {testimonials.map((t, i) => (
                   <div
                     key={i}
-                    className="flex flex-col rounded-xl border bg-card p-6"
+                    className="flex flex-col rounded-2xl border bg-card p-8"
                   >
-                    <Quote className="mb-3 size-6 text-wf-mint/50" />
-                    <p className="flex-1 text-base leading-relaxed text-foreground/80 italic">
+                    <Quote className="mb-4 size-8 text-wf-mint/50" />
+                    <p className="flex-1 text-lg leading-relaxed text-foreground/80 italic">
                       {`"${t.text}"`}
                     </p>
-                    <div className="mt-5 flex items-center gap-3 border-t pt-4">
+                    <div className="mt-6 flex items-center gap-4 border-t pt-5">
                       <div
-                        className="flex size-9 items-center justify-center rounded-full text-sm font-bold text-white"
+                        className="flex size-12 items-center justify-center rounded-full text-lg font-bold text-white"
                         style={{
                           backgroundColor: program.color || "#00c892",
                         }}
@@ -737,10 +737,10 @@ export function ProgramDetail({
                         {t.name.charAt(0)}
                       </div>
                       <div>
-                        <p className="text-sm font-bold text-card-foreground">
+                        <p className="text-lg font-bold text-card-foreground">
                           {t.name}
                         </p>
-                        <p className="text-sm text-foreground/60">
+                        <p className="text-base text-foreground/60">
                           {t.role}
                         </p>
                       </div>
@@ -753,19 +753,19 @@ export function ProgramDetail({
 
           {/* ─────────── PRICING (full section, visible on all sizes) ─────────── */}
           {pricing.length > 0 && (
-            <section id="pricing" className="py-14 border-b">
-              <h2 className="font-serif text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+            <section id="pricing" className="py-20 border-b">
+              <h2 className="font-serif text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
                 Choose Your Plan
               </h2>
-              <p className="mt-2 text-base text-foreground/60">
+              <p className="mt-3 text-xl text-foreground/60">
                 {"Get started with Workforce Ready\u2122 today."}
               </p>
 
-              <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 max-w-3xl">
+              <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 max-w-4xl">
                 {pricing.map((tier) => (
                   <div
                     key={tier.id}
-                    className={`flex flex-col rounded-2xl border bg-card p-7 ${
+                    className={`flex flex-col rounded-3xl border bg-card p-10 ${
                       tier.highlighted
                         ? "border-wf-mint border-2 shadow-md"
                         : "border-border"
@@ -773,41 +773,41 @@ export function ProgramDetail({
                   >
                     {/* Recommended badge */}
                     {tier.highlighted && (
-                      <span className="mb-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-wf-mint/10 px-3.5 py-1 text-xs font-semibold text-wf-mint">
-                        <Star className="size-3.5" /> Recommended
+                      <span className="mb-5 inline-flex w-fit items-center gap-2 rounded-full bg-wf-mint/10 px-5 py-2 text-base font-semibold text-wf-mint">
+                        <Star className="size-5" /> Recommended
                       </span>
                     )}
 
                     {/* Tier name & subtitle */}
-                    <h3 className="font-serif text-xl font-bold text-card-foreground">
+                    <h3 className="font-serif text-2xl font-bold text-card-foreground">
                       {tier.name}
                     </h3>
                     {tier.subtitle && (
-                      <p className="mt-1 text-sm text-foreground/60">
+                      <p className="mt-2 text-lg text-foreground/60">
                         {tier.subtitle}
                       </p>
                     )}
 
                     {/* Price block */}
-                    <div className="mt-5 mb-6">
+                    <div className="mt-6 mb-8">
                       {tier.price ? (
-                        <div className="flex items-baseline gap-2.5">
-                          <span className="font-serif text-5xl font-extrabold text-foreground">
+                        <div className="flex items-baseline gap-3">
+                          <span className="font-serif text-6xl font-extrabold text-foreground">
                             {tier.price}
                           </span>
                           {tier.original_price && (
-                            <span className="text-lg text-muted-foreground line-through">
+                            <span className="text-xl text-muted-foreground line-through">
                               {tier.original_price}
                             </span>
                           )}
                           {tier.price_note && (
-                            <span className="text-sm text-foreground/50">
+                            <span className="text-lg text-foreground/50">
                               {tier.price_note}
                             </span>
                           )}
                         </div>
                       ) : (
-                        <span className="font-serif text-2xl font-bold text-foreground">
+                        <span className="font-serif text-3xl font-bold text-foreground">
                           Custom Pricing
                         </span>
                       )}
@@ -815,13 +815,13 @@ export function ProgramDetail({
 
                     {/* Feature list */}
                     {tier.features && tier.features.length > 0 && (
-                      <ul className="flex flex-1 flex-col gap-3">
+                      <ul className="flex flex-1 flex-col gap-4">
                         {tier.features.map((f, i) => (
                           <li
                             key={i}
-                            className="flex items-start gap-2.5 text-sm text-foreground/70"
+                            className="flex items-start gap-3 text-lg text-foreground/70"
                           >
-                            <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-wf-mint" />
+                            <CheckCircle2 className="mt-1 size-6 shrink-0 text-wf-mint" />
                             {f}
                           </li>
                         ))}
@@ -830,7 +830,7 @@ export function ProgramDetail({
 
                     {/* CTA button */}
                     <Button
-                      className={`mt-8 w-full rounded-xl h-12 text-base font-semibold ${
+                      className={`mt-10 w-full rounded-xl h-16 text-xl font-semibold ${
                         tier.highlighted
                           ? "bg-wf-mint text-white hover:bg-wf-mint/90"
                           : "bg-muted text-foreground hover:bg-muted/80"
@@ -841,7 +841,7 @@ export function ProgramDetail({
                     >
                       {enrollingTier === tier.id ? (
                         <>
-                          <Loader2 className="mr-2 size-4 animate-spin" />
+                          <Loader2 className="mr-3 size-6 animate-spin" />
                           Processing...
                         </>
                       ) : hasSubscription ? (
@@ -858,30 +858,30 @@ export function ProgramDetail({
 
           {/* ─────────── FAQ ─────────── */}
           {faqs.length > 0 && (
-            <section className="py-14 border-b">
-              <h2 className="font-serif text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
+            <section className="py-20 border-b">
+              <h2 className="font-serif text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
                 Frequently Asked Questions
               </h2>
-              <div className="mt-8 flex flex-col gap-2">
+              <div className="mt-10 flex flex-col gap-3">
                 {faqs.map((faq, i) => (
-                  <div key={i} className="rounded-xl border bg-card">
+                  <div key={i} className="rounded-2xl border bg-card">
                     <button
-                      className="flex w-full items-center justify-between px-5 py-4 text-left"
+                      className="flex w-full items-center justify-between px-8 py-6 text-left"
                       onClick={() => setOpenFaq(openFaq === i ? null : i)}
                       aria-expanded={openFaq === i}
                     >
-                      <span className="text-base font-semibold text-card-foreground pr-4">
+                      <span className="text-xl font-semibold text-card-foreground pr-6">
                         {faq.q}
                       </span>
                       <ChevronDown
-                        className={`size-5 shrink-0 text-muted-foreground transition-transform ${
+                        className={`size-7 shrink-0 text-muted-foreground transition-transform ${
                           openFaq === i ? "rotate-180" : ""
                         }`}
                       />
                     </button>
                     {openFaq === i && (
-                      <div className="border-t px-5 py-4">
-                        <p className="text-sm leading-relaxed text-foreground/70">
+                      <div className="border-t px-8 py-6">
+                        <p className="text-lg leading-relaxed text-foreground/70">
                           {faq.a}
                         </p>
                       </div>
@@ -893,24 +893,24 @@ export function ProgramDetail({
           )}
 
           {/* ─────────── BOTTOM CTA ─────────── */}
-          <section className="py-14">
+          <section className="py-20">
             <div
-              className="rounded-2xl px-8 py-12 text-center"
+              className="rounded-3xl px-12 py-16 text-center"
               style={{ backgroundColor: program.color || "#002b5c" }}
             >
-              <h2 className="font-serif text-balance text-3xl font-extrabold text-white sm:text-4xl">
+              <h2 className="font-serif text-balance text-4xl font-extrabold text-white sm:text-5xl">
                 Ready to transform your leadership?
               </h2>
-              <p className="mx-auto mt-3 max-w-lg text-base leading-relaxed text-white/80">
+              <p className="mx-auto mt-4 max-w-xl text-xl leading-relaxed text-white/80">
                 Join the {program.name} and take the first step toward lasting
                 change. Your {program.duration}-day journey starts today.
               </p>
-              <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
                 {hasSubscription && (
                   <Button
                     asChild
                     size="lg"
-                    className="rounded-xl bg-white px-8 text-wf-dark hover:bg-white/90"
+                    className="h-16 rounded-xl bg-white px-12 text-xl text-wf-dark hover:bg-white/90"
                   >
                     <Link href={`/dashboard/${program.slug}`}>Go to Dashboard</Link>
                   </Button>
@@ -918,7 +918,7 @@ export function ProgramDetail({
                 {!hasSubscription && (
                   <Button
                     size="lg"
-                    className="rounded-xl bg-white px-8 text-wf-dark hover:bg-white/90"
+                    className="h-16 rounded-xl bg-white px-12 text-xl text-wf-dark hover:bg-white/90"
                     onClick={() =>
                       document
                         .getElementById("pricing")
@@ -926,7 +926,7 @@ export function ProgramDetail({
                     }
                   >
                     Start Free Trial
-                    <ArrowRight className="ml-2 size-4" />
+                    <ArrowRight className="ml-3 size-6" />
                   </Button>
                 )}
                 {!isLoggedIn && (
@@ -934,7 +934,7 @@ export function ProgramDetail({
                     <Button
                       size="lg"
                       asChild
-                      className="rounded-xl border-2 border-white bg-transparent px-8 text-white hover:bg-white/10"
+                      className="h-16 rounded-xl border-2 border-white bg-transparent px-12 text-xl text-white hover:bg-white/10"
                     >
                       <Link href={`/signin?redirect=/programs/${program.slug}`}>
                         Sign In
@@ -943,7 +943,7 @@ export function ProgramDetail({
                     <Button
                       size="lg"
                       asChild
-                      className="rounded-xl border-2 border-white bg-transparent px-8 text-white hover:bg-white/10"
+                      className="h-16 rounded-xl border-2 border-white bg-transparent px-12 text-xl text-white hover:bg-white/10"
                     >
                       <Link href="/signup">
                         Create Account
@@ -958,51 +958,51 @@ export function ProgramDetail({
 
         {/* ── Sticky sidebar pricing card (desktop only) ── */}
         {stickyTier && !hasSubscription && (
-          <aside className="hidden lg:block w-80 shrink-0">
-            <div className="sticky top-20 mt-14 rounded-2xl border bg-card p-6 shadow-sm">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          <aside className="hidden lg:block w-96 shrink-0">
+            <div className="sticky top-20 mt-20 rounded-3xl border bg-card p-8 shadow-sm">
+              <p className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
                 {program.duration}-Day Program
               </p>
-              <h3 className="mt-1 text-lg font-bold text-card-foreground">
+              <h3 className="mt-2 text-2xl font-bold text-card-foreground">
                 {stickyTier.name}
               </h3>
               {stickyTier.subtitle && (
-                <p className="mt-0.5 text-xs text-muted-foreground">
+                <p className="mt-1 text-base text-muted-foreground">
                   {stickyTier.subtitle}
                 </p>
               )}
-              <div className="mt-4">
+              <div className="mt-6">
                 {stickyTier.price ? (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-extrabold text-foreground">
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-5xl font-extrabold text-foreground">
                       {stickyTier.price}
                     </span>
                     {stickyTier.original_price && (
-                      <span className="text-sm text-muted-foreground line-through">
+                      <span className="text-lg text-muted-foreground line-through">
                         {stickyTier.original_price}
                       </span>
                     )}
                   </div>
                 ) : (
-                  <span className="text-lg font-bold text-foreground">
+                  <span className="text-2xl font-bold text-foreground">
                     Custom Pricing
                   </span>
                 )}
                 {stickyTier.price_note && (
-                  <p className="mt-0.5 text-[10px] text-muted-foreground">
+                  <p className="mt-1 text-sm text-muted-foreground">
                     {stickyTier.price_note}
                   </p>
                 )}
               </div>
 
               {stickyTier.features && stickyTier.features.length > 0 && (
-                <ul className="mt-5 flex flex-col gap-2 border-t pt-4">
+                <ul className="mt-6 flex flex-col gap-3 border-t pt-5">
                   {stickyTier.features.slice(0, 6).map((f, i) => (
                     <li
                       key={i}
-                      className="flex items-start gap-2 text-xs text-muted-foreground"
+                      className="flex items-start gap-3 text-base text-muted-foreground"
                     >
-                      <CheckCircle2 className="mt-0.5 size-3 shrink-0 text-wf-mint" />
+                      <CheckCircle2 className="mt-0.5 size-5 shrink-0 text-wf-mint" />
                       {f}
                     </li>
                   ))}
@@ -1010,13 +1010,13 @@ export function ProgramDetail({
               )}
 
               <Button
-                className="mt-5 w-full rounded-xl bg-wf-mint text-white hover:bg-wf-mint-light"
+                className="mt-6 w-full h-14 rounded-xl text-lg bg-wf-mint text-white hover:bg-wf-mint-light"
                 onClick={() => handleEnroll(stickyTier)}
                 disabled={enrollingTier === stickyTier.id}
               >
                 {enrollingTier === stickyTier.id ? (
                   <>
-                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    <Loader2 className="mr-2 size-5 animate-spin" />
                     Processing...
                   </>
                 ) : !isLoggedIn ? (
@@ -1027,17 +1027,17 @@ export function ProgramDetail({
               </Button>
 
               {!isLoggedIn && (
-                <div className="mt-4 space-y-2">
+                <div className="mt-5 space-y-3">
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full rounded-xl"
+                    className="w-full h-12 rounded-xl text-lg"
                   >
                     <Link href={`/signin?redirect=/programs/${program.slug}`}>
                       Sign In
                     </Link>
                   </Button>
-                  <p className="text-center text-[10px] text-muted-foreground">
+                  <p className="text-center text-sm text-muted-foreground">
                     {"Don't have an account? "}
                     <Link
                       href={`/signup`}
