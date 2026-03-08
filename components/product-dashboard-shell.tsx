@@ -87,29 +87,29 @@ export function ProductDashboardShell({
     <div className="flex min-h-[calc(100vh-64px)]">
       <SessionActivityTracker />
       {/* Desktop Sidebar */}
-      <aside className="hidden w-64 shrink-0 border-r bg-card lg:block">
+      <aside className="hidden w-80 shrink-0 border-r bg-card lg:block">
         <div className="sticky top-16 flex h-[calc(100vh-64px)] flex-col">
           {/* Program badge header */}
-          <div className="border-b p-4">
+          <div className="border-b p-6">
             <Link
               href="/dashboard"
-              className="mb-3 flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="mb-4 flex items-center gap-2 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
-              <ChevronLeft className="size-3.5" />
+              <ChevronLeft className="size-5" />
               All Programs
             </Link>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               {iconSrc ? (
                 <Image
                   src={iconSrc}
                   alt=""
-                  width={40}
-                  height={40}
+                  width={56}
+                  height={56}
                   className="shrink-0"
                 />
               ) : (
                 <div
-                  className="flex size-10 shrink-0 items-center justify-center rounded-xl text-xs font-bold text-white"
+                  className="flex size-14 shrink-0 items-center justify-center rounded-xl text-lg font-bold text-white"
                   style={{ backgroundColor: program.badgeColor }}
                 >
                   {program.signalAcronym.slice(0, 3)}
@@ -120,17 +120,17 @@ export function ProductDashboardShell({
                   <Image
                     src={logoSrc}
                     alt={program.name}
-                    width={140}
-                    height={28}
+                    width={180}
+                    height={36}
                     className="h-auto"
                   />
                 ) : (
-                  <h2 className="truncate text-sm font-bold text-foreground">
+                  <h2 className="truncate text-lg font-bold text-foreground">
                     {program.name}
                   </h2>
                 )}
                 {!logoSrc && program.tagline && (
-                  <p className="truncate text-[11px] text-muted-foreground">
+                  <p className="truncate text-base text-muted-foreground">
                     {program.tagline}
                   </p>
                 )}
@@ -139,8 +139,8 @@ export function ProductDashboardShell({
           </div>
 
           {/* Nav tabs */}
-          <nav className="flex-1 px-2 py-3">
-            <ul className="flex flex-col gap-0.5">
+          <nav className="flex-1 px-3 py-4">
+            <ul className="flex flex-col gap-1">
               {sidebarTabs.map((tab) => {
                 const Icon = tab.icon
                 const isActive = activeTab === tab.id
@@ -148,7 +148,7 @@ export function ProductDashboardShell({
                   <li key={tab.id}>
                     <Link
                       href={`/dashboard/${program.slug}/${tab.id}`}
-                      className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                      className={`flex items-center gap-4 rounded-lg px-4 py-3 text-lg font-medium transition-all ${
                         isActive
                           ? "text-foreground"
                           : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -163,7 +163,7 @@ export function ProductDashboardShell({
                       }
                     >
                       <Icon
-                        className="size-4"
+                        className="size-6"
                         style={isActive ? { color: program.badgeColor } : undefined}
                       />
                       {tab.label}
@@ -175,9 +175,9 @@ export function ProductDashboardShell({
           </nav>
 
           {/* Enrollment info footer */}
-          <div className="border-t px-4 py-3">
-            <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-              <Calendar className="size-3" />
+          <div className="border-t px-6 py-4">
+            <div className="flex items-center gap-2 text-base text-muted-foreground">
+              <Calendar className="size-5" />
               {enrollment.startDate && (
                 <span>
                   Started{" "}
@@ -189,16 +189,16 @@ export function ProductDashboardShell({
                 </span>
               )}
             </div>
-            <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
-              <GraduationCap className="size-3" />
+            <div className="mt-2 flex items-center gap-2 text-base text-muted-foreground">
+              <GraduationCap className="size-5" />
               <span className="capitalize">{enrollment.planTier} Plan</span>
             </div>
             <button
               onClick={handleLogout}
               disabled={loggingOut}
-              className="mt-3 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+              className="mt-4 flex w-full items-center gap-2 rounded-lg px-3 py-3 text-base font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
             >
-              <LogOut className="size-3.5" />
+              <LogOut className="size-5" />
               {loggingOut ? "Signing out..." : "Sign Out"}
             </button>
           </div>
@@ -206,38 +206,38 @@ export function ProductDashboardShell({
       </aside>
 
       {/* Mobile top bar */}
-      <div className="fixed inset-x-0 top-16 z-40 flex items-center justify-between border-b bg-card px-4 py-2 lg:hidden">
-        <div className="flex items-center gap-2">
+      <div className="fixed inset-x-0 top-16 z-40 flex items-center justify-between border-b bg-card px-5 py-3 lg:hidden">
+        <div className="flex items-center gap-3">
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="flex size-8 items-center justify-center rounded-lg border"
+            className="flex size-10 items-center justify-center rounded-lg border"
             aria-label="Toggle sidebar"
           >
             {mobileOpen ? (
-              <X className="size-4 text-foreground" />
+              <X className="size-5 text-foreground" />
             ) : (
-              <Menu className="size-4 text-foreground" />
+              <Menu className="size-5 text-foreground" />
             )}
           </button>
           {iconSrc ? (
-            <Image src={iconSrc} alt="" width={28} height={28} className="shrink-0" />
+            <Image src={iconSrc} alt="" width={36} height={36} className="shrink-0" />
           ) : (
             <div
-              className="flex size-7 items-center justify-center rounded-lg text-[10px] font-bold text-white"
+              className="flex size-9 items-center justify-center rounded-lg text-base font-bold text-white"
               style={{ backgroundColor: program.badgeColor }}
             >
               {program.signalAcronym.slice(0, 3)}
             </div>
           )}
           {logoSrc ? (
-            <Image src={logoSrc} alt={program.name} width={120} height={24} className="h-auto max-w-[100px] xs:max-w-[120px]" />
+            <Image src={logoSrc} alt={program.name} width={140} height={28} className="h-auto max-w-[100px] xs:max-w-[140px]" />
           ) : (
-            <span className="text-sm font-bold text-foreground truncate max-w-[120px] xs:max-w-[180px]">
+            <span className="text-lg font-bold text-foreground truncate max-w-[120px] xs:max-w-[200px]">
               {program.name}
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5 text-base text-muted-foreground">
           <span
             className="font-bold"
             style={{ color: program.badgeColor }}
@@ -254,9 +254,9 @@ export function ProductDashboardShell({
             className="fixed inset-0 top-[104px] z-30 bg-foreground/30 lg:hidden"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="fixed inset-y-0 left-0 top-[104px] z-40 w-64 border-r bg-card lg:hidden overflow-y-auto">
-            <nav className="px-2 py-3">
-              <ul className="flex flex-col gap-0.5">
+          <div className="fixed inset-y-0 left-0 top-[104px] z-40 w-72 border-r bg-card lg:hidden overflow-y-auto">
+            <nav className="px-3 py-4">
+              <ul className="flex flex-col gap-1">
                 {sidebarTabs.map((tab) => {
                   const Icon = tab.icon
                   const isActive = activeTab === tab.id
@@ -265,7 +265,7 @@ export function ProductDashboardShell({
                       <Link
                         href={`/dashboard/${program.slug}/${tab.id}`}
                         onClick={() => setMobileOpen(false)}
-                        className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                        className={`flex items-center gap-4 rounded-lg px-4 py-3 text-lg font-medium transition-all ${
                           isActive
                             ? "text-foreground"
                             : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -279,7 +279,7 @@ export function ProductDashboardShell({
                             : undefined
                         }
                       >
-                        <Icon className="size-4" />
+                        <Icon className="size-6" />
                         {tab.label}
                       </Link>
                     </li>
@@ -287,21 +287,21 @@ export function ProductDashboardShell({
                 })}
               </ul>
             </nav>
-            <div className="border-t px-4 py-3 mt-2">
+            <div className="border-t px-6 py-4 mt-3">
               <Link
                 href="/dashboard"
                 onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground"
+                className="flex items-center gap-2 text-base font-medium text-muted-foreground hover:text-foreground"
               >
-                <ArrowLeft className="size-3.5" />
+                <ArrowLeft className="size-5" />
                 Back to All Programs
               </Link>
               <button
                 onClick={handleLogout}
                 disabled={loggingOut}
-                className="mt-3 flex w-full items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
+                className="mt-4 flex w-full items-center gap-2 rounded-lg px-3 py-3 text-base font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-50"
               >
-                <LogOut className="size-3.5" />
+                <LogOut className="size-5" />
                 {loggingOut ? "Signing out..." : "Sign Out"}
               </button>
             </div>
