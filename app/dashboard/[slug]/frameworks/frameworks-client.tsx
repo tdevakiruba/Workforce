@@ -269,7 +269,7 @@ export function FrameworksClient({
               </span>
             </div>
             <h3 className="mt-1 text-2xl font-extrabold text-foreground">
-              Day {recommendedDay.day_number}: {recommendedDay.title}
+              {recommendedDay.title}
             </h3>
             {recommendedDay.key_theme && (
               <p className="mt-1 text-lg text-muted-foreground">{recommendedDay.key_theme}</p>
@@ -380,7 +380,7 @@ export function FrameworksClient({
                           ) : isCompleted ? (
                             <CheckCircle2 className="size-7" />
                           ) : (
-                            day.day_number
+                            <Sparkles className="size-6" />
                           )}
                         </div>
                         {isCurrent && (
