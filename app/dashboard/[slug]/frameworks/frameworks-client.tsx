@@ -345,7 +345,7 @@ export function FrameworksClient({
                 return (
                   <Link
                     key={day.day_number}
-                    href={isLocked ? "#" : `/dashboard/${program.slug}/journey`}
+                    href={isLocked ? "#" : `/dashboard/${program.slug}/journey?day=${day.day_number}`}
                     onClick={(e) => isLocked && e.preventDefault()}
                     className={`group relative overflow-hidden rounded-2xl border-2 bg-card transition-all duration-300 ${
                       isCurrent
