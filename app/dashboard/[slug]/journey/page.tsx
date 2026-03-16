@@ -6,10 +6,13 @@ export const dynamic = "force-dynamic"
 
 export default async function JourneyPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>
+  searchParams: Promise<{ day?: string }>
 }) {
   const { slug } = await params
+  const { day: dayParam } = await searchParams
   const supabase = await createClient()
 
   const {
@@ -42,6 +45,10 @@ export default async function JourneyPage({
   const durationMatch = program.duration?.match(/(\d+)/)
   const totalDays = durationMatch ? parseInt(durationMatch[1], 10) : 21
   const currentDay = Math.min(enrollment.current_day ?? 1, totalDays)
+
+  // Allow viewing a specific day via query parameter, but don't allow viewing future days
+  const requestedDay = dayParam ? parseInt(dayParam, 10) : currentDay
+  const initialDay = Math.min(requestedDay, currentDay)
 
   // Fetch curriculum days, sections, and exercises separately
   // (nested FK joins don't work with hyphenated table names in Supabase JS)
@@ -121,6 +128,7 @@ export default async function JourneyPage({
       }}
       enrollmentId={enrollment.id}
       currentDay={currentDay}
+      initialDay={initialDay}
       curriculum={curriculum}
       userActions={userActions ?? []}
       userSectionProgress={userSectionProgress ?? []}
