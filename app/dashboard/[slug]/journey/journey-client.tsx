@@ -1012,6 +1012,88 @@ export function JourneyClient({
 
       {/* ── Session Content: Sections ── */}
       <div id="session-content" className="flex flex-col gap-8">
+        {/* ── Key Teaching Quote ── */}
+        {todayContent?.key_teaching_quote && (
+          <div
+            className="relative overflow-hidden rounded-3xl p-1"
+            style={{
+              background: `linear-gradient(135deg, ${activePhase.color}, ${activePhase.color}60)`,
+            }}
+          >
+            <div className="relative rounded-[1.25rem] bg-card px-10 py-8">
+              {/* Decorative quote marks */}
+              <div
+                className="pointer-events-none absolute -left-2 -top-4 text-[120px] font-serif leading-none opacity-[0.07]"
+                style={{ color: activePhase.color }}
+              >
+                &ldquo;
+              </div>
+              <div className="relative flex items-center gap-6">
+                <div
+                  className="flex size-14 shrink-0 items-center justify-center rounded-2xl text-white shadow-lg"
+                  style={{ backgroundColor: activePhase.color }}
+                >
+                  <Quote className="size-6" />
+                </div>
+                <p className="text-2xl font-bold italic leading-relaxed text-foreground">
+                  {todayContent.key_teaching_quote}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Behaviors Instilled ── */}
+        {(() => {
+          const raw = todayContent?.behaviors_instilled
+          const items = Array.isArray(raw) ? raw : (raw as { behaviors?: string[] })?.behaviors ?? []
+          return items.length > 0 ? (
+            <section
+              className="relative overflow-hidden rounded-3xl border-2 bg-gradient-to-br from-card via-card to-muted/20 shadow-lg"
+              style={{ borderColor: `${activePhase.color}20` }}
+            >
+              {/* Decorative gradient */}
+              <div
+                className="pointer-events-none absolute -left-10 -top-10 size-32 rounded-full opacity-10 blur-3xl"
+                style={{ backgroundColor: activePhase.color }}
+              />
+              <div
+                className="flex items-center gap-5 px-8 py-6"
+                style={{ backgroundColor: `${activePhase.color}06` }}
+              >
+                <div
+                  className="flex size-14 items-center justify-center rounded-2xl text-white shadow-lg"
+                  style={{
+                    background: `linear-gradient(135deg, ${activePhase.color}, ${activePhase.color}cc)`,
+                  }}
+                >
+                  <Sparkles className="size-6" />
+                </div>
+                <h3 className="text-2xl font-bold tracking-tight text-foreground">
+                  Behaviors Instilled
+                </h3>
+              </div>
+              <div className="px-8 py-7">
+                <ul className="space-y-5">
+                  {items.map((b: string, i: number) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-5 rounded-xl bg-white/50 p-4 text-lg text-foreground shadow-sm transition-all hover:bg-white/80 dark:bg-white/5 dark:hover:bg-white/10"
+                    >
+                      <div
+                        className="mt-1 flex size-8 shrink-0 items-center justify-center rounded-full text-white text-sm font-bold"
+                        style={{ backgroundColor: activePhase.color }}
+                      >
+                        {i + 1}
+                      </div>
+                      <span className="leading-relaxed">{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          ) : null
+        })()>
         {todayContent?.curriculum_sections?.map((section, sectionIndex) => {
           const SectionIcon = SECTION_ICONS[section.section_type] ?? BookOpen
           const hasExercises = section.curriculum_exercises?.length > 0
@@ -1192,90 +1274,7 @@ export function JourneyClient({
               )}
             </section>
           )
-        })}
-
-        {/* ── Key Teaching Quote ── */}
-        {todayContent?.key_teaching_quote && (
-          <div
-            className="relative overflow-hidden rounded-3xl p-1"
-            style={{
-              background: `linear-gradient(135deg, ${activePhase.color}, ${activePhase.color}60)`,
-            }}
-          >
-            <div className="relative rounded-[1.25rem] bg-card px-10 py-8">
-              {/* Decorative quote marks */}
-              <div
-                className="pointer-events-none absolute -left-2 -top-4 text-[120px] font-serif leading-none opacity-[0.07]"
-                style={{ color: activePhase.color }}
-              >
-                &ldquo;
-              </div>
-              <div className="relative flex items-center gap-6">
-                <div
-                  className="flex size-14 shrink-0 items-center justify-center rounded-2xl text-white shadow-lg"
-                  style={{ backgroundColor: activePhase.color }}
-                >
-                  <Quote className="size-6" />
-                </div>
-                <p className="text-2xl font-bold italic leading-relaxed text-foreground">
-                  {todayContent.key_teaching_quote}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── Behaviors Instilled ── */}
-        {(() => {
-          const raw = todayContent?.behaviors_instilled
-          const items = Array.isArray(raw) ? raw : (raw as { behaviors?: string[] })?.behaviors ?? []
-          return items.length > 0 ? (
-            <section
-              className="relative overflow-hidden rounded-3xl border-2 bg-gradient-to-br from-card via-card to-muted/20 shadow-lg"
-              style={{ borderColor: `${activePhase.color}20` }}
-            >
-              {/* Decorative gradient */}
-              <div
-                className="pointer-events-none absolute -left-10 -top-10 size-32 rounded-full opacity-10 blur-3xl"
-                style={{ backgroundColor: activePhase.color }}
-              />
-              <div
-                className="flex items-center gap-5 px-8 py-6"
-                style={{ backgroundColor: `${activePhase.color}06` }}
-              >
-                <div
-                  className="flex size-14 items-center justify-center rounded-2xl text-white shadow-lg"
-                  style={{
-                    background: `linear-gradient(135deg, ${activePhase.color}, ${activePhase.color}cc)`,
-                  }}
-                >
-                  <Sparkles className="size-6" />
-                </div>
-                <h3 className="text-2xl font-bold tracking-tight text-foreground">
-                  Behaviors Instilled
-                </h3>
-              </div>
-              <div className="px-8 py-7">
-                <ul className="space-y-5">
-                  {items.map((b: string, i: number) => (
-                    <li
-                      key={i}
-                      className="flex items-start gap-5 rounded-xl bg-white/50 p-4 text-lg text-foreground shadow-sm transition-all hover:bg-white/80 dark:bg-white/5 dark:hover:bg-white/10"
-                    >
-                      <div
-                        className="mt-1 flex size-8 shrink-0 items-center justify-center rounded-full text-white text-sm font-bold"
-                        style={{ backgroundColor: activePhase.color }}
-                      >
-                        {i + 1}
-                      </div>
-                      <span className="leading-relaxed">{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </section>
-          ) : null
-        })()}
+        })}}
 
         {/* ── End of Day Outcomes ── */}
         {(() => {
