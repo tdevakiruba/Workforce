@@ -43,7 +43,7 @@ INSERT INTO public.programs (id, slug, name, tagline, short_description, long_de
     'Workforce',
     'workforce',
     '#2563eb',
-    'Popular',
+    'Workforce Acceleration',
     '21 Days',
     'Graduates & Early-Career',
     '[]',
