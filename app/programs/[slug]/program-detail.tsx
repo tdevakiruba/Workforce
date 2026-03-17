@@ -124,7 +124,7 @@ interface CurriculumDay {
   key_theme: string | null
 }
 
-/* ── Static hero asset maps ── */
+/* ── Static hero background and logo maps ── */
 const heroBackgrounds: Record<string, string> = {
   "workforce-ready": "/images/p1.jpg",
 }
