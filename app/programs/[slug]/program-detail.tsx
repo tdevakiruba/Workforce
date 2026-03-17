@@ -1,6 +1,5 @@
 "use client"
 
-// Build: 2026-03-17 - heroIcon fix deployed
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
