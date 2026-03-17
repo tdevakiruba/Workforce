@@ -54,8 +54,10 @@ export async function GET(request: Request) {
     if (!redirectPath.startsWith("/")) {
       redirectPath = "/dashboard"
     }
-    // Basic validation: only allow alphanumeric, hyphens, underscores, and slashes
-    if (!/^[\w\-\/]*$/.test(redirectPath)) {
+    // Basic validation: only allow alphanumeric, hyphens, underscores, slashes, and query params
+    // Use a more permissive pattern that handles common URL characters
+    if (!/^[a-zA-Z0-9_\-\/\?\=\&\%\.]*$/.test(redirectPath)) {
+      console.warn("[auth-callback] Invalid redirect path, using default:", redirectPath)
       redirectPath = "/dashboard"
     }
 
