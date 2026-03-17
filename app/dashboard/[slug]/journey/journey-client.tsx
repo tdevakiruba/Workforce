@@ -70,6 +70,96 @@ const SECTION_ICONS: Record<string, typeof BookOpen> = {
   professional_upgrade: TrendingUp,
 }
 
+/* ── Section type visual treatments ── */
+type SectionStyle = {
+  wrapper: string
+  headerBg: string
+  iconStyle: "filled" | "outlined" | "gradient"
+  contentBg: string
+  accent: "left-border" | "top-border" | "glow" | "none"
+}
+
+const SECTION_STYLES: Record<string, SectionStyle> = {
+  reality_briefing: {
+    wrapper: "border-2 shadow-lg",
+    headerBg: "bg-gradient-to-r from-emerald-500/10 to-teal-500/5",
+    iconStyle: "gradient",
+    contentBg: "bg-emerald-50/40 dark:bg-emerald-950/10",
+    accent: "left-border",
+  },
+  reality_mapping: {
+    wrapper: "border-2 shadow-lg",
+    headerBg: "bg-gradient-to-r from-emerald-500/10 to-teal-500/5",
+    iconStyle: "gradient",
+    contentBg: "bg-emerald-50/40 dark:bg-emerald-950/10",
+    accent: "left-border",
+  },
+  workplace_scenario: {
+    wrapper: "border shadow-md",
+    headerBg: "bg-gradient-to-r from-teal-500/10 to-emerald-400/5",
+    iconStyle: "filled",
+    contentBg: "bg-teal-50/30 dark:bg-teal-900/10",
+    accent: "top-border",
+  },
+  professional_upgrade: {
+    wrapper: "border-2 shadow-xl ring-1 ring-emerald-500/10",
+    headerBg: "bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-emerald-400/5",
+    iconStyle: "gradient",
+    contentBg: "bg-gradient-to-b from-white to-emerald-50/40 dark:from-slate-900 dark:to-emerald-950/10",
+    accent: "glow",
+  },
+  decision_exercise: {
+    wrapper: "border-2 shadow-lg",
+    headerBg: "bg-gradient-to-r from-teal-600/10 to-emerald-500/8",
+    iconStyle: "filled",
+    contentBg: "bg-teal-50/40 dark:bg-teal-950/10",
+    accent: "left-border",
+  },
+  decision_challenge: {
+    wrapper: "border-2 shadow-lg",
+    headerBg: "bg-gradient-to-r from-teal-600/10 to-emerald-500/8",
+    iconStyle: "filled",
+    contentBg: "bg-teal-50/40 dark:bg-teal-950/10",
+    accent: "left-border",
+  },
+  artifact_creation: {
+    wrapper: "border shadow-md",
+    headerBg: "bg-gradient-to-r from-emerald-400/8 to-teal-400/5",
+    iconStyle: "outlined",
+    contentBg: "bg-emerald-50/20 dark:bg-emerald-950/5",
+    accent: "none",
+  },
+  reflection_upgrade: {
+    wrapper: "border shadow-sm",
+    headerBg: "bg-emerald-50/50 dark:bg-emerald-950/10",
+    iconStyle: "outlined",
+    contentBg: "bg-emerald-50/20 dark:bg-emerald-950/5",
+    accent: "none",
+  },
+  reflection: {
+    wrapper: "border shadow-sm",
+    headerBg: "bg-emerald-50/50 dark:bg-emerald-950/10",
+    iconStyle: "outlined",
+    contentBg: "bg-emerald-50/20 dark:bg-emerald-950/5",
+    accent: "none",
+  },
+  mindset_disruption: {
+    wrapper: "border-2 shadow-lg",
+    headerBg: "bg-gradient-to-r from-green-500/12 to-emerald-500/8",
+    iconStyle: "gradient",
+    contentBg: "bg-green-50/30 dark:bg-green-950/10",
+    accent: "left-border",
+  },
+}
+
+const DEFAULT_SECTION_STYLE: SectionStyle = {
+  wrapper: "border shadow-sm",
+  headerBg: "bg-muted/30",
+  iconStyle: "filled",
+  contentBg: "bg-card",
+  accent: "none",
+}
+
 /* ── Types ── */
 interface CurriculumExercise {
   id: string
@@ -133,7 +223,7 @@ interface JourneyClientProps {
 }
 
 const programIcons: Record<string, string> = {
-  "workforce-ready": "/images/workforce-icon.png",
+  "workforce-ready": "/images/workforce-logo-white.png",
 }
 
 /* ── Section content renderers ── */
@@ -198,32 +288,43 @@ function ContentBlock({
     case "callout":
       return (
         <div
-          className="rounded-xl border-l-4 px-5 py-4"
+          className="relative overflow-hidden rounded-2xl border-l-4 px-6 py-5 shadow-sm"
           style={{
             borderColor: phaseColor,
             backgroundColor: `${phaseColor}08`,
           }}
         >
-          <p className="text-base font-bold" style={{ color: phaseColor }}>
+          <div
+            className="pointer-events-none absolute -right-4 -top-4 size-16 rounded-full opacity-20 blur-2xl"
+            style={{ backgroundColor: phaseColor }}
+          />
+          <p className="relative text-lg font-bold leading-relaxed" style={{ color: phaseColor }}>
             {item.text as string}
           </p>
         </div>
       )
     case "scenario_setup":
       return (
-        <div className="rounded-xl bg-muted/50 p-5">
-          <p className="text-base font-medium text-foreground">
+        <div className="rounded-2xl border bg-gradient-to-br from-slate-50 to-slate-100/50 p-6 shadow-sm dark:from-slate-900 dark:to-slate-800/50">
+          <p className="text-lg font-medium leading-relaxed text-foreground">
             {item.text as string}
           </p>
         </div>
       )
     case "manager_quote":
       return (
-        <div className="flex gap-4 rounded-xl border bg-card p-5">
-          <Quote className="mt-0.5 size-6 shrink-0 text-muted-foreground/50" />
-          <p className="text-base italic leading-relaxed text-foreground">
-            {'"'}{item.text as string}{'"'}
-          </p>
+        <div className="relative overflow-hidden rounded-2xl border-2 border-slate-200 bg-gradient-to-br from-white to-slate-50 p-6 shadow-md dark:border-slate-700 dark:from-slate-800 dark:to-slate-900">
+          <div className="pointer-events-none absolute -left-2 -top-2 text-6xl font-serif leading-none text-slate-200 dark:text-slate-700">
+            &ldquo;
+          </div>
+          <div className="relative flex items-start gap-4">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-700">
+              <Quote className="size-5 text-slate-500" />
+            </div>
+            <p className="text-lg italic leading-relaxed text-foreground">
+              {item.text as string}
+            </p>
+          </div>
         </div>
       )
     case "narrative":
@@ -235,15 +336,27 @@ function ContentBlock({
     case "challenge":
       return (
         <div
-          className="rounded-xl border-2 p-5"
+          className="relative overflow-hidden rounded-2xl border-2 p-6 shadow-md"
           style={{
-            borderColor: `${phaseColor}40`,
-            backgroundColor: `${phaseColor}06`,
+            borderColor: `${phaseColor}50`,
+            background: `linear-gradient(135deg, ${phaseColor}08, ${phaseColor}04)`,
           }}
         >
-          <p className="text-base font-semibold text-foreground">
-            {item.text as string}
-          </p>
+          <div
+            className="pointer-events-none absolute -right-8 -top-8 size-24 rounded-full opacity-20 blur-3xl"
+            style={{ backgroundColor: phaseColor }}
+          />
+          <div className="relative flex items-start gap-4">
+            <div
+              className="flex size-10 shrink-0 items-center justify-center rounded-xl text-white shadow-md"
+              style={{ backgroundColor: phaseColor }}
+            >
+              <Zap className="size-5" />
+            </div>
+            <p className="text-lg font-semibold leading-relaxed text-foreground">
+              {item.text as string}
+            </p>
+          </div>
         </div>
       )
     case "instruction":
@@ -296,21 +409,30 @@ function ContentBlock({
     case "teaching_moment":
       return (
         <div
-          className="rounded-xl border-l-4 px-5 py-4"
+          className="relative overflow-hidden rounded-2xl border-l-4 p-6 shadow-sm"
           style={{
             borderColor: phaseColor,
             backgroundColor: `${phaseColor}06`,
           }}
         >
-          <p
-            className="mb-2 text-sm font-bold uppercase tracking-wider"
-            style={{ color: phaseColor }}
-          >
-            {item.title as string}
-          </p>
-          <p className="text-base leading-relaxed text-foreground">
-            {item.text as string}
-          </p>
+          <div
+            className="pointer-events-none absolute -right-6 -top-6 size-20 rounded-full opacity-15 blur-2xl"
+            style={{ backgroundColor: phaseColor }}
+          />
+          <div className="relative">
+            <div
+              className="mb-3 inline-block rounded-lg px-3 py-1 text-xs font-bold uppercase tracking-wider"
+              style={{
+                backgroundColor: `${phaseColor}15`,
+                color: phaseColor,
+              }}
+            >
+              {item.title as string}
+            </div>
+            <p className="text-lg leading-relaxed text-foreground">
+              {item.text as string}
+            </p>
+          </div>
         </div>
       )
     case "text":
@@ -889,41 +1011,170 @@ export function JourneyClient({
       )}
 
       {/* ── Session Content: Sections ── */}
-      <div id="session-content" className="flex flex-col gap-6">
-        {todayContent?.curriculum_sections?.map((section) => {
+      <div id="session-content" className="flex flex-col gap-8">
+        {/* ── Key Teaching Quote ── */}
+        {todayContent?.key_teaching_quote && (
+          <div
+            className="relative overflow-hidden rounded-3xl p-1"
+            style={{
+              background: `linear-gradient(135deg, ${activePhase.color}, ${activePhase.color}60)`,
+            }}
+          >
+            <div className="relative rounded-[1.25rem] bg-card px-10 py-8">
+              {/* Decorative quote marks */}
+              <div
+                className="pointer-events-none absolute -left-2 -top-4 text-[120px] font-serif leading-none opacity-[0.07]"
+                style={{ color: activePhase.color }}
+              >
+                &ldquo;
+              </div>
+              <div className="relative flex items-center gap-6">
+                <div
+                  className="flex size-14 shrink-0 items-center justify-center rounded-2xl text-white shadow-lg"
+                  style={{ backgroundColor: activePhase.color }}
+                >
+                  <Quote className="size-6" />
+                </div>
+                <p className="text-2xl font-bold italic leading-relaxed text-foreground">
+                  {todayContent.key_teaching_quote}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Behaviors Instilled ── */}
+        {(() => {
+          const raw = todayContent?.behaviors_instilled
+          const items = Array.isArray(raw) ? raw : (raw as { behaviors?: string[] })?.behaviors ?? []
+          return items.length > 0 ? (
+            <section
+              className="relative overflow-hidden rounded-3xl border-2 bg-gradient-to-br from-card via-card to-muted/20 shadow-lg"
+              style={{ borderColor: `${activePhase.color}20` }}
+            >
+              {/* Decorative gradient */}
+              <div
+                className="pointer-events-none absolute -left-10 -top-10 size-32 rounded-full opacity-10 blur-3xl"
+                style={{ backgroundColor: activePhase.color }}
+              />
+              <div
+                className="flex items-center gap-5 px-8 py-6"
+                style={{ backgroundColor: `${activePhase.color}06` }}
+              >
+                <div
+                  className="flex size-14 items-center justify-center rounded-2xl text-white shadow-lg"
+                  style={{
+                    background: `linear-gradient(135deg, ${activePhase.color}, ${activePhase.color}cc)`,
+                  }}
+                >
+                  <Sparkles className="size-6" />
+                </div>
+                <h3 className="text-2xl font-bold tracking-tight text-foreground">
+                  Behaviors Instilled
+                </h3>
+              </div>
+              <div className="px-8 py-7">
+                <ul className="space-y-5">
+                  {items.map((b: string, i: number) => (
+                    <li
+                      key={i}
+                      className="flex items-start gap-5 rounded-xl bg-white/50 p-4 text-lg text-foreground shadow-sm transition-all hover:bg-white/80 dark:bg-white/5 dark:hover:bg-white/10"
+                    >
+                      <div
+                        className="mt-1 flex size-8 shrink-0 items-center justify-center rounded-full text-white text-sm font-bold"
+                        style={{ backgroundColor: activePhase.color }}
+                      >
+                        {i + 1}
+                      </div>
+                      <span className="leading-relaxed">{b}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          ) : null
+        })()}
+
+        {todayContent?.curriculum_sections?.map((section, sectionIndex) => {
           const SectionIcon = SECTION_ICONS[section.section_type] ?? BookOpen
           const hasExercises = section.curriculum_exercises?.length > 0
           const sectionExerciseStartIndex = globalExerciseIndex
+          const sectionStyle = SECTION_STYLES[section.section_type] ?? DEFAULT_SECTION_STYLE
 
           return (
             <section
               key={section.id}
-              className="overflow-hidden rounded-2xl border bg-card"
+              className={`group relative overflow-hidden rounded-3xl bg-card transition-all duration-300 hover:shadow-xl ${sectionStyle.wrapper}`}
+              style={{
+                borderColor: sectionStyle.accent === "glow" ? `${activePhase.color}30` : undefined,
+              }}
             >
+              {/* Accent decorations */}
+              {sectionStyle.accent === "left-border" && (
+                <div
+                  className="absolute left-0 top-0 h-full w-1.5 rounded-l-3xl"
+                  style={{ backgroundColor: activePhase.color }}
+                />
+              )}
+              {sectionStyle.accent === "top-border" && (
+                <div
+                  className="absolute left-0 right-0 top-0 h-1"
+                  style={{ background: `linear-gradient(90deg, ${activePhase.color}, ${activePhase.color}40)` }}
+                />
+              )}
+              {sectionStyle.accent === "glow" && (
+                <div
+                  className="pointer-events-none absolute -right-20 -top-20 size-40 rounded-full opacity-20 blur-3xl"
+                  style={{ backgroundColor: activePhase.color }}
+                />
+              )}
+
               {/* Section header */}
               <div
-                className="flex items-center justify-between px-8 py-5"
-                style={{ backgroundColor: `${activePhase.color}08` }}
+                className={`relative flex items-center justify-between px-8 py-6 ${sectionStyle.headerBg}`}
               >
-                <div className="flex items-center gap-4">
-                  <div
-                    className="flex size-12 items-center justify-center rounded-lg text-white"
-                    style={{ backgroundColor: activePhase.color }}
-                  >
-                    <SectionIcon className="size-5" />
-                  </div>
+                <div className="flex items-center gap-5">
+                  {sectionStyle.iconStyle === "filled" && (
+                    <div
+                      className="flex size-14 items-center justify-center rounded-2xl text-white shadow-lg transition-transform group-hover:scale-105"
+                      style={{ backgroundColor: activePhase.color }}
+                    >
+                      <SectionIcon className="size-6" />
+                    </div>
+                  )}
+                  {sectionStyle.iconStyle === "outlined" && (
+                    <div
+                      className="flex size-14 items-center justify-center rounded-2xl border-2 transition-all group-hover:scale-105"
+                      style={{ borderColor: activePhase.color, color: activePhase.color }}
+                    >
+                      <SectionIcon className="size-6" />
+                    </div>
+                  )}
+                  {sectionStyle.iconStyle === "gradient" && (
+                    <div
+                      className="flex size-14 items-center justify-center rounded-2xl text-white shadow-lg transition-transform group-hover:scale-105"
+                      style={{
+                        background: `linear-gradient(135deg, ${activePhase.color}, ${activePhase.color}cc)`,
+                      }}
+                    >
+                      <SectionIcon className="size-6" />
+                    </div>
+                  )}
                   <div>
-                    <h3 className="text-2xl font-extrabold text-foreground">
+                    <h3 className="text-2xl font-bold tracking-tight text-foreground">
                       {section.title}
                     </h3>
-                    <span className="text-base capitalize text-muted-foreground">
+                    <span
+                      className="text-sm font-semibold uppercase tracking-wider"
+                      style={{ color: `${activePhase.color}` }}
+                    >
                       {section.section_type.replace(/_/g, " ")}
                     </span>
                   </div>
                 </div>
                 {hasExercises && (
                   <span
-                    className="rounded-full px-4 py-2 text-base font-bold text-white"
+                    className="rounded-full px-5 py-2.5 text-sm font-bold text-white shadow-md"
                     style={{ backgroundColor: activePhase.color }}
                   >
                     {section.curriculum_exercises.filter((_, i) =>
@@ -938,7 +1189,7 @@ export function JourneyClient({
 
               {/* Section content blocks */}
               {section.content && (Array.isArray(section.content) ? section.content : []).length > 0 && (
-                <div className="space-y-5 px-10 py-7">
+                <div className={`space-y-6 px-10 py-8 ${sectionStyle.contentBg}`}>
                   {(Array.isArray(section.content) ? section.content : []).map((item: Record<string, unknown>, i: number) => (
                     <ContentBlock
                       key={i}
@@ -1026,97 +1277,50 @@ export function JourneyClient({
           )
         })}
 
-        {/* ── Key Teaching Quote ── */}
-        {todayContent?.key_teaching_quote && (
-          <div
-            className="flex items-start gap-6 rounded-2xl border-2 p-8"
-            style={{
-              borderColor: `${activePhase.color}30`,
-              backgroundColor: `${activePhase.color}06`,
-            }}
-          >
-            <Quote
-              className="mt-1 size-8 shrink-0"
-              style={{ color: activePhase.color }}
-            />
-            <p className="text-2xl font-bold italic text-foreground">
-              {todayContent.key_teaching_quote}
-            </p>
-          </div>
-        )}
-
-        {/* ── Behaviors Instilled ── */}
-        {(() => {
-          const raw = todayContent?.behaviors_instilled
-          const items = Array.isArray(raw) ? raw : (raw as { behaviors?: string[] })?.behaviors ?? []
-          return items.length > 0 ? (
-            <section className="overflow-hidden rounded-2xl border bg-card">
-              <div
-                className="flex items-center gap-4 px-8 py-5"
-                style={{ backgroundColor: `${activePhase.color}08` }}
-              >
-                <div
-                  className="flex size-12 items-center justify-center rounded-lg text-white"
-                  style={{ backgroundColor: activePhase.color }}
-                >
-                  <Sparkles className="size-6" />
-                </div>
-                <h3 className="text-2xl font-extrabold text-foreground">
-                  Behaviors Instilled
-                </h3>
-              </div>
-              <div className="px-8 py-6">
-                <ul className="space-y-4">
-                  {items.map((b: string, i: number) => (
-                    <li
-                      key={i}
-                      className="flex items-start gap-4 text-lg text-muted-foreground"
-                    >
-                      <div
-                        className="mt-2.5 size-3 shrink-0 rounded-full"
-                        style={{ backgroundColor: activePhase.color }}
-                      />
-                      <span>{b}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </section>
-          ) : null
-        })()}
-
         {/* ── End of Day Outcomes ── */}
         {(() => {
           const raw = todayContent?.end_of_day_outcomes
           const items = Array.isArray(raw) ? raw : (raw as { outcomes?: string[] })?.outcomes ?? []
           return items.length > 0 ? (
-            <section className="overflow-hidden rounded-2xl border bg-card">
+            <section
+              className="relative overflow-hidden rounded-3xl border-2 shadow-lg"
+              style={{
+                borderColor: `${activePhase.color}30`,
+                background: `linear-gradient(135deg, ${activePhase.color}08, ${activePhase.color}03)`,
+              }}
+            >
+              {/* Decorative element */}
               <div
-                className="flex items-center gap-4 px-8 py-5"
-                style={{ backgroundColor: `${activePhase.color}08` }}
+                className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full opacity-15 blur-3xl"
+                style={{ backgroundColor: activePhase.color }}
+              />
+              <div
+                className="flex items-center gap-5 border-b px-8 py-6"
+                style={{ borderColor: `${activePhase.color}15` }}
               >
                 <div
-                  className="flex size-12 items-center justify-center rounded-lg text-white"
+                  className="flex size-14 items-center justify-center rounded-full text-white shadow-lg"
                   style={{ backgroundColor: activePhase.color }}
                 >
-                  <CheckCircle2 className="size-6" />
+                  <Target className="size-6" />
                 </div>
-                <h3 className="text-2xl font-extrabold text-foreground">
+                <h3 className="text-2xl font-bold tracking-tight text-foreground">
                   End-of-Day Outcomes
                 </h3>
               </div>
-              <div className="px-8 py-6">
+              <div className="px-8 py-7">
                 <ul className="space-y-4">
                   {items.map((o: string, i: number) => (
                     <li
                       key={i}
-                      className="flex items-start gap-4 text-lg text-muted-foreground"
+                      className="flex items-start gap-4 rounded-xl border bg-white/60 p-4 text-lg transition-all hover:shadow-md dark:bg-white/5"
+                      style={{ borderColor: `${activePhase.color}20` }}
                     >
                       <CheckCircle2
-                        className="mt-0.5 size-6 shrink-0"
+                        className="mt-0.5 size-7 shrink-0"
                         style={{ color: activePhase.color }}
                       />
-                      <span>{o}</span>
+                      <span className="leading-relaxed text-foreground">{o}</span>
                     </li>
                   ))}
                 </ul>
@@ -1206,8 +1410,8 @@ export function JourneyClient({
             </p>
           </div>
         )}
-      </div>
-        </div>{/* end left column */}
+      </div>{/* end session-content */}
+    </div>{/* end left column */}
 
         {/* ── RIGHT: Progress side tile ── */}
         <aside className="w-full shrink-0 lg:sticky lg:top-24 lg:w-[32rem] lg:self-start">

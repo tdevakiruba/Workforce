@@ -102,10 +102,9 @@ export default async function Home() {
               </Link>
             </Button>
             <Button
-              variant="outline"
               size="lg"
               asChild
-              className="rounded-full border-white/20 px-8 py-6 text-base text-white/80 backdrop-blur-sm hover:bg-white/10 hover:text-white"
+              className="rounded-full bg-white px-8 py-6 text-base font-semibold text-[#0a0e14] shadow-lg shadow-white/20 transition-all hover:bg-white/90 hover:shadow-xl hover:shadow-white/30"
             >
               <Link href="/signin">Sign In</Link>
             </Button>
