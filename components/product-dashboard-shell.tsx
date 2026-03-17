@@ -42,10 +42,10 @@ interface ProductDashboardShellProps {
 }
 
 const programIcons: Record<string, string> = {
-  "workforce-ready": "/images/workforce-ready-full-logo.png",
+  "workforce-ready": "/images/workforce-ready-logo-transparent.png",
 }
 const programLogos: Record<string, string> = {
-  "workforce-ready": "/images/workforce-ready-full-logo.png",
+  "workforce-ready": "/images/workforce-ready-logo-transparent.png",
 }
 
 const sidebarTabs = [
