@@ -10,10 +10,15 @@ export async function PlatformShell({
   let user = null
   try {
     const supabase = await createClient()
-    const { data } = await supabase.auth.getUser()
-    user = data.user
-  } catch {
+    const { data, error } = await supabase.auth.getUser()
+    if (error) {
+      console.warn("[platform-shell] Failed to get user:", error.message)
+    } else {
+      user = data.user
+    }
+  } catch (error) {
     // Supabase not configured yet – render shell without auth
+    console.warn("[platform-shell] Error creating supabase client:", error instanceof Error ? error.message : String(error))
   }
 
   return (
