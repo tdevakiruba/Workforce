@@ -1275,7 +1275,7 @@ export function JourneyClient({
               )}
             </section>
           )
-        })()}
+        })}
 
         {/* ── End of Day Outcomes ── */}
         {(() => {
