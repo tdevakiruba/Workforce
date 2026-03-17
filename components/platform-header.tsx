@@ -32,13 +32,13 @@ export function PlatformHeader({ user }: { user: { email?: string } | null }) {
     <header className="sticky top-0 z-50 border-b border-border/60 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-0 max-w-xs">
+        <Link href="/" className="flex items-center gap-0 overflow-hidden">
           <Image
             src="/images/workforce-ready-logo-transparent.png"
             alt="Workforce Ready - A Career Operating System for the AI Age"
-            width={280}
-            height={80}
-            className="h-10 w-auto object-cover object-left"
+            width={300}
+            height={100}
+            className="h-12 w-72 object-cover object-left"
           />
         </Link>
 
