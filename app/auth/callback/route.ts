@@ -3,14 +3,20 @@ import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
+  console.log("[auth-callback] Route handler invoked")
+  
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get("code")
   const next = searchParams.get("next") ?? "/dashboard"
+
+  console.log("[auth-callback] Code present:", !!code, "Next:", next, "Origin:", origin)
 
   const siteUrl =
     process.env.NODE_ENV === "development"
       ? origin
       : process.env.NEXT_PUBLIC_SITE_URL || origin
+
+  console.log("[auth-callback] Using siteUrl:", siteUrl)
 
   try {
     // If no code provided, redirect with error
