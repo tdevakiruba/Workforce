@@ -1410,8 +1410,8 @@ export function JourneyClient({
             </p>
           </div>
         )}
-      </div>
-        </div>{/* end left column */}
+      </div>{/* end session-content */}
+    </div>{/* end left column */}
 
         {/* ── RIGHT: Progress side tile ── */}
         <aside className="w-full shrink-0 lg:sticky lg:top-24 lg:w-[32rem] lg:self-start">
