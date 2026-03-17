@@ -41,11 +41,8 @@ interface ProductDashboardShellProps {
   children: React.ReactNode
 }
 
-const programIcons: Record<string, string> = {
-  "workforce-ready": "/images/workforce-ready-full-logo.png",
-}
 const programLogos: Record<string, string> = {
-  "workforce-ready": "/images/workforce-ready-full-logo.png",
+  "workforce-ready": "/images/workforce-ready-logo-transparent.png",
 }
 
 const sidebarTabs = [
@@ -80,7 +77,6 @@ export function ProductDashboardShell({
       pathname.includes(`/dashboard/${program.slug}/${tab.id}`)
     )?.id ?? "overview"
 
-  const iconSrc = programIcons[program.slug]
   const logoSrc = programLogos[program.slug]
 
   return (
@@ -110,22 +106,12 @@ export function ProductDashboardShell({
               ) : (
                 <>
                   <div className="flex items-center gap-5">
-                    {iconSrc ? (
-                      <Image
-                        src={iconSrc}
-                        alt=""
-                        width={72}
-                        height={72}
-                        className="shrink-0"
-                      />
-                    ) : (
-                      <div
-                        className="flex size-18 shrink-0 items-center justify-center rounded-xl text-2xl font-bold text-white"
-                        style={{ backgroundColor: program.badgeColor }}
-                      >
-                        {program.signalAcronym.slice(0, 3)}
-                      </div>
-                    )}
+                    <div
+                      className="flex size-18 shrink-0 items-center justify-center rounded-xl text-2xl font-bold text-white"
+                      style={{ backgroundColor: program.badgeColor }}
+                    >
+                      {program.signalAcronym.slice(0, 3)}
+                    </div>
                     <h2 className="truncate text-2xl font-bold text-foreground">
                       {program.name}
                     </h2>
@@ -225,16 +211,12 @@ export function ProductDashboardShell({
             <Image src={logoSrc} alt={program.name} width={160} height={36} className="h-auto max-w-[140px] xs:max-w-[160px]" />
           ) : (
             <div className="flex items-center gap-3">
-              {iconSrc ? (
-                <Image src={iconSrc} alt="" width={48} height={48} className="shrink-0" />
-              ) : (
-                <div
-                  className="flex size-12 items-center justify-center rounded-lg text-xl font-bold text-white"
-                  style={{ backgroundColor: program.badgeColor }}
-                >
-                  {program.signalAcronym.slice(0, 3)}
-                </div>
-              )}
+              <div
+                className="flex size-12 items-center justify-center rounded-lg text-xl font-bold text-white"
+                style={{ backgroundColor: program.badgeColor }}
+              >
+                {program.signalAcronym.slice(0, 3)}
+              </div>
               <span className="text-xl font-bold text-foreground truncate max-w-[140px] xs:max-w-[220px]">
                 {program.name}
               </span>

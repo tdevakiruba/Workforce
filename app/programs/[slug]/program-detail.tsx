@@ -128,11 +128,8 @@ interface CurriculumDay {
 const heroBackgrounds: Record<string, string> = {
   "workforce-ready": "/images/p1.jpg",
 }
-const heroIcons: Record<string, string> = {
-  "workforce-ready": "/images/workforce-ready-full-logo.png",
-}
 const heroLogos: Record<string, string> = {
-  "workforce-ready": "/images/workforce-ready-full-logo.png",
+  "workforce-ready": "/images/workforce-ready-logo-transparent.png",
 }
 
 /* ── Testimonials (mock per-program, easily replaceable with DB later) ── */

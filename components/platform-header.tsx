@@ -34,7 +34,7 @@ export function PlatformHeader({ user }: { user: { email?: string } | null }) {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-0">
           <Image
-            src="/images/workforce-ready-full-logo.png"
+            src="/images/workforce-ready-logo-transparent.png"
             alt="Workforce Ready - A Career Operating System for the AI Age"
             width={280}
             height={80}
