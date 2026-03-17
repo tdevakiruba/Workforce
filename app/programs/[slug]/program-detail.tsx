@@ -129,10 +129,10 @@ const heroBackgrounds: Record<string, string> = {
   "workforce-ready": "/images/p1.jpg",
 }
 const heroIcons: Record<string, string> = {
-  "workforce-ready": "/images/workforce-icon.png",
+  "workforce-ready": "/images/workforce-ready-full-logo.png",
 }
 const heroLogos: Record<string, string> = {
-  "workforce-ready": "/images/workforce-logo.png",
+  "workforce-ready": "/images/workforce-ready-full-logo.png",
 }
 
 /* ── Testimonials (mock per-program, easily replaceable with DB later) ── */
@@ -482,7 +482,7 @@ export function ProgramDetail({
               )}
           </section>
 
-          {/* ─────────── 3-PHASE JOURNEY PREVIEW ─────────── */}
+          {/* ─────────── 3-PHASE JOURNEY PREVIEW ──��──────── */}
           <section className="py-20 border-b">
             <h2 className="font-serif text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
               Your {program.duration}-Day Journey
