@@ -133,7 +133,7 @@ interface JourneyClientProps {
 }
 
 const programIcons: Record<string, string> = {
-  "workforce-ready": "/images/workforce-icon.png",
+  "workforce-ready": "/images/workforce-logo-white.png",
 }
 
 /* ── Section content renderers ── */
