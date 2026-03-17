@@ -256,7 +256,6 @@ export function ProgramDetail({
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   const heroBg = heroBackgrounds[program.slug] || "/images/p1.jpg"
-  const heroIcon = heroIcons[program.slug]
   const heroLogo = heroLogos[program.slug]
 
   const testimonials =
@@ -324,18 +323,8 @@ export function ProgramDetail({
         <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 py-24 sm:px-8 lg:px-12 lg:py-32">
           {/* White content tile */}
           <div className="w-full max-w-5xl rounded-3xl bg-white/95 p-12 shadow-2xl backdrop-blur-md sm:p-16 lg:p-20">
-            {/* Logo + icon row */}
+            {/* Logo row */}
             <div className="mb-12 flex flex-col items-start gap-6 sm:flex-row sm:items-center sm:gap-8">
-              {heroIcon && (
-                <Image
-                  src={heroIcon}
-                  alt={`${program.name} icon`}
-                  width={160}
-                  height={160}
-                  className="size-28 shrink-0 sm:size-auto"
-                  priority
-                />
-              )}
               {heroLogo ? (
                 <Image
                   src={heroLogo}
