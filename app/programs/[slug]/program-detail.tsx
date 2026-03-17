@@ -1,5 +1,6 @@
 "use client"
 
+// Force rebuild - fix heroIcon reference
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
