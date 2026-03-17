@@ -1093,7 +1093,8 @@ export function JourneyClient({
               </div>
             </section>
           ) : null
-        })()>
+        })()}
+
         {todayContent?.curriculum_sections?.map((section, sectionIndex) => {
           const SectionIcon = SECTION_ICONS[section.section_type] ?? BookOpen
           const hasExercises = section.curriculum_exercises?.length > 0
