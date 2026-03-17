@@ -2,86 +2,83 @@ import { createServerClient } from "@supabase/ssr"
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
+export const dynamic = "force-dynamic"
+
 export async function GET(request: Request) {
-  console.log("[auth-callback] Route handler invoked")
+  console.log("[auth-callback] GET handler called")
   
-  const { searchParams, origin } = new URL(request.url)
-  const code = searchParams.get("code")
-  const next = searchParams.get("next") ?? "/dashboard"
-
-  console.log("[auth-callback] Code present:", !!code, "Next:", next, "Origin:", origin)
-
-  const siteUrl =
-    process.env.NODE_ENV === "development"
-      ? origin
-      : process.env.NEXT_PUBLIC_SITE_URL || origin
-
-  console.log("[auth-callback] Using siteUrl:", siteUrl)
-
   try {
-    // If no code provided, redirect with error
+    const requestUrl = new URL(request.url)
+    const code = requestUrl.searchParams.get("code")
+    const next = requestUrl.searchParams.get("next") ?? "/dashboard"
+
+    console.log("[auth-callback] Code:", code ? "present" : "missing", "Next:", next)
+
+    // Validate code exists
     if (!code) {
-      console.warn("[auth-callback] No authorization code provided")
-      return NextResponse.redirect(`${siteUrl}/signin?error=no_code`)
+      console.warn("[auth-callback] No authorization code in request")
+      return NextResponse.redirect(`${requestUrl.origin}/signin?error=no_code`)
     }
 
+    // Get env vars
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
     if (!supabaseUrl || !supabaseAnonKey) {
-      console.error("[auth-callback] Missing Supabase environment variables")
-      return NextResponse.redirect(`${siteUrl}/signin?error=missing_config`)
+      console.error("[auth-callback] Missing Supabase env vars")
+      return NextResponse.redirect(`${requestUrl.origin}/signin?error=config`)
     }
 
-    // Validate and sanitize the redirect URL
-    let redirectPath = next
-    if (!redirectPath.startsWith("/")) {
-      redirectPath = "/dashboard"
-    }
-    // Basic validation: only allow alphanumeric, hyphens, underscores, slashes, and query params
-    if (!/^[a-zA-Z0-9_\-\/\?\=\&\%\.]*$/.test(redirectPath)) {
-      console.warn("[auth-callback] Invalid redirect path, using default:", redirectPath)
-      redirectPath = "/dashboard"
-    }
+    console.log("[auth-callback] Creating Supabase client...")
 
-    const redirectUrl = `${siteUrl}${redirectPath}`
-
+    // Create Supabase client with proper cookie handling
     const cookieStore = await cookies()
-    
-    // Collect cookies to set on the response
-    const cookiesToSet: { name: string; value: string; options: Record<string, unknown> }[] = []
+    let cookiesToSet: Array<{ name: string; value: string; options?: any }> = []
 
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
         getAll() {
           return cookieStore.getAll()
         },
-        setAll(cookiesToSetFromSupabase) {
-          cookiesToSetFromSupabase.forEach((cookie) => {
+        setAll(toSet) {
+          toSet.forEach((cookie) => {
             cookiesToSet.push(cookie)
           })
         },
       },
     })
 
+    console.log("[auth-callback] Exchanging code for session...")
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (error) {
-      console.error("[auth-callback] Session exchange failed:", error.message)
-      return NextResponse.redirect(`${siteUrl}/signin?error=exchange_failed&message=${encodeURIComponent(error.message)}`)
+      console.error("[auth-callback] Exchange failed:", error.message)
+      return NextResponse.redirect(
+        `${requestUrl.origin}/signin?error=exchange&message=${encodeURIComponent(error.message)}`
+      )
     }
 
-    // Create the redirect response
-    const response = NextResponse.redirect(redirectUrl)
+    console.log("[auth-callback] Exchange successful, creating response...")
 
-    // Set all cookies on the response
+    // Redirect to next URL
+    const response = NextResponse.redirect(`${requestUrl.origin}${next}`)
+
+    // Set cookies from Supabase
     for (const { name, value, options } of cookiesToSet) {
       response.cookies.set(name, value, options)
     }
 
+    console.log("[auth-callback] Redirecting to:", next)
     return response
   } catch (error) {
-    console.error("[auth-callback] Unexpected error:", error instanceof Error ? error.stack : String(error))
-    return NextResponse.redirect(`${siteUrl}/signin?error=server_error`)
+    console.error(
+      "[auth-callback] Exception:",
+      error instanceof Error ? error.message : String(error),
+      error instanceof Error ? error.stack : ""
+    )
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    )
   }
 }
