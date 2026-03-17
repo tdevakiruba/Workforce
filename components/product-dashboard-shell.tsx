@@ -98,43 +98,45 @@ export function ProductDashboardShell({
               <ChevronLeft className="size-7" />
               All Programs
             </Link>
-            <div className="flex items-center gap-5">
-              {iconSrc ? (
+            <div className="flex flex-col gap-3">
+              {logoSrc ? (
                 <Image
-                  src={iconSrc}
-                  alt=""
-                  width={72}
+                  src={logoSrc}
+                  alt={program.name}
+                  width={240}
                   height={72}
-                  className="shrink-0"
+                  className="h-auto"
                 />
               ) : (
-                <div
-                  className="flex size-18 shrink-0 items-center justify-center rounded-xl text-2xl font-bold text-white"
-                  style={{ backgroundColor: program.badgeColor }}
-                >
-                  {program.signalAcronym.slice(0, 3)}
-                </div>
+                <>
+                  <div className="flex items-center gap-5">
+                    {iconSrc ? (
+                      <Image
+                        src={iconSrc}
+                        alt=""
+                        width={72}
+                        height={72}
+                        className="shrink-0"
+                      />
+                    ) : (
+                      <div
+                        className="flex size-18 shrink-0 items-center justify-center rounded-xl text-2xl font-bold text-white"
+                        style={{ backgroundColor: program.badgeColor }}
+                      >
+                        {program.signalAcronym.slice(0, 3)}
+                      </div>
+                    )}
+                    <h2 className="truncate text-2xl font-bold text-foreground">
+                      {program.name}
+                    </h2>
+                  </div>
+                  {program.tagline && (
+                    <p className="text-lg text-muted-foreground">
+                      {program.tagline}
+                    </p>
+                  )}
+                </>
               )}
-              <div className="min-w-0">
-                {logoSrc ? (
-                  <Image
-                    src={logoSrc}
-                    alt={program.name}
-                    width={200}
-                    height={48}
-                    className="h-auto"
-                  />
-                ) : (
-                  <h2 className="truncate text-2xl font-bold text-foreground">
-                    {program.name}
-                  </h2>
-                )}
-                {!logoSrc && program.tagline && (
-                  <p className="truncate text-lg text-muted-foreground">
-                    {program.tagline}
-                  </p>
-                )}
-              </div>
             </div>
           </div>
 
@@ -219,22 +221,24 @@ export function ProductDashboardShell({
               <Menu className="size-6 text-foreground" />
             )}
           </button>
-          {iconSrc ? (
-            <Image src={iconSrc} alt="" width={48} height={48} className="shrink-0" />
-          ) : (
-            <div
-              className="flex size-12 items-center justify-center rounded-lg text-xl font-bold text-white"
-              style={{ backgroundColor: program.badgeColor }}
-            >
-              {program.signalAcronym.slice(0, 3)}
-            </div>
-          )}
           {logoSrc ? (
             <Image src={logoSrc} alt={program.name} width={160} height={36} className="h-auto max-w-[140px] xs:max-w-[160px]" />
           ) : (
-            <span className="text-xl font-bold text-foreground truncate max-w-[140px] xs:max-w-[220px]">
-              {program.name}
-            </span>
+            <div className="flex items-center gap-3">
+              {iconSrc ? (
+                <Image src={iconSrc} alt="" width={48} height={48} className="shrink-0" />
+              ) : (
+                <div
+                  className="flex size-12 items-center justify-center rounded-lg text-xl font-bold text-white"
+                  style={{ backgroundColor: program.badgeColor }}
+                >
+                  {program.signalAcronym.slice(0, 3)}
+                </div>
+              )}
+              <span className="text-xl font-bold text-foreground truncate max-w-[140px] xs:max-w-[220px]">
+                {program.name}
+              </span>
+            </div>
           )}
         </div>
         <div className="flex items-center gap-2 text-lg text-muted-foreground">

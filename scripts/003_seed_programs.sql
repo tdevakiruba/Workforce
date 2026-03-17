@@ -215,6 +215,6 @@ ON CONFLICT (id) DO NOTHING;
 
 -- Workforce Ready
 INSERT INTO public.program_pricing (id, program_id, tier, name, subtitle, price, original_price, price_note, features, cta_label, cta_href, highlighted, sort_order) VALUES
-  ('3c89b0d5-f6ba-4e9c-1b7d-45c3d6e7f8a9', '9bd03989-26a5-4dc7-b818-37337c1d179c', 'Individual', 'Individual', '21-Day Workforce Acceleration', '$49', '$79', 'one-time payment', '["Full 21-day curriculum","Daily keynotes & implementation guides","3 action steps per day","Progress tracking & streaks","Digital completion credential","Peer community access"]', 'Get Started', '/signin', false, 1),
+  ('3c89b0d5-f6ba-4e9c-1b7d-45c3d6e7f8a9', '9bd03989-26a5-4dc7-b818-37337c1d179c', 'Individual', 'Individual', '21-Day Workforce Acceleration', '$59', '$79', 'one-time payment', '["Full 21-day curriculum","Daily keynotes & implementation guides","3 action steps per day","Progress tracking & streaks","Digital completion credential","Peer community access"]', 'Get Started', '/signin', false, 1),
   ('4d9ac1e6-a7cb-4fad-2c8e-56d4e7f8a9b0', '9bd03989-26a5-4dc7-b818-37337c1d179c', 'Institutional', 'Institution License', 'For schools, bootcamps & career centers', NULL, NULL, NULL, '["Everything in Individual, plus:","Bulk enrollment management","Instructor dashboard","Custom branding","Student progress reports","Priority support"]', 'Contact Sales', '/organizations', true, 2)
 ON CONFLICT (id) DO NOTHING;
