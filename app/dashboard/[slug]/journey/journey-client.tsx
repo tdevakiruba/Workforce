@@ -832,15 +832,6 @@ export function JourneyClient({
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20" />
               <div className="relative z-10">
                 <div className="flex items-center gap-6">
-                  {iconSrc && (
-                    <Image
-                      src={iconSrc}
-                      alt=""
-                      width={80}
-                      height={80}
-                      className="shrink-0 drop-shadow-lg"
-                    />
-                  )}
                   <div>
                     <span className="text-2xl font-bold uppercase tracking-widest text-white/70">
                       {activePhase.label} &middot; Day {selectedDay}
