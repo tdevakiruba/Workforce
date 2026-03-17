@@ -37,25 +37,31 @@ export default async function ProgramPage({
   let supabase: Awaited<ReturnType<typeof createClient>>
   try {
     supabase = await createClient()
-  } catch {
+  } catch (error) {
+    console.error("[program-page] Failed to create supabase client:", error)
     notFound()
     return // unreachable but satisfies TS
   }
 
-  const { data: program } = await supabase
+  const { data: program, error: programError } = await supabase
     .from("wf-programs")
     .select("*")
     .eq("slug", slug)
     .maybeSingle()
 
+  if (programError) {
+    console.error("[program-page] Failed to fetch program:", programError)
+  }
+
   if (!program) notFound()
 
   const [
-    { data: features },
-    { data: phases },
-    { data: pricing },
+    { data: features, error: featuresError },
+    { data: phases, error: phasesError },
+    { data: pricing, error: pricingError },
     {
       data: { user },
+      error: userError,
     },
   ] = await Promise.all([
     supabase
@@ -76,10 +82,15 @@ export default async function ProgramPage({
     supabase.auth.getUser(),
   ])
 
+  if (featuresError) console.warn("[program-page] Features error:", featuresError)
+  if (phasesError) console.warn("[program-page] Phases error:", phasesError)
+  if (pricingError) console.warn("[program-page] Pricing error:", pricingError)
+  if (userError) console.warn("[program-page] User error:", userError)
+
   // Check if user already has active subscription for this program
   let hasSubscription = false
   if (user) {
-    const { data: sub } = await supabase
+    const { data: sub, error: subError } = await supabase
       .from("wf-subscriptions")
       .select("id, status")
       .eq("user_id", user.id)
@@ -87,6 +98,7 @@ export default async function ProgramPage({
       .eq("status", "active")
       .limit(1)
       .maybeSingle()
+    if (subError) console.warn("[program-page] Subscription error:", subError)
     hasSubscription = !!sub
   }
 
@@ -112,11 +124,13 @@ export default async function ProgramPage({
     key_theme: string | null
   }[] = []
 
-  const { data: days } = await supabase
+  const { data: days, error: daysError } = await supabase
     .from("wf-curriculum_days")
     .select("day_number, title, theme")
     .eq("program_id", program.id)
     .order("day_number")
+  
+  if (daysError) console.warn("[program-page] Curriculum days error:", daysError)
   curriculum = (days ?? []).map((d) => ({
     day_number: d.day_number,
     title: d.title,
