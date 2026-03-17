@@ -41,7 +41,7 @@ export function PlatformHeader({ user }: { user: { email?: string } | null }) {
             className="rounded-lg"
           />
           <span className="font-serif text-lg font-bold tracking-tight text-foreground">
-            Workforce
+            Workforce Acceleration
           </span>
         </Link>
 
