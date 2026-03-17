@@ -36,23 +36,43 @@ export default async function LabPage({
   if (!enrollment) redirect(`/programs/${slug}`)
 
   // Fetch next upcoming office hours for this program
-  const { data: nextOfficeHours } = await supabase
-    .from("wf-office_hours")
-    .select("id, title, description, meeting_url, scheduled_at, duration_minutes, status")
-    .eq("program_id", program.id)
-    .in("status", ["scheduled", "live"])
-    .gte("scheduled_at", new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString())
-    .order("scheduled_at", { ascending: true })
-    .limit(1)
-    .maybeSingle()
+  // Gracefully handle missing table
+  let nextOfficeHours = null
+  try {
+    const result = await supabase
+      .from("wf-office_hours")
+      .select("id, title, description, meeting_url, scheduled_at, duration_minutes, status")
+      .eq("program_id", program.id)
+      .in("status", ["scheduled", "live"])
+      .gte("scheduled_at", new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString())
+      .order("scheduled_at", { ascending: true })
+      .limit(1)
+      .maybeSingle()
+    
+    if (!result.error) {
+      nextOfficeHours = result.data
+    }
+  } catch {
+    // Table doesn't exist yet - silently continue
+  }
 
   // Fetch user's submissions
-  const { data: submissions } = await supabase
-    .from("wf-lab_submissions")
-    .select("id, category, title, description, status, created_at")
-    .eq("user_id", user.id)
-    .eq("program_id", program.id)
-    .order("created_at", { ascending: false })
+  // Gracefully handle missing table
+  let submissions = []
+  try {
+    const result = await supabase
+      .from("wf-lab_submissions")
+      .select("id, category, title, description, status, created_at")
+      .eq("user_id", user.id)
+      .eq("program_id", program.id)
+      .order("created_at", { ascending: false })
+    
+    if (!result.error) {
+      submissions = result.data ?? []
+    }
+  } catch {
+    // Table doesn't exist yet - silently continue
+  }
 
   return (
     <LabClient
@@ -63,7 +83,7 @@ export default async function LabPage({
         badgeColor: program.color ?? "#00c892",
       }}
       nextOfficeHours={nextOfficeHours ?? null}
-      initialSubmissions={submissions ?? []}
+      initialSubmissions={submissions}
     />
   )
 }
