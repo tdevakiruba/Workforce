@@ -63,8 +63,8 @@ export async function POST(req: NextRequest) {
 
     // Create Checkout Session
     const session = await stripe.checkout.sessions.create({
-      ui_mode: 'embedded',
-      redirect_on_completion: 'never',
+      ui_mode: 'embedded_page',
+      redirect_on_completion: 'if_required',
       customer_email: user.email ?? undefined,
       metadata: {
         userId: user.id,

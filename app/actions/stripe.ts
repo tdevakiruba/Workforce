@@ -27,8 +27,8 @@ export async function startCheckoutSession(productId: string, programId: string)
 
   // Create Checkout Sessions from body params.
   const session = await stripe.checkout.sessions.create({
-    ui_mode: 'embedded',
-    redirect_on_completion: 'never',
+    ui_mode: 'embedded_page',
+    redirect_on_completion: 'if_required',
     customer_email: user.email,
     metadata: {
       userId: user.id,
