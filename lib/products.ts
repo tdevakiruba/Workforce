@@ -3,6 +3,7 @@ export interface Product {
   name: string
   description: string
   priceInCents: number
+  stripeProductId?: string
   images?: string[]
 }
 
@@ -15,5 +16,6 @@ export const PRODUCTS: Product[] = [
     name: '21 DAYS - ACCELERATION PROGRAM',
     description: 'Your 21 Days of Career Acceleration Journey that transforms you into an AI-ready professional with the judgment, accountability, and clarity employers demand.',
     priceInCents: 5900, // $59.00
+    stripeProductId: process.env.NEXT_PUBLIC_STRIPE_PRODUCT_ID,
   },
 ]

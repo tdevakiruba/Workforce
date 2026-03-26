@@ -1,6 +1,17 @@
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
+/**
+ * POST /api/enroll
+ * 
+ * This endpoint now only creates an ENROLLMENT record (not a subscription).
+ * Subscriptions are created only after successful Stripe payment via:
+ *   - /api/stripe/verify-session
+ *   - /api/stripe/webhook
+ * 
+ * If a user tries to access the dashboard without a paid subscription,
+ * they will see the subscription gate prompting them to pay.
+ */
 export async function POST(request: Request) {
   const supabase = await createClient()
 
@@ -13,16 +24,16 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { programSlug, planTier } = body
+  const { programSlug } = body
 
-  if (!programSlug || !planTier) {
+  if (!programSlug) {
     return NextResponse.json(
-      { error: "Missing programSlug or planTier" },
+      { error: "Missing programSlug" },
       { status: 400 }
     )
   }
 
-  // Get program (include duration for dynamic subscription length)
+  // Get program
   const { data: program, error: programError } = await supabase
     .from("wf-programs")
     .select("id, slug, name, duration")
@@ -33,104 +44,36 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Program not found" }, { status: 404 })
   }
 
-  // Check if already enrolled
-  const { data: existingEnrollment } = await supabase
-    .from("wf-enrollments")
-    .select("id")
+  // Check if user has an active PAID subscription
+  const { data: existingSub } = await supabase
+    .from("wf-subscriptions")
+    .select("id, status, amount_cents, current_period_end")
     .eq("user_id", user.id)
     .eq("program_id", program.id)
+    .eq("status", "active")
     .maybeSingle()
 
-  if (existingEnrollment) {
-    // Check if subscription exists
-    const { data: existingSub } = await supabase
-      .from("wf-subscriptions")
-      .select("id, status")
-      .eq("user_id", user.id)
-      .eq("program_id", program.id)
-      .eq("status", "active")
-      .maybeSingle()
-
-    if (existingSub) {
-      return NextResponse.json({ message: "Already enrolled", enrollmentId: existingEnrollment.id })
-    }
-  }
-
   const now = new Date()
-  const endDate = new Date(now)
-  const durMatch = program.duration?.match(/(\d+)/)
-  const durationDays = durMatch ? parseInt(durMatch[1], 10) : 21
-  endDate.setDate(endDate.getDate() + durationDays)
+  const hasPaidSubscription =
+    existingSub !== null &&
+    (existingSub.amount_cents ?? 0) > 0 &&
+    (existingSub.current_period_end == null ||
+      new Date(existingSub.current_period_end) > now)
 
-  // Create subscription record
-  const { error: subError } = await supabase.from("wf-subscriptions").insert({
-    user_id: user.id,
-    program_id: program.id,
-    plan_tier: planTier,
-    status: "active",
-    amount_cents: planTier === "individual" ? 2900 : null,
-    currency: "usd",
-    interval: "one_time",
-    current_period_start: now.toISOString(),
-    current_period_end: endDate.toISOString(),
-  })
-
-  if (subError) {
-    console.error("Subscription insert error:", subError)
-    return NextResponse.json({ error: "Failed to create subscription" }, { status: 500 })
-  }
-
-  // Create enrollment (or reactivate existing)
-  if (existingEnrollment) {
-    const { error: updateError } = await supabase
-      .from("wf-enrollments")
-      .update({
-        status: "active",
-        current_day: 1,
-        started_at: now.toISOString(),
-        completed_at: null,
-        updated_at: now.toISOString(),
-      })
-      .eq("id", existingEnrollment.id)
-
-    if (updateError) {
-      console.error("Enrollment update error:", updateError)
-      return NextResponse.json({ error: "Failed to update enrollment" }, { status: 500 })
-    }
-
-    return NextResponse.json({ message: "Enrollment reactivated", enrollmentId: existingEnrollment.id })
-  }
-
-  const { data: enrollment, error: enrollError } = await supabase
-    .from("wf-enrollments")
-    .insert({
-      user_id: user.id,
-      program_id: program.id,
-      status: "active",
-      current_day: 1,
-      started_at: now.toISOString(),
+  if (hasPaidSubscription) {
+    // User already has a paid subscription, just redirect to dashboard
+    return NextResponse.json({ 
+      message: "Already subscribed", 
+      redirectTo: `/dashboard/${program.slug}` 
     })
-    .select("id")
-    .single()
-
-  if (enrollError) {
-    console.error("Enrollment insert error:", enrollError)
-    return NextResponse.json({ error: "Failed to create enrollment" }, { status: 500 })
   }
 
-  // Create streak record
-  await supabase.from("wf-user_streaks").insert({
-    user_id: user.id,
-    enrollment_id: enrollment.id,
-    current_streak: 0,
-    longest_streak: 0,
-    last_activity_date: now.toISOString().split("T")[0],
-  })
-
+  // User does NOT have a paid subscription.
+  // Redirect them to the dashboard where the subscription gate will show.
+  // The subscription gate has the Stripe checkout embedded.
   return NextResponse.json({
-    message: "Enrolled successfully",
-    enrollmentId: enrollment.id,
-    startDate: now.toISOString(),
-    endDate: endDate.toISOString(),
+    message: "Payment required",
+    redirectTo: `/dashboard/${program.slug}`,
+    requiresPayment: true,
   })
 }
