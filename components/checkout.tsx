@@ -7,8 +7,6 @@ import {
 } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 
-import { startCheckoutSession } from '@/app/actions/stripe'
-
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 interface CheckoutProps {
@@ -25,8 +23,22 @@ export default function Checkout({ productId, programId, onComplete }: CheckoutP
   const fetchClientSecret = useCallback(async () => {
     try {
       setLoading(true)
-      console.log('[v0] fetchClientSecret: calling startCheckoutSession with:', { productId, programId })
-      const clientSecret = await startCheckoutSession(productId, programId)
+      console.log('[v0] fetchClientSecret: calling /api/stripe/create-session with:', { productId, programId })
+      
+      const res = await fetch('/api/stripe/create-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, programId }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to create checkout session')
+      }
+
+      const data = await res.json()
+      const clientSecret = data.clientSecret
+      
       console.log('[v0] fetchClientSecret: received clientSecret:', clientSecret?.substring(0, 20) + '...')
       if (!clientSecret) {
         throw new Error('Failed to create checkout session - no client secret returned')
