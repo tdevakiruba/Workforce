@@ -64,9 +64,9 @@ export async function POST(req: NextRequest) {
     // Get the origin for return_url
     const origin = new URL(req.url).origin
 
-    // Create Checkout Session with return_url for proper redirect handling
+    // Create Checkout Session with embedded_page mode (new Stripe API as of March 25, 2026)
     const session = await stripe.checkout.sessions.create({
-      ui_mode: 'embedded',
+      ui_mode: 'embedded_page',
       redirect_on_completion: 'if_required',
       return_url: `${origin}/api/stripe/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
       customer_email: user.email ?? undefined,
