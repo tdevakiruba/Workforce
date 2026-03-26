@@ -267,7 +267,8 @@ export function ProgramDetail({
 
   async function handleEnroll(tier: PricingTier) {
     if (!isLoggedIn) {
-      router.push(`/signin?redirect=/dashboard/${program.slug}/overview`)
+      // Redirect to sign in, then to the dashboard where they'll see the payment gate
+      router.push(`/signin?redirect=/dashboard/${program.slug}`)
       return
     }
     if (hasSubscription) {
@@ -286,15 +287,17 @@ export function ProgramDetail({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           programSlug: program.slug,
-          planTier: tier.tier.toLowerCase(),
         }),
       })
+      const data = await res.json()
+      
       if (!res.ok) {
-        const err = await res.json()
-        alert(err.error || "Enrollment failed")
+        alert(data.error || "Something went wrong")
         return
       }
-      router.push(`/dashboard/${program.slug}`)
+      
+      // Redirect to dashboard - users without paid subscription will see the payment gate
+      router.push(data.redirectTo || `/dashboard/${program.slug}`)
     } catch {
       alert("Something went wrong. Please try again.")
     } finally {
