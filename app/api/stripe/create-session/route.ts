@@ -8,11 +8,8 @@ export async function POST(req: NextRequest) {
   try {
     const { productId, programId } = await req.json()
 
-    console.log('[v0] POST /api/stripe/create-session:', { productId, programId })
-
     const product = PRODUCTS.find((p) => p.id === productId)
     if (!product) {
-      console.log('[v0] Product not found:', productId)
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
@@ -20,63 +17,51 @@ export async function POST(req: NextRequest) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-    if (!supabaseUrl || !supabaseAnonKey) {
-      console.error('[v0] Missing Supabase env vars')
-      return NextResponse.json(
-        { error: 'Supabase not configured' },
-        { status: 500 }
-      )
-    }
+    let userId: string | undefined
+    let userEmail: string | undefined
 
-    const cookieStore = await cookies()
+    // Try to get authenticated user, but don't require it
+    if (supabaseUrl && supabaseAnonKey) {
+      try {
+        const cookieStore = await cookies()
+        const supabase = createServerClient(
+          supabaseUrl,
+          supabaseAnonKey,
+          {
+            cookies: {
+              getAll() {
+                return cookieStore.getAll()
+              },
+              setAll(cookiesToSet) {
+                try {
+                  cookiesToSet.forEach(({ name, value, options }) =>
+                    cookieStore.set(name, value, options)
+                  )
+                } catch {
+                  // Ignore cookie setting errors in read-only context
+                }
+              },
+            },
+          }
+        )
 
-    // Create Supabase client with proper cookie handling for API routes
-    const supabase = createServerClient(
-      supabaseUrl,
-      supabaseAnonKey,
-      {
-        cookies: {
-          getAll() {
-            return cookieStore.getAll()
-          },
-          setAll(cookiesToSet) {
-            try {
-              cookiesToSet.forEach(({ name, value, options }) =>
-                cookieStore.set(name, value, options)
-              )
-            } catch (error) {
-              console.error('[v0] Error setting cookies in API route:', error)
-            }
-          },
-        },
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          userId = user.id
+          userEmail = user.email ?? undefined
+        }
+      } catch {
+        // Ignore auth errors - allow checkout without auth
       }
-    )
-
-    // Get the authenticated user
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser()
-
-    console.log('[v0] Auth check in API:', { userId: user?.id, email: user?.email, authError })
-
-    if (!user || authError) {
-      console.log('[v0] User not authenticated - auth error:', authError?.message)
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 }
-      )
     }
 
-    console.log('[v0] Creating Stripe checkout session for user:', user.id)
-
-    // Create Checkout Session
+    // Create Checkout Session - works with or without authenticated user
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       redirect_on_completion: 'never',
-      customer_email: user.email,
+      ...(userEmail && { customer_email: userEmail }),
       metadata: {
-        userId: user.id,
+        ...(userId && { userId }),
         programId: programId,
         productId: productId,
       },
@@ -96,18 +81,9 @@ export async function POST(req: NextRequest) {
       mode: 'payment',
     })
 
-    console.log('[v0] Stripe session created successfully:', session.id)
-
-    const response = NextResponse.json({
+    return NextResponse.json({
       clientSecret: session.client_secret,
     })
-
-    // Ensure cookies are set in the response
-    cookieStore.getAll().forEach((cookie) => {
-      response.cookies.set(cookie.name, cookie.value)
-    })
-
-    return response
   } catch (error) {
     console.error('[v0] Create session error:', error)
     return NextResponse.json(
