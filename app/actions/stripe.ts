@@ -5,17 +5,25 @@ import { PRODUCTS } from '@/lib/products'
 import { createClient } from '@/lib/supabase/server'
 
 export async function startCheckoutSession(productId: string, programId: string) {
+  console.log('[v0] startCheckoutSession called with:', { productId, programId })
+  
   const product = PRODUCTS.find((p) => p.id === productId)
   if (!product) {
+    console.log('[v0] Product not found:', productId)
     throw new Error(`Product with id "${productId}" not found`)
   }
 
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  
+  console.log('[v0] Auth result:', { userId: user?.id, email: user?.email, authError })
   
   if (!user) {
+    console.log('[v0] User not authenticated')
     throw new Error('User not authenticated')
   }
+
+  console.log('[v0] Creating Stripe checkout session for user:', user.id)
 
   // Create Checkout Sessions from body params.
   const session = await stripe.checkout.sessions.create({
@@ -43,6 +51,7 @@ export async function startCheckoutSession(productId: string, programId: string)
     mode: 'payment',
   })
 
+  console.log('[v0] Stripe session created:', session.id)
   return session.client_secret
 }
 
