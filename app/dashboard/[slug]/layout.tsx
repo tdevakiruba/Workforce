@@ -57,29 +57,46 @@ export default async function ProductDashboardLayout({
     ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() 
     : user.email?.split('@')[0] || undefined
 
-  // Check for active PAID subscription first (subscription created after Stripe payment)
+  // Fetch the most recent subscription for this user + program (any status)
   const { data: subscription } = await supabase
     .from("wf-subscriptions")
-    .select("id, plan_tier, current_period_start, current_period_end, amount_cents")
+    .select("id, plan_tier, status, current_period_start, current_period_end, amount_cents")
     .eq("user_id", user.id)
     .eq("program_id", program.id)
-    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(1)
     .maybeSingle()
 
-  // If no paid subscription exists (or subscription was created without payment),
-  // show the subscription gate / pricing page
-  const hasPaidSubscription = subscription && subscription.amount_cents && subscription.amount_cents > 0
-  
-  if (!hasPaidSubscription) {
+  const now = new Date()
+
+  // A subscription is valid when:
+  //  1. It exists
+  //  2. status === 'active'
+  //  3. amount_cents > 0  (was actually paid via Stripe)
+  //  4. current_period_end is either null (lifetime) or in the future
+  const isActive =
+    subscription !== null &&
+    subscription.status === "active" &&
+    (subscription.amount_cents ?? 0) > 0 &&
+    (subscription.current_period_end == null ||
+      new Date(subscription.current_period_end) > now)
+
+  // Determine whether this is a renewal (had a past subscription) or a first-time purchase
+  const isExpired =
+    subscription !== null &&
+    !isActive
+
+  if (!isActive) {
     return (
-      <SubscriptionGate 
-        program={{ 
-          id: program.id, 
-          slug: program.slug, 
-          name: program.name, 
-          color: program.color ?? undefined 
-        }} 
+      <SubscriptionGate
+        program={{
+          id: program.id,
+          slug: program.slug,
+          name: program.name,
+          color: program.color ?? undefined,
+        }}
         userName={userName}
+        isExpired={isExpired}
       />
     )
   }
