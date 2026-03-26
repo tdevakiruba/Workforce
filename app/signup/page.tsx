@@ -66,10 +66,14 @@ export default function SignUpPage() {
     setError("")
     setOauthLoading(provider)
     const supabase = createClient()
+    
+    // Use current origin for OAuth callback to work in any environment
+    const origin = window.location.origin
+    
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `https://www.workforceready.ai/auth/callback?next=/dashboard`,
+        redirectTo: `${origin}/auth/callback?next=/dashboard`,
       },
     })
     if (oauthError) {
@@ -84,11 +88,14 @@ export default function SignUpPage() {
     setLoading(true)
 
     const supabase = createClient()
+    // Use current origin for email redirect to work in any environment
+    const origin = window.location.origin
+    
     const { error: authError } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `https://www.workforceready.ai/auth/callback`,
+        emailRedirectTo: `${origin}/auth/callback`,
         data: {
           first_name: firstName,
           last_name: lastName,

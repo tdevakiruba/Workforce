@@ -65,11 +65,14 @@ function SignInForm() {
     setOauthLoading(provider)
 
     const supabase = createClient()
+    
+    // Use current origin for OAuth callback to work in any environment
+    const origin = window.location.origin
 
     const { error: oauthError } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `https://www.workforceready.ai/auth/callback?next=${encodeURIComponent(redirect)}`,
+        redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(redirect)}`,
       },
     })
 
