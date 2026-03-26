@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { notFound, redirect } from "next/navigation"
 import { ProductDashboardShell } from "@/components/product-dashboard-shell"
+import { SubscriptionGate } from "@/components/subscription-gate"
 
 export async function generateMetadata({
   params,
@@ -45,7 +46,62 @@ export default async function ProductDashboardLayout({
 
   if (!program) notFound()
 
-  // Verify active enrollment -- auto-enroll if not found
+  // Get user's profile for name
+  const { data: profile } = await supabase
+    .from("wf-profiles")
+    .select("first_name, last_name")
+    .eq("id", user.id)
+    .maybeSingle()
+  
+  const userName = profile 
+    ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() 
+    : user.email?.split('@')[0] || undefined
+
+  // Fetch the most recent subscription for this user + program (any status)
+  const { data: subscription } = await supabase
+    .from("wf-subscriptions")
+    .select("id, plan_tier, status, current_period_start, current_period_end, amount_cents")
+    .eq("user_id", user.id)
+    .eq("program_id", program.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  const now = new Date()
+
+  // A subscription is valid when:
+  //  1. It exists
+  //  2. status === 'active'
+  //  3. amount_cents > 0  (was actually paid via Stripe)
+  //  4. current_period_end is either null (lifetime) or in the future
+  const isActive =
+    subscription !== null &&
+    subscription.status === "active" &&
+    (subscription.amount_cents ?? 0) > 0 &&
+    (subscription.current_period_end == null ||
+      new Date(subscription.current_period_end) > now)
+
+  // Determine whether this is a renewal (had a past subscription) or a first-time purchase
+  const isExpired =
+    subscription !== null &&
+    !isActive
+
+  if (!isActive) {
+    return (
+      <SubscriptionGate
+        program={{
+          id: program.id,
+          slug: program.slug,
+          name: program.name,
+          color: program.color ?? undefined,
+        }}
+        userName={userName}
+        isExpired={isExpired}
+      />
+    )
+  }
+
+  // Get or create enrollment for paid users
   let { data: enrollment } = await supabase
     .from("wf-enrollments")
     .select("id, status, current_day, started_at")
@@ -55,7 +111,7 @@ export default async function ProductDashboardLayout({
     .maybeSingle()
 
   if (!enrollment) {
-    // Auto-enroll the user
+    // Create enrollment for paid users
     const { data: newEnrollment } = await supabase
       .from("wf-enrollments")
       .upsert(
@@ -75,36 +131,8 @@ export default async function ProductDashboardLayout({
       redirect(`/programs/${slug}`)
     }
 
-    // Also create a default subscription if none exists
-    const { data: existingSub } = await supabase
-      .from("wf-subscriptions")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("program_id", program.id)
-      .eq("status", "active")
-      .maybeSingle()
-
-    if (!existingSub) {
-      await supabase.from("wf-subscriptions").insert({
-        user_id: user.id,
-        program_id: program.id,
-        plan_tier: "individual",
-        status: "active",
-        current_period_start: new Date().toISOString(),
-      })
-    }
-
     enrollment = newEnrollment
   }
-
-  // Get subscription info
-  const { data: subscription } = await supabase
-    .from("wf-subscriptions")
-    .select("plan_tier, current_period_start, current_period_end")
-    .eq("user_id", user.id)
-    .eq("program_id", program.id)
-    .eq("status", "active")
-    .maybeSingle()
 
   // Use the enrollment's current_day (advanced by the progress API when all
   // actions for a day are completed), matching the journey / overview / frameworks pages.

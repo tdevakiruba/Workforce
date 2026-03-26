@@ -146,7 +146,7 @@ const testimonialsBySlug: Record<
     {
       name: "Daniel Osei",
       role: "Junior Analyst, Finance",
-      text: "The 21-day format was perfect. I built real habits around networking and communication that I still use every day.",
+      text: "The 21 Days of Career Acceleration format was perfect. I built real habits around networking and communication that I still use every day.",
     },
     {
       name: "Priya Sharma",
@@ -471,7 +471,7 @@ export function ProgramDetail({
           {/* ─────────── 3-PHASE JOURNEY PREVIEW ──��──────── */}
           <section className="py-20 border-b">
             <h2 className="font-serif text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl">
-              Your {program.duration}-Day Journey
+              Your 21 Days of Career Acceleration Journey
             </h2>
             <p className="mt-4 max-w-xl text-xl leading-relaxed text-muted-foreground">
               Three phases designed to transform how you show up professionally.
@@ -889,7 +889,7 @@ export function ProgramDetail({
               </h2>
               <p className="mx-auto mt-4 max-w-xl text-xl leading-relaxed text-white/80">
                 Join the {program.name} and take the first step toward lasting
-                change. Your {program.duration}-day journey starts today.
+                change. Your 21 Days of Career Acceleration Journey starts today.
               </p>
               <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
                 {hasSubscription && (
@@ -947,7 +947,7 @@ export function ProgramDetail({
           <aside className="hidden lg:block w-96 shrink-0">
             <div className="sticky top-20 mt-20 rounded-3xl border bg-card p-8 shadow-sm">
               <p className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                {program.duration}-Day Program
+              21 DAYS - ACCELERATION PROGRAM
               </p>
               <h3 className="mt-2 text-2xl font-bold text-card-foreground">
                 {stickyTier.name}

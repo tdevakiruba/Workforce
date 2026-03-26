@@ -204,7 +204,7 @@ function drawCertificate(
   Y = 374
   ctx.fillStyle = accent
   ctx.font = `700 24px ${FONT}`
-  centerText(data.type === "program" ? "21-Day AI Workforce Accelerator" : data.title, CX, Y)
+  centerText(data.type === "program" ? "21 DAYS - ACCELERATION PROGRAM" : data.title, CX, Y)
 
   ctx.fillStyle = "#6B7280"
   ctx.font = `500 13px ${FONT}`

@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: "%s | Workforce",
   },
   description:
-    "A 21-day career operating system that transforms graduates into AI-ready professionals with the judgment, accountability, and clarity employers demand.",
+    "Your 21 Days of Career Acceleration Journey that transforms graduates into AI-ready professionals with the judgment, accountability, and clarity employers demand.",
 }
 
 export default function RootLayout({
