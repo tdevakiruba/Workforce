@@ -17,51 +17,57 @@ export async function POST(req: NextRequest) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-    let userId: string | undefined
-    let userEmail: string | undefined
-
-    // Try to get authenticated user, but don't require it
-    if (supabaseUrl && supabaseAnonKey) {
-      try {
-        const cookieStore = await cookies()
-        const supabase = createServerClient(
-          supabaseUrl,
-          supabaseAnonKey,
-          {
-            cookies: {
-              getAll() {
-                return cookieStore.getAll()
-              },
-              setAll(cookiesToSet) {
-                try {
-                  cookiesToSet.forEach(({ name, value, options }) =>
-                    cookieStore.set(name, value, options)
-                  )
-                } catch {
-                  // Ignore cookie setting errors in read-only context
-                }
-              },
-            },
-          }
-        )
-
-        const { data: { user } } = await supabase.auth.getUser()
-        if (user) {
-          userId = user.id
-          userEmail = user.email ?? undefined
-        }
-      } catch {
-        // Ignore auth errors - allow checkout without auth
-      }
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json(
+        { error: 'Supabase not configured' },
+        { status: 500 }
+      )
     }
 
-    // Create Checkout Session - works with or without authenticated user
+    const cookieStore = await cookies()
+
+    // Create Supabase client with proper cookie handling for API routes
+    const supabase = createServerClient(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              )
+            } catch {
+              // Ignore cookie setting errors
+            }
+          },
+        },
+      }
+    )
+
+    // Get the authenticated user
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
+    if (!user || authError) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      )
+    }
+
+    // Create Checkout Session
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded',
       redirect_on_completion: 'never',
-      ...(userEmail && { customer_email: userEmail }),
+      customer_email: user.email ?? undefined,
       metadata: {
-        ...(userId && { userId }),
+        userId: user.id,
         programId: programId,
         productId: productId,
       },
@@ -85,7 +91,6 @@ export async function POST(req: NextRequest) {
       clientSecret: session.client_secret,
     })
   } catch (error) {
-    console.error('[v0] Create session error:', error)
     return NextResponse.json(
       {
         error:
