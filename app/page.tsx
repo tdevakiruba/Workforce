@@ -85,7 +85,7 @@ export default async function Home() {
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-pretty text-xl leading-relaxed text-white/60">
-            A 21-Day Career Operating System that transforms graduates into
+            Your 21 Days of Career Acceleration Journey that transforms graduates into
             AI-ready professionals with the judgment, accountability, and
             clarity employers demand.
           </p>
@@ -113,7 +113,7 @@ export default async function Home() {
           {/* Stats row */}
           <div className="mt-16 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {[
-              { value: "21", label: "Day Operating System" },
+              { value: "21", label: "Days Acceleration Program" },
               { value: "3", label: "Career Phases" },
               { value: "5", label: "Daily Actions" },
               { value: "1", label: "Career Credential" },
