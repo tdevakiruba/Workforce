@@ -31,9 +31,12 @@ export async function GET(request: Request) {
 
     console.log("[auth-callback] Creating Supabase client...")
 
+    // Create a response object first - we'll redirect with this
+    const response = NextResponse.redirect(`${requestUrl.origin}${next}`)
+
     // Create Supabase client with proper cookie handling
     const cookieStore = await cookies()
-    let cookiesToSet: Array<{ name: string; value: string; options?: any }> = []
+    const cookiesToSet: Array<{ name: string; value: string; options?: any }> = []
 
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
@@ -41,6 +44,7 @@ export async function GET(request: Request) {
           return cookieStore.getAll()
         },
         setAll(toSet) {
+          // Collect cookies to set on response later
           toSet.forEach((cookie) => {
             cookiesToSet.push(cookie)
           })
@@ -49,7 +53,7 @@ export async function GET(request: Request) {
     })
 
     console.log("[auth-callback] Exchanging code for session...")
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { error, data } = await supabase.auth.exchangeCodeForSession(code)
 
     if (error) {
       console.error("[auth-callback] Exchange failed:", error.message)
@@ -58,15 +62,13 @@ export async function GET(request: Request) {
       )
     }
 
-    console.log("[auth-callback] Exchange successful, creating response...")
+    console.log("[auth-callback] Exchange successful, user:", data.user?.email)
 
-    // Redirect to next URL
-    const response = NextResponse.redirect(`${requestUrl.origin}${next}`)
-
-    // Set cookies from Supabase
-    for (const { name, value, options } of cookiesToSet) {
+    // NOW set all cookies on the response BEFORE redirecting
+    cookiesToSet.forEach(({ name, value, options }) => {
+      console.log("[auth-callback] Setting cookie:", name)
       response.cookies.set(name, value, options)
-    }
+    })
 
     console.log("[auth-callback] Redirecting to:", next)
     return response
