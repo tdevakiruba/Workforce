@@ -1,11 +1,8 @@
 'use client'
 
-import { useCallback, useState } from 'react'
-import {
-  EmbeddedCheckout,
-  EmbeddedCheckoutProvider,
-} from '@stripe/react-stripe-js'
+import { useEffect, useState } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
+import { useRouter } from 'next/navigation'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -16,59 +13,61 @@ interface CheckoutProps {
 }
 
 export default function Checkout({ productId, programId, onComplete }: CheckoutProps) {
-  const [isComplete, setIsComplete] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
-  const fetchClientSecret = useCallback(async () => {
-    try {
-      setLoading(true)
-      console.log('[v0] fetchClientSecret: calling /api/stripe/create-session with:', { productId, programId })
-      
-      const res = await fetch('/api/stripe/create-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, programId }),
-      })
+  useEffect(() => {
+    const initializeCheckout = async () => {
+      try {
+        setIsLoading(true)
+        console.log('[v0] initializeCheckout: calling /api/stripe/create-session')
+        
+        const res = await fetch('/api/stripe/create-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId, programId }),
+        })
 
-      if (!res.ok) {
+        if (!res.ok) {
+          const data = await res.json()
+          throw new Error(data.error || 'Failed to create checkout session')
+        }
+
         const data = await res.json()
-        throw new Error(data.error || 'Failed to create checkout session')
-      }
+        const clientSecret = data.clientSecret
+        
+        if (!clientSecret) {
+          throw new Error('No client secret received from server')
+        }
 
-      const data = await res.json()
-      const clientSecret = data.clientSecret
-      
-      console.log('[v0] fetchClientSecret: received clientSecret:', clientSecret?.substring(0, 20) + '...')
-      if (!clientSecret) {
-        throw new Error('Failed to create checkout session - no client secret returned')
+        console.log('[v0] clientSecret received, redirecting to Stripe checkout')
+
+        const stripe = await stripePromise
+        if (!stripe) {
+          throw new Error('Stripe failed to load')
+        }
+
+        // For embedded_page mode, redirect to Stripe's checkout URL
+        const result = await stripe.redirectToCheckout({
+          sessionId: clientSecret.split('_secret_')[0], // Extract session ID from client secret
+        })
+
+        if (result?.error) {
+          throw new Error(result.error.message)
+        }
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to initialize checkout'
+        console.error('[v0] checkout error:', err)
+        setError(message)
+        setIsLoading(false)
       }
-      return clientSecret
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to create checkout session'
-      console.error('[v0] fetchClientSecret error:', err)
-      setError(message)
-      throw err
-    } finally {
-      setLoading(false)
     }
+
+    initializeCheckout()
   }, [productId, programId])
 
-  const handleComplete = useCallback(async () => {
-    try {
-      setIsComplete(true)
-      onComplete?.()
-      
-      // Redirect after a short delay to show the success message
-      setTimeout(() => {
-        window.location.href = `/dashboard/${programId}`
-      }, 2000)
-    } catch (err) {
-      console.error('[v0] Completion error:', err)
-    }
-  }, [onComplete, programId])
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <div className="mb-4 flex size-12 items-center justify-center">
@@ -90,10 +89,7 @@ export default function Checkout({ productId, programId, onComplete }: CheckoutP
         <h3 className="text-xl font-bold text-foreground">Something went wrong</h3>
         <p className="mt-2 text-muted-foreground">{error}</p>
         <button 
-          onClick={() => { 
-            setError(null)
-            setIsComplete(false) 
-          }}
+          onClick={() => window.location.reload()}
           className="mt-4 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-foreground/90"
         >
           Try Again
@@ -102,31 +98,12 @@ export default function Checkout({ productId, programId, onComplete }: CheckoutP
     )
   }
 
-  if (isComplete) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-[#00c892]/10">
-          <svg className="size-8 text-[#00c892]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
-        <h3 className="text-xl font-bold text-foreground">Payment Successful!</h3>
-        <p className="mt-2 text-muted-foreground">Redirecting to your dashboard...</p>
-      </div>
-    )
-  }
-
   return (
-    <div id="checkout" className="w-full">
-      <EmbeddedCheckoutProvider
-        stripe={stripePromise}
-        options={{ 
-          fetchClientSecret,
-          onComplete: handleComplete,
-        }}
-      >
-        <EmbeddedCheckout />
-      </EmbeddedCheckoutProvider>
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <div className="mb-4 flex size-12 items-center justify-center">
+        <div className="size-8 animate-spin rounded-full border-2 border-white/20 border-t-white"></div>
+      </div>
+      <p className="text-muted-foreground">Redirecting to secure checkout...</p>
     </div>
   )
 }
