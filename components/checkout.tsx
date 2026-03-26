@@ -35,22 +35,30 @@ export default function Checkout({ productId, programId, onComplete }: CheckoutP
         }
 
         const data = await res.json()
-        const clientSecret = data.clientSecret
+        const { clientSecret, sessionId } = data
         
-        if (!clientSecret) {
-          throw new Error('No client secret received from server')
+        if (!clientSecret && !sessionId) {
+          throw new Error('No session information received from server')
         }
 
-        console.log('[v0] clientSecret received, redirecting to Stripe checkout')
+        console.log('[v0] Session created, redirecting to Stripe checkout')
 
         const stripe = await stripePromise
         if (!stripe) {
           throw new Error('Stripe failed to load')
         }
 
-        // For embedded_page mode, redirect to Stripe's checkout URL
+        // For embedded_page mode, redirect to Stripe-hosted checkout using sessionId
+        // The API now returns sessionId directly for embedded_page mode
+        const id = sessionId || clientSecret?.split('_secret_')[0]
+        
+        if (!id) {
+          throw new Error('Could not determine session ID')
+        }
+
+        // Redirect to Stripe checkout
         const result = await stripe.redirectToCheckout({
-          sessionId: clientSecret.split('_secret_')[0], // Extract session ID from client secret
+          sessionId: id,
         })
 
         if (result?.error) {
