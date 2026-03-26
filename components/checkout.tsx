@@ -1,13 +1,11 @@
 'use client'
 
-import { useCallback, useState, useRef } from 'react'
+import { useCallback, useState } from 'react'
 import {
   EmbeddedCheckout,
   EmbeddedCheckoutProvider,
 } from '@stripe/react-stripe-js'
-import { loadStripe, Stripe } from '@stripe/stripe-js'
-
-import { startCheckoutSession } from '@/app/actions/stripe'
+import { loadStripe } from '@stripe/stripe-js'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
@@ -20,46 +18,66 @@ interface CheckoutProps {
 export default function Checkout({ productId, programId, onComplete }: CheckoutProps) {
   const [isComplete, setIsComplete] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const sessionIdRef = useRef<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   const fetchClientSecret = useCallback(async () => {
-    const clientSecret = await startCheckoutSession(productId, programId)
-    // Extract session ID from client secret (format: cs_xxx_secret_xxx)
-    if (clientSecret) {
-      const parts = clientSecret.split('_secret_')
-      if (parts.length > 0) {
-        sessionIdRef.current = parts[0]
+    try {
+      setLoading(true)
+      console.log('[v0] fetchClientSecret: calling /api/stripe/create-session with:', { productId, programId })
+      
+      const res = await fetch('/api/stripe/create-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId, programId }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to create checkout session')
       }
+
+      const data = await res.json()
+      const clientSecret = data.clientSecret
+      
+      console.log('[v0] fetchClientSecret: received clientSecret:', clientSecret?.substring(0, 20) + '...')
+      if (!clientSecret) {
+        throw new Error('Failed to create checkout session - no client secret returned')
+      }
+      return clientSecret
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to create checkout session'
+      console.error('[v0] fetchClientSecret error:', err)
+      setError(message)
+      throw err
+    } finally {
+      setLoading(false)
     }
-    return clientSecret
   }, [productId, programId])
 
   const handleComplete = useCallback(async () => {
-    setIsComplete(true)
-    
-    // Verify the payment and create subscription via our API
-    if (sessionIdRef.current) {
-      try {
-        const res = await fetch('/api/stripe/verify-session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sessionId: sessionIdRef.current }),
-        })
-        
-        if (!res.ok) {
-          const data = await res.json()
-          console.error('Verification failed:', data.error)
-          setError(data.error || 'Failed to verify payment')
-          return
-        }
-      } catch (err) {
-        console.error('Error verifying payment:', err)
-        // Don't block completion - webhook will handle it
-      }
+    try {
+      setIsComplete(true)
+      onComplete?.()
+      
+      // Redirect after a short delay to show the success message
+      setTimeout(() => {
+        window.location.href = `/dashboard/${programId}`
+      }, 2000)
+    } catch (err) {
+      console.error('[v0] Completion error:', err)
     }
-    
-    onComplete?.()
-  }, [onComplete])
+  }, [onComplete, programId])
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <div className="mb-4 flex size-12 items-center justify-center">
+          <div className="size-8 animate-spin rounded-full border-2 border-white/20 border-t-white"></div>
+        </div>
+        <p className="text-muted-foreground">Loading secure checkout...</p>
+      </div>
+    )
+  }
 
   if (error) {
     return (
@@ -72,7 +90,10 @@ export default function Checkout({ productId, programId, onComplete }: CheckoutP
         <h3 className="text-xl font-bold text-foreground">Something went wrong</h3>
         <p className="mt-2 text-muted-foreground">{error}</p>
         <button 
-          onClick={() => { setError(null); setIsComplete(false) }}
+          onClick={() => { 
+            setError(null)
+            setIsComplete(false) 
+          }}
           className="mt-4 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-foreground/90"
         >
           Try Again
@@ -96,7 +117,7 @@ export default function Checkout({ productId, programId, onComplete }: CheckoutP
   }
 
   return (
-    <div id="checkout">
+    <div id="checkout" className="w-full">
       <EmbeddedCheckoutProvider
         stripe={stripePromise}
         options={{ 
