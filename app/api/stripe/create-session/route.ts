@@ -89,6 +89,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       clientSecret: session.client_secret,
+      sessionId: session.id,
     })
   } catch (error) {
     return NextResponse.json(
