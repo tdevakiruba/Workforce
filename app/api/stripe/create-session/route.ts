@@ -67,8 +67,7 @@ export async function POST(req: NextRequest) {
     // Create Checkout Session with embedded_page mode (new Stripe API as of March 25, 2026)
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded_page',
-      redirect_on_completion: 'if_required',
-      return_url: `${origin}/api/stripe/checkout/return?session_id={CHECKOUT_SESSION_ID}`,
+      redirect_on_completion: 'never',
       customer_email: user.email ?? undefined,
       metadata: {
         userId: user.id,
