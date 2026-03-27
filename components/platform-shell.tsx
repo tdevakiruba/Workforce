@@ -12,13 +12,20 @@ export async function PlatformShell({
     const supabase = await createClient()
     const { data, error } = await supabase.auth.getUser()
     if (error) {
-      console.warn("[platform-shell] Failed to get user:", error.message)
+      // "Auth session missing!" is expected for unauthenticated users - don't log it
+      // Only log unexpected errors
+      if (!error.message?.includes('Auth session missing')) {
+        console.warn("[platform-shell] Failed to get user:", error.message)
+      }
     } else {
       user = data.user
     }
   } catch (error) {
     // Supabase not configured yet – render shell without auth
-    console.warn("[platform-shell] Error creating supabase client:", error instanceof Error ? error.message : String(error))
+    const msg = error instanceof Error ? error.message : String(error)
+    if (!msg.includes('Auth session missing')) {
+      console.warn("[platform-shell] Error creating supabase client:", msg)
+    }
   }
 
   return (
