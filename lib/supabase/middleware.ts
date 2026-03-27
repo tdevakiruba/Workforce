@@ -9,6 +9,12 @@ export async function updateSession(request: NextRequest) {
   try {
     const pathname = request.nextUrl.pathname
 
+    // Skip middleware processing for payment-success - Stripe redirects here after payment
+    // Don't require auth since Stripe may not include session cookies on redirect
+    if (pathname.startsWith('/payment-success')) {
+      return NextResponse.next()
+    }
+
     // Skip middleware processing for auth callback - let the route handler
     // exchange the code for a session first
     if (pathname.startsWith('/auth/callback')) {
