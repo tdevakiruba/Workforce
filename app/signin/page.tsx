@@ -49,13 +49,18 @@ function SignInForm() {
     
     // Use current origin for OAuth callback to work in any environment
     const origin = window.location.origin
+    const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(redirect)}`
+    
+    console.log("[v0] OAuth starting:", { provider, origin, redirectTo })
 
-    const { error: oauthError } = await supabase.auth.signInWithOAuth({
+    const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(redirect)}`,
+        redirectTo,
       },
     })
+
+    console.log("[v0] OAuth response:", { url: data?.url, error: oauthError?.message })
 
     if (oauthError) {
       setError(oauthError.message)

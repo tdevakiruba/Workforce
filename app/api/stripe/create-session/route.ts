@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
       }
     )
 
-    // Get the authenticated user
+    // Get the authenticated user - required for checkout
     const {
       data: { user },
       error: authError,
@@ -56,13 +56,10 @@ export async function POST(req: NextRequest) {
 
     if (!user || authError) {
       return NextResponse.json(
-        { error: 'User not authenticated' },
+        { error: 'Authentication required', code: 'AUTH_REQUIRED' },
         { status: 401 }
       )
     }
-
-    // Get the origin for return_url
-    const origin = new URL(req.url).origin
 
     // Create Checkout Session with embedded_page mode (new Stripe API as of March 25, 2026)
     const session = await stripe.checkout.sessions.create({
