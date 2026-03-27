@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
   try {
-    const { productId, programId, returnUrl } = await req.json()
+    const { productId, programId, programSlug, returnUrl } = await req.json()
 
     const product = PRODUCTS.find((p) => p.id === productId)
     if (!product) {
@@ -62,8 +62,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Build the return URL for post-payment redirect
+    // Stripe replaces {CHECKOUT_SESSION_ID} with the actual session ID automatically
     const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceready.ai'
-    const successUrl = returnUrl || `${origin}/payment-success?program=${programId}&session_id={CHECKOUT_SESSION_ID}`
+    const slugForUrl = programSlug || programId
+    const successUrl = returnUrl || `${origin}/payment-success?program=${slugForUrl}&session_id={CHECKOUT_SESSION_ID}`
 
     // Create Checkout Session with embedded mode
     const session = await stripe.checkout.sessions.create({

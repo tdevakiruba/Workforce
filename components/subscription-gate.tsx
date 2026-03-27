@@ -211,6 +211,7 @@ export function SubscriptionGate({
                 <Checkout
                   productId="career-acceleration-21-days"
                   programId={program.id}
+                  programSlug={program.slug}
                 />
               </div>
             ) : (
