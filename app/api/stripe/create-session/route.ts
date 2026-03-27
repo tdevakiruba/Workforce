@@ -49,16 +49,12 @@ export async function POST(req: NextRequest) {
     )
 
     // Get the authenticated user - required for checkout
-    console.log("[v0][create-session] Getting authenticated user")
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser()
 
-    console.log("[v0][create-session] Auth result:", { user: user?.email || 'none', authError: authError?.message || 'none' })
-
     if (!user || authError) {
-      console.log("[v0][create-session] User not authenticated, returning 401")
       return NextResponse.json(
         { error: 'Authentication required', code: 'AUTH_REQUIRED' },
         { status: 401 }
