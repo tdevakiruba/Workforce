@@ -54,11 +54,7 @@ export function SubscriptionGate({
 
   const firstName = userName?.split(' ')[0]
 
-  const handleCheckoutComplete = () => {
-    // After checkout completes, redirect to payment success page
-    // The checkout component will call this callback when Stripe confirms payment
-    router.push(`/payment-success?program=${program.slug}`)
-  }
+
 
   return (
     <div className="min-h-screen bg-[#0a0e14] font-sans">
@@ -215,7 +211,6 @@ export function SubscriptionGate({
                 <Checkout
                   productId="career-acceleration-21-days"
                   programId={program.id}
-                  onComplete={handleCheckoutComplete}
                 />
               </div>
             ) : (

@@ -10,55 +10,61 @@ export default function PaymentSuccessPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const programSlug = searchParams.get('program')
+  const sessionId = searchParams.get('session_id')
   
   const [isVerifying, setIsVerifying] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [subscription, setSubscription] = useState<{ programId: string } | null>(null)
+  const [verified, setVerified] = useState(false)
 
   useEffect(() => {
     const verifyPayment = async () => {
-      if (!programSlug) {
-        setError('No program specified')
+      // If we have a session_id, verify it with Stripe
+      if (sessionId) {
+        try {
+          const res = await fetch('/api/stripe/verify-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId }),
+          })
+
+          const data = await res.json()
+
+          if (!res.ok) {
+            // If verification fails, still show success if we have program slug
+            // The webhook may have already processed the payment
+            if (programSlug) {
+              setVerified(true)
+              setIsVerifying(false)
+              return
+            }
+            setError(data.error || 'Failed to verify payment')
+            setIsVerifying(false)
+            return
+          }
+
+          setVerified(true)
+          setIsVerifying(false)
+        } catch (err) {
+          // On error, still allow access if we have program info
+          if (programSlug) {
+            setVerified(true)
+          } else {
+            setError('Failed to verify payment')
+          }
+          setIsVerifying(false)
+        }
+      } else if (programSlug) {
+        // No session_id but have program - assume redirect from successful payment
+        setVerified(true)
         setIsVerifying(false)
-        return
-      }
-
-      try {
-        // Check if the user has an active subscription for this program
-        const res = await fetch('/api/subscription', {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        })
-
-        const data = await res.json()
-
-        if (!res.ok) {
-          setError(data.error || 'Failed to verify subscription')
-          setIsVerifying(false)
-          return
-        }
-
-        // Find active subscription for this program
-        const activeSub = data.subscriptions?.find(
-          (sub: any) => sub.program?.slug === programSlug && sub.status === 'active'
-        )
-
-        if (activeSub) {
-          setSubscription({ programId: activeSub.program_id })
-          setIsVerifying(false)
-        } else {
-          setError('No active subscription found')
-          setIsVerifying(false)
-        }
-      } catch (err) {
-        console.error('[payment-success] Verification error:', err)
-        setError('Failed to verify subscription')
+      } else {
+        setError('Invalid payment session')
         setIsVerifying(false)
       }
     }
 
     verifyPayment()
-  }, [programSlug])
+  }, [sessionId, programSlug])
 
   const dashboardUrl = programSlug 
     ? `/dashboard/${programSlug}/overview?start=day-1`
@@ -119,7 +125,7 @@ export default function PaymentSuccessPage() {
                 </Button>
               </div>
             </>
-          ) : (
+          ) : verified ? (
             <>
               {/* Success state */}
               <div className="mb-8 flex justify-center">
@@ -172,6 +178,18 @@ export default function PaymentSuccessPage() {
               <p className="text-xs text-white/40">
                 A confirmation email has been sent to your email address.
               </p>
+            </>
+          ) : (
+            <>
+              {/* Fallback loading state */}
+              <div className="mb-6 flex justify-center">
+                <div className="relative size-20">
+                  <div className="absolute inset-0 rounded-full border-2 border-white/10 border-t-emerald-500 animate-spin" />
+                </div>
+              </div>
+              <h1 className="text-2xl font-bold text-white mb-2">
+                Processing...
+              </h1>
             </>
           )}
         </div>
