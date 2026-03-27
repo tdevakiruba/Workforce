@@ -5,14 +5,16 @@ import { NextResponse } from "next/server"
 export const dynamic = "force-dynamic"
 
 export async function GET(request: Request) {
-  console.log("[auth-callback] GET handler called")
+  console.log("[v0][auth-callback] GET handler called")
+  console.log("[v0][auth-callback] Full URL:", request.url)
   
   try {
     const requestUrl = new URL(request.url)
     const code = requestUrl.searchParams.get("code")
     const next = requestUrl.searchParams.get("next") ?? "/dashboard"
 
-    console.log("[auth-callback] Code:", code ? "present" : "missing", "Next:", next)
+    console.log("[v0][auth-callback] Code:", code ? "present" : "missing", "Next:", next)
+    console.log("[v0][auth-callback] All params:", Object.fromEntries(requestUrl.searchParams))
 
     // Validate code exists
     if (!code) {
