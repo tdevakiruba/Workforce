@@ -67,6 +67,12 @@ export default async function ProductDashboardLayout({
     .limit(1)
     .maybeSingle()
 
+  console.log('[v0][dashboard-layout] Subscription check:', {
+    userId: user.id,
+    programId: program.id,
+    subscription,
+  })
+
   const now = new Date()
 
   // A subscription is valid when:
@@ -80,6 +86,14 @@ export default async function ProductDashboardLayout({
     (subscription.amount_cents ?? 0) > 0 &&
     (subscription.current_period_end == null ||
       new Date(subscription.current_period_end) > now)
+
+  console.log('[v0][dashboard-layout] Subscription validation:', {
+    exists: subscription !== null,
+    statusActive: subscription?.status === "active",
+    hasAmount: (subscription?.amount_cents ?? 0) > 0,
+    withinPeriod: subscription?.current_period_end == null || new Date(subscription.current_period_end) > now,
+    isActive,
+  })
 
   // Determine whether this is a renewal (had a past subscription) or a first-time purchase
   const isExpired =
