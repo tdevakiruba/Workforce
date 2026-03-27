@@ -5,16 +5,10 @@ import { NextResponse } from "next/server"
 export const dynamic = "force-dynamic"
 
 export async function GET(request: Request) {
-  console.log("[v0][auth-callback] GET handler called")
-  console.log("[v0][auth-callback] Full URL:", request.url)
-  
   try {
     const requestUrl = new URL(request.url)
     const code = requestUrl.searchParams.get("code")
     const next = requestUrl.searchParams.get("next") ?? "/dashboard"
-
-    console.log("[v0][auth-callback] Code:", code ? "present" : "missing", "Next:", next)
-    console.log("[v0][auth-callback] All params:", Object.fromEntries(requestUrl.searchParams))
 
     // Validate code exists
     if (!code) {
@@ -30,8 +24,6 @@ export async function GET(request: Request) {
       console.error("[auth-callback] Missing Supabase env vars")
       return NextResponse.redirect(`${requestUrl.origin}/signin?error=config`)
     }
-
-    console.log("[auth-callback] Creating Supabase client...")
 
     // Create a response object first - we'll redirect with this
     const response = NextResponse.redirect(`${requestUrl.origin}${next}`)
@@ -64,15 +56,11 @@ export async function GET(request: Request) {
       )
     }
 
-    console.log("[auth-callback] Exchange successful, user:", data.user?.email)
-
     // NOW set all cookies on the response BEFORE redirecting
     cookiesToSet.forEach(({ name, value, options }) => {
-      console.log("[auth-callback] Setting cookie:", name)
       response.cookies.set(name, value, options)
     })
 
-    console.log("[auth-callback] Redirecting to:", next)
     return response
   } catch (error) {
     console.error(

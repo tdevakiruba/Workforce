@@ -8,14 +8,10 @@ const ACTIVITY_COOKIE = 'wf_last_activity'
 export async function updateSession(request: NextRequest) {
   try {
     const pathname = request.nextUrl.pathname
-    const hasCode = request.nextUrl.searchParams.has('code')
-    
-    console.log("[v0][middleware] Request:", { pathname, hasCode, url: request.url })
 
     // Skip middleware processing for auth callback - let the route handler
     // exchange the code for a session first
     if (pathname.startsWith('/auth/callback')) {
-      console.log("[v0][middleware] Skipping auth callback route - letting handler process")
       return NextResponse.next()
     }
 
@@ -24,7 +20,6 @@ export async function updateSession(request: NextRequest) {
     // Forward it to /auth/callback so the code exchange still happens.
     const authCode = request.nextUrl.searchParams.get('code')
     if (authCode) {
-      console.log("[v0][middleware] Found code on non-callback route, forwarding to /auth/callback")
       const callbackUrl = request.nextUrl.clone()
       callbackUrl.pathname = '/auth/callback'
       // Preserve the code param; add a default next if missing
@@ -83,7 +78,9 @@ export async function updateSession(request: NextRequest) {
 
     const isProtected =
       request.nextUrl.pathname.startsWith('/dashboard') ||
-      request.nextUrl.pathname.startsWith('/protected')
+      request.nextUrl.pathname.startsWith('/protected') ||
+      request.nextUrl.pathname.startsWith('/subscription') ||
+      request.nextUrl.pathname.startsWith('/checkout')
 
     if (!user && isProtected) {
       const url = request.nextUrl.clone()

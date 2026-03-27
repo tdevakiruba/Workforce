@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import {
   EmbeddedCheckout,
   EmbeddedCheckoutProvider,
@@ -17,46 +16,63 @@ interface CheckoutProps {
 }
 
 export default function Checkout({ productId, programId, onComplete }: CheckoutProps) {
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   const fetchClientSecret = async () => {
     try {
+      console.log("[v0-checkout] Fetching client secret for:", { productId, programId })
+      
       const res = await fetch('/api/stripe/create-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ productId, programId }),
       })
 
+      console.log("[v0-checkout] Response status:", res.status)
+
       if (!res.ok) {
         const data = await res.json()
-        
-        // If authentication is required, redirect to sign in
-        if (res.status === 401 || data.code === 'AUTH_REQUIRED') {
-          const currentPath = window.location.pathname
-          router.push(`/signin?redirect=${encodeURIComponent(currentPath)}`)
-          throw new Error('Please sign in to continue with your purchase')
-        }
-        
-        throw new Error(data.error || 'Failed to create checkout session')
+        console.error("[v0-checkout] API error:", data)
+        throw new Error(data.error || `HTTP ${res.status}: Failed to create checkout session`)
       }
 
       const data = await res.json()
       const { clientSecret } = data
       
+      console.log("[v0-checkout] Received client secret:", clientSecret ? "YES" : "NO")
+      
       if (!clientSecret) {
-        throw new Error('No client secret received from server')
+        throw new Error('No client secret in response')
       }
 
       setIsLoading(false)
       return clientSecret
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create checkout session'
+      console.error("[v0-checkout] Error:", message, err)
       setError(message)
+      setIsLoading(false)
       throw err
     }
   }
+
+  // Load Stripe and check if it's available
+  useEffect(() => {
+    stripePromise
+      .then((stripe) => {
+        if (!stripe) {
+          console.error("[v0-checkout] Stripe failed to load")
+          setError('Stripe payment service failed to load. Please refresh the page.')
+          setIsLoading(false)
+        }
+      })
+      .catch((err) => {
+        console.error("[v0-checkout] Stripe load error:", err)
+        setError('Failed to load payment service')
+        setIsLoading(false)
+      })
+  }, [])
 
   if (error) {
     return (

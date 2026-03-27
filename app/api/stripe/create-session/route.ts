@@ -25,6 +25,11 @@ export async function POST(req: NextRequest) {
     }
 
     const cookieStore = await cookies()
+    
+    // Debug: Log all cookies to see what's being received
+    const allCookies = cookieStore.getAll()
+    const authCookies = allCookies.filter(c => c.name.includes('auth') || c.name.includes('sb-'))
+    console.log("[v0][create-session] Received cookies:", authCookies.map(c => c.name))
 
     // Create Supabase client with proper cookie handling for API routes
     const supabase = createServerClient(
@@ -53,6 +58,12 @@ export async function POST(req: NextRequest) {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser()
+
+    console.log("[v0][create-session] Auth result:", { 
+      hasUser: !!user, 
+      userEmail: user?.email, 
+      authError: authError?.message 
+    })
 
     if (!user || authError) {
       return NextResponse.json(
