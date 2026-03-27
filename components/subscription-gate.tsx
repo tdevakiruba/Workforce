@@ -54,12 +54,7 @@ export function SubscriptionGate({
 
   const firstName = userName?.split(' ')[0]
 
-  const handleCheckoutComplete = () => {
-    setTimeout(() => {
-      router.push(`/dashboard/${program.slug}/overview`)
-      router.refresh()
-    }, 2000)
-  }
+
 
   return (
     <div className="min-h-screen bg-[#0a0e14] font-sans">
@@ -216,7 +211,6 @@ export function SubscriptionGate({
                 <Checkout
                   productId="career-acceleration-21-days"
                   programId={program.id}
-                  onComplete={handleCheckoutComplete}
                 />
               </div>
             ) : (

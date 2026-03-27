@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
   try {
-    const { productId, programId } = await req.json()
+    const { productId, programId, returnUrl } = await req.json()
 
     const product = PRODUCTS.find((p) => p.id === productId)
     if (!product) {
@@ -25,11 +25,6 @@ export async function POST(req: NextRequest) {
     }
 
     const cookieStore = await cookies()
-    
-    // Debug: Log all cookies to see what's being received
-    const allCookies = cookieStore.getAll()
-    const authCookies = allCookies.filter(c => c.name.includes('auth') || c.name.includes('sb-'))
-    console.log("[v0][create-session] Received cookies:", authCookies.map(c => c.name))
 
     // Create Supabase client with proper cookie handling for API routes
     const supabase = createServerClient(
@@ -59,12 +54,6 @@ export async function POST(req: NextRequest) {
       error: authError,
     } = await supabase.auth.getUser()
 
-    console.log("[v0][create-session] Auth result:", { 
-      hasUser: !!user, 
-      userEmail: user?.email, 
-      authError: authError?.message 
-    })
-
     if (!user || authError) {
       return NextResponse.json(
         { error: 'Authentication required', code: 'AUTH_REQUIRED' },
@@ -72,10 +61,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Create Checkout Session with embedded_page mode (new Stripe API as of March 25, 2026)
+    // Build the return URL for post-payment redirect
+    const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_SITE_URL || 'https://www.workforceready.ai'
+    const successUrl = returnUrl || `${origin}/payment-success?program=${programId}&session_id={CHECKOUT_SESSION_ID}`
+
+    // Create Checkout Session with embedded mode
     const session = await stripe.checkout.sessions.create({
-      ui_mode: 'embedded_page',
-      redirect_on_completion: 'never',
+      ui_mode: 'embedded',
+      return_url: successUrl,
       customer_email: user.email ?? undefined,
       metadata: {
         userId: user.id,
