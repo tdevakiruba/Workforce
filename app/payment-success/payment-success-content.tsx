@@ -17,33 +17,41 @@ export function PaymentSuccessContent() {
 
   useEffect(() => {
     const verifyPayment = async () => {
+      console.log('[v0][payment-success] Verification starting with:', { sessionId, programSlug })
       // If we have a session_id, verify it with Stripe
       if (sessionId) {
         try {
+          console.log('[v0][payment-success] Calling verify-session API...')
           const res = await fetch('/api/stripe/verify-session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sessionId }),
           })
 
+          console.log('[v0][payment-success] API response status:', res.status)
           const data = await res.json()
+          console.log('[v0][payment-success] API response data:', data)
 
           if (!res.ok) {
             // If verification fails, still show success if we have program slug
             // The webhook may have already processed the payment
             if (programSlug) {
+              console.log('[v0][payment-success] Verification failed but continuing with program slug')
               setVerified(true)
               setIsVerifying(false)
               return
             }
+            console.log('[v0][payment-success] Verification failed and no program slug')
             setError(data.error || 'Failed to verify payment')
             setIsVerifying(false)
             return
           }
 
+          console.log('[v0][payment-success] Verification successful')
           setVerified(true)
           setIsVerifying(false)
         } catch (err) {
+          console.error('[v0][payment-success] Verification error:', err)
           // On error, still allow access if we have program info
           if (programSlug) {
             setVerified(true)
@@ -54,9 +62,11 @@ export function PaymentSuccessContent() {
         }
       } else if (programSlug) {
         // No session_id but have program - assume redirect from successful payment
+        console.log('[v0][payment-success] No session_id but have program slug, marking as verified')
         setVerified(true)
         setIsVerifying(false)
       } else {
+        console.log('[v0][payment-success] Invalid payment session - no sessionId or programSlug')
         setError('Invalid payment session')
         setIsVerifying(false)
       }
