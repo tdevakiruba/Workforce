@@ -3,13 +3,6 @@ import { stripe } from '@/lib/stripe'
 import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   const { sessionId } = await request.json()
 
   if (!sessionId) {
@@ -18,6 +11,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // Retrieve the checkout session from Stripe
+    // Don't require user auth here - Stripe provides the user ID via metadata
     const session = await stripe.checkout.sessions.retrieve(sessionId)
 
     if (session.payment_status !== 'paid') {
@@ -25,19 +19,18 @@ export async function POST(request: NextRequest) {
     }
 
     const programId = session.metadata?.programId
+    const userId = session.metadata?.userId
 
-    if (!programId) {
-      return NextResponse.json({ error: 'Program ID not found' }, { status: 400 })
+    if (!programId || !userId) {
+      return NextResponse.json({ error: 'Program ID or User ID not found in session' }, { status: 400 })
     }
 
-    // Verify the user matches
-    if (session.metadata?.userId !== user.id) {
-      return NextResponse.json({ error: 'User mismatch' }, { status: 403 })
-    }
+    // Create Supabase client to write subscription data
+    const supabase = await createClient()
 
     // Create subscription in database
     const { error: subError } = await supabase.from('wf-subscriptions').upsert({
-      user_id: user.id,
+      user_id: userId,
       program_id: programId,
       plan_tier: 'individual',
       status: 'active',
@@ -54,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     // Create enrollment
     const { error: enrollError } = await supabase.from('wf-enrollments').upsert({
-      user_id: user.id,
+      user_id: userId,
       program_id: programId,
       status: 'active',
       current_day: 1,
