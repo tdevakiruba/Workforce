@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
+
+// Use service role for admin operations to bypass RLS
+const supabaseAdmin = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function POST(request: NextRequest) {
   const { sessionId } = await request.json()
@@ -25,11 +31,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Program ID or User ID not found in session' }, { status: 400 })
     }
 
-    // Create Supabase client to write subscription data
-    const supabase = await createClient()
+    console.log('[v0][verify-session] Creating subscription for user:', userId, 'program:', programId, 'amount:', session.amount_total)
 
-    // Create subscription in database
-    const { error: subError } = await supabase.from('wf-subscriptions').upsert({
+    // Create subscription in database using admin client to bypass RLS
+    const { data: subData, error: subError } = await supabaseAdmin.from('wf-subscriptions').upsert({
       user_id: userId,
       program_id: programId,
       plan_tier: 'individual',
@@ -38,15 +43,17 @@ export async function POST(request: NextRequest) {
       current_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
       amount_cents: session.amount_total,
       currency: session.currency,
-    }, { onConflict: 'user_id,program_id' })
+    }, { onConflict: 'user_id,program_id' }).select()
+
+    console.log('[v0][verify-session] Subscription upsert result:', { subData, subError })
 
     if (subError) {
-      console.error('Error creating subscription:', subError)
+      console.error('[v0][verify-session] Error creating subscription:', subError)
       return NextResponse.json({ error: 'Failed to create subscription' }, { status: 500 })
     }
 
-    // Create enrollment
-    const { error: enrollError } = await supabase.from('wf-enrollments').upsert({
+    // Create enrollment using admin client
+    const { error: enrollError } = await supabaseAdmin.from('wf-enrollments').upsert({
       user_id: userId,
       program_id: programId,
       status: 'active',
