@@ -16,63 +16,47 @@ interface CheckoutProps {
 }
 
 export default function Checkout({ productId, programId, onComplete }: CheckoutProps) {
-  const [isLoading, setIsLoading] = useState(true)
+  const [clientSecret, setClientSecret] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchClientSecret = async () => {
-    try {
-      console.log("[v0-checkout] Fetching client secret for:", { productId, programId })
-      
-      const res = await fetch('/api/stripe/create-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ productId, programId }),
-      })
-
-      console.log("[v0-checkout] Response status:", res.status)
-
-      if (!res.ok) {
-        const data = await res.json()
-        console.error("[v0-checkout] API error:", data)
-        throw new Error(data.error || `HTTP ${res.status}: Failed to create checkout session`)
-      }
-
-      const data = await res.json()
-      const { clientSecret } = data
-      
-      console.log("[v0-checkout] Received client secret:", clientSecret ? "YES" : "NO")
-      
-      if (!clientSecret) {
-        throw new Error('No client secret in response')
-      }
-
-      setIsLoading(false)
-      return clientSecret
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to create checkout session'
-      console.error("[v0-checkout] Error:", message, err)
-      setError(message)
-      setIsLoading(false)
-      throw err
-    }
-  }
-
-  // Load Stripe and check if it's available
   useEffect(() => {
-    stripePromise
-      .then((stripe) => {
-        if (!stripe) {
-          console.error("[v0-checkout] Stripe failed to load")
-          setError('Stripe payment service failed to load. Please refresh the page.')
-          setIsLoading(false)
+    const fetchSecret = async () => {
+      try {
+        console.log("[v0-checkout] Fetching client secret for:", { productId, programId })
+        
+        const res = await fetch('/api/stripe/create-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ productId, programId }),
+        })
+
+        console.log("[v0-checkout] Response status:", res.status)
+
+        if (!res.ok) {
+          const data = await res.json()
+          console.error("[v0-checkout] API error:", data)
+          throw new Error(data.error || `HTTP ${res.status}: Failed to create checkout session`)
         }
-      })
-      .catch((err) => {
-        console.error("[v0-checkout] Stripe load error:", err)
-        setError('Failed to load payment service')
-        setIsLoading(false)
-      })
-  }, [])
+
+        const data = await res.json()
+        const { clientSecret: secret } = data
+        
+        console.log("[v0-checkout] Received client secret:", secret ? "YES" : "NO")
+        
+        if (!secret) {
+          throw new Error('No client secret in response')
+        }
+
+        setClientSecret(secret)
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to create checkout session'
+        console.error("[v0-checkout] Error:", message, err)
+        setError(message)
+      }
+    }
+
+    fetchSecret()
+  }, [productId, programId])
 
   if (error) {
     return (
@@ -94,7 +78,7 @@ export default function Checkout({ productId, programId, onComplete }: CheckoutP
     )
   }
 
-  if (isLoading) {
+  if (!clientSecret) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <div className="mb-4 flex size-12 items-center justify-center">
@@ -110,7 +94,7 @@ export default function Checkout({ productId, programId, onComplete }: CheckoutP
       <EmbeddedCheckoutProvider
         stripe={stripePromise}
         options={{
-          fetchClientSecret,
+          clientSecret,
           onComplete: onComplete,
         }}
       >
