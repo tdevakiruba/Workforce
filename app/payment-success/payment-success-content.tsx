@@ -65,8 +65,9 @@ export function PaymentSuccessContent() {
     verifyPayment()
   }, [sessionId, programSlug])
 
+  // Build dashboard URL - add a cache-busting timestamp to force a fresh load
   const dashboardUrl = programSlug 
-    ? `/dashboard/${programSlug}/overview?start=day-1`
+    ? `/dashboard/${programSlug}/overview?start=day-1&t=${Date.now()}`
     : '/dashboard'
 
   return (
