@@ -48,32 +48,26 @@ export async function POST(req: NextRequest) {
       }
     )
 
-    // Get the authenticated user if available, but don't require it
-    let user = null
-    let userEmail = undefined
-    
-    try {
-      const {
-        data: { user: authUser },
-      } = await supabase.auth.getUser()
-      if (authUser) {
-        user = authUser
-        userEmail = authUser.email ?? undefined
-      }
-    } catch {
-      // User not authenticated - allow checkout to proceed anyway
-    }
+    // Get the authenticated user - required for checkout
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
 
-    // If no authenticated user, use email from request body if provided
-    // For now, we'll proceed without email for unauthenticated users
+    if (!user || authError) {
+      return NextResponse.json(
+        { error: 'Authentication required', code: 'AUTH_REQUIRED' },
+        { status: 401 }
+      )
+    }
 
     // Create Checkout Session with embedded_page mode (new Stripe API as of March 25, 2026)
     const session = await stripe.checkout.sessions.create({
       ui_mode: 'embedded_page',
       redirect_on_completion: 'never',
-      ...(userEmail && { customer_email: userEmail }),
+      customer_email: user.email ?? undefined,
       metadata: {
-        ...(user && { userId: user.id }),
+        userId: user.id,
         programId: programId,
         productId: productId,
       },

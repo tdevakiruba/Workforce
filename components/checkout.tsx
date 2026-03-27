@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import {
   EmbeddedCheckout,
   EmbeddedCheckoutProvider,
@@ -16,6 +17,7 @@ interface CheckoutProps {
 }
 
 export default function Checkout({ productId, programId, onComplete }: CheckoutProps) {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -29,6 +31,14 @@ export default function Checkout({ productId, programId, onComplete }: CheckoutP
 
       if (!res.ok) {
         const data = await res.json()
+        
+        // If authentication is required, redirect to sign in
+        if (res.status === 401 || data.code === 'AUTH_REQUIRED') {
+          const currentPath = window.location.pathname
+          router.push(`/signin?redirect=${encodeURIComponent(currentPath)}`)
+          throw new Error('Please sign in to continue with your purchase')
+        }
+        
         throw new Error(data.error || 'Failed to create checkout session')
       }
 
@@ -43,7 +53,6 @@ export default function Checkout({ productId, programId, onComplete }: CheckoutP
       return clientSecret
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create checkout session'
-      console.error('[v0] fetchClientSecret error:', err)
       setError(message)
       throw err
     }
