@@ -67,9 +67,9 @@ export async function POST(req: NextRequest) {
     const slugForUrl = programSlug || programId
     const successUrl = returnUrl || `${origin}/payment-success?program=${slugForUrl}&session_id={CHECKOUT_SESSION_ID}`
 
-    // Create Checkout Session with embedded mode
+    // Create Checkout Session with embedded_page mode
     const session = await stripe.checkout.sessions.create({
-      ui_mode: 'embedded',
+      ui_mode: 'embedded_page',
       return_url: successUrl,
       customer_email: user.email ?? undefined,
       metadata: {

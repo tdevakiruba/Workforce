@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import {
   EmbeddedCheckout,
   EmbeddedCheckoutProvider,
@@ -17,11 +16,9 @@ interface CheckoutProps {
 }
 
 export default function Checkout({ productId, programId, programSlug }: CheckoutProps) {
-  const router = useRouter()
   const [error, setError] = useState<string | null>(null)
-  const sessionIdRef = useRef<string | null>(null)
 
-  // fetchClientSecret must be a stable callback
+  // fetchClientSecret for embedded_page checkout
   const fetchClientSecret = async () => {
     const res = await fetch('/api/stripe/create-session', {
       method: 'POST',
@@ -47,16 +44,7 @@ export default function Checkout({ productId, programId, programSlug }: Checkout
       throw new Error(message)
     }
 
-    // Store the session ID for use in onComplete
-    sessionIdRef.current = data.sessionId
-
     return data.clientSecret as string
-  }
-
-  // Handle checkout completion - redirect to success page
-  const handleComplete = () => {
-    const sessionId = sessionIdRef.current
-    router.push(`/payment-success?program=${programSlug}&session_id=${sessionId || ''}`)
   }
 
   if (error) {
@@ -83,10 +71,7 @@ export default function Checkout({ productId, programId, programSlug }: Checkout
     <div id="checkout" className="w-full">
       <EmbeddedCheckoutProvider
         stripe={stripePromise}
-        options={{ 
-          fetchClientSecret,
-          onComplete: handleComplete,
-        }}
+        options={{ fetchClientSecret }}
       >
         <EmbeddedCheckout />
       </EmbeddedCheckoutProvider>
