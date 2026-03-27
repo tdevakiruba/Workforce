@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import {
   EmbeddedCheckout,
   EmbeddedCheckoutProvider,
@@ -12,42 +12,41 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 interface CheckoutProps {
   productId: string
   programId: string
+  programSlug: string
 }
 
-export default function Checkout({ productId, programId }: CheckoutProps) {
-  const [clientSecret, setClientSecret] = useState<string | null>(null)
+export default function Checkout({ productId, programId, programSlug }: CheckoutProps) {
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchSecret = async () => {
-      try {
-        const res = await fetch('/api/stripe/create-session', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ productId, programId }),
-        })
+  // fetchClientSecret must be a stable callback — wrap in useCallback pattern
+  // by defining it outside render and memoising with the closure values
+  const fetchClientSecret = async () => {
+    const res = await fetch('/api/stripe/create-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        productId,
+        programId,
+        programSlug,
+      }),
+    })
 
-        if (!res.ok) {
-          const data = await res.json()
-          throw new Error(data.error || `HTTP ${res.status}: Failed to create checkout session`)
-        }
-
-        const data = await res.json()
-        const { clientSecret: secret } = data
-        
-        if (!secret) {
-          throw new Error('No client secret in response')
-        }
-
-        setClientSecret(secret)
-      } catch (err) {
-        const message = err instanceof Error ? err.message : 'Failed to create checkout session'
-        setError(message)
-      }
+    if (!res.ok) {
+      const data = await res.json()
+      const message = data.error || `HTTP ${res.status}: Failed to create checkout session`
+      setError(message)
+      throw new Error(message)
     }
 
-    fetchSecret()
-  }, [productId, programId])
+    const data = await res.json()
+    if (!data.clientSecret) {
+      const message = 'No client secret returned from server'
+      setError(message)
+      throw new Error(message)
+    }
+
+    return data.clientSecret as string
+  }
 
   if (error) {
     return (
@@ -59,8 +58,8 @@ export default function Checkout({ productId, programId }: CheckoutProps) {
         </div>
         <h3 className="text-xl font-bold text-foreground">Something went wrong</h3>
         <p className="mt-2 text-muted-foreground">{error}</p>
-        <button 
-          onClick={() => window.location.reload()}
+        <button
+          onClick={() => { setError(null) }}
           className="mt-4 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-foreground/90"
         >
           Try Again
@@ -69,22 +68,11 @@ export default function Checkout({ productId, programId }: CheckoutProps) {
     )
   }
 
-  if (!clientSecret) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="mb-4 flex size-12 items-center justify-center">
-          <div className="size-8 animate-spin rounded-full border-2 border-white/20 border-t-white"></div>
-        </div>
-        <p className="text-muted-foreground">Loading secure checkout...</p>
-      </div>
-    )
-  }
-
   return (
     <div id="checkout" className="w-full">
       <EmbeddedCheckoutProvider
         stripe={stripePromise}
-        options={{ clientSecret }}
+        options={{ fetchClientSecret }}
       >
         <EmbeddedCheckout />
       </EmbeddedCheckoutProvider>
