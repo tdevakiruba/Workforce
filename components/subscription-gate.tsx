@@ -55,10 +55,9 @@ export function SubscriptionGate({
   const firstName = userName?.split(' ')[0]
 
   const handleCheckoutComplete = () => {
-    setTimeout(() => {
-      router.push(`/dashboard/${program.slug}/overview`)
-      router.refresh()
-    }, 2000)
+    // After checkout completes, redirect to payment success page
+    // The checkout component will call this callback when Stripe confirms payment
+    router.push(`/payment-success?program=${program.slug}`)
   }
 
   return (

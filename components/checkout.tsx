@@ -95,7 +95,13 @@ export default function Checkout({ productId, programId, onComplete }: CheckoutP
         stripe={stripePromise}
         options={{
           clientSecret,
-          onComplete: onComplete,
+          onComplete: () => {
+            // Extract session ID from clientSecret (format: cs_test_xxx_secret_yyy)
+            const sessionId = clientSecret.split('_secret_')[0]
+            if (onComplete) {
+              onComplete()
+            }
+          },
         }}
       >
         <EmbeddedCheckout />
