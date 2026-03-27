@@ -18,8 +18,7 @@ interface CheckoutProps {
 export default function Checkout({ productId, programId, programSlug }: CheckoutProps) {
   const [error, setError] = useState<string | null>(null)
 
-  // fetchClientSecret must be a stable callback — wrap in useCallback pattern
-  // by defining it outside render and memoising with the closure values
+  // fetchClientSecret for embedded_page checkout
   const fetchClientSecret = async () => {
     const res = await fetch('/api/stripe/create-session', {
       method: 'POST',
