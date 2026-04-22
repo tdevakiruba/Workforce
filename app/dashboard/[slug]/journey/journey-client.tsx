@@ -828,12 +828,12 @@ export function JourneyClient({
             className="relative overflow-hidden rounded-3xl"
             style={{ backgroundColor: activePhase.color }}
           >
-            {/* Day Badge - positioned on the right */}
-            <div className="absolute right-6 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center justify-center rounded-2xl bg-[#0d9488] px-6 py-5 shadow-2xl">
-              <span className="text-sm font-bold uppercase tracking-widest text-white/80">
+            {/* Day Badge - square bold design positioned on the right */}
+            <div className="absolute right-6 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center justify-center rounded-2xl bg-[#1a4a4a] w-28 h-28 shadow-2xl">
+              <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/70">
                 Day
               </span>
-              <span className="text-6xl font-extrabold text-white leading-none">
+              <span className="text-5xl font-black text-white leading-none mt-1">
                 {selectedDay}
               </span>
             </div>
@@ -1438,24 +1438,20 @@ export function JourneyClient({
               style={{ backgroundColor: activePhase.color }}
               onClick={() => {
                 const nextDay = selectedDay + 1
-                if (nextDay <= activeDay) {
+                // If all actions are done, next day should be accessible
+                // Use Math.max to handle cases where activeDay hasn't updated yet
+                const effectiveActiveDay = todayActionsDone === todayActionsTotal 
+                  ? Math.max(activeDay, selectedDay + 1) 
+                  : activeDay
+                if (nextDay <= effectiveActiveDay) {
+                  setActiveDay(Math.max(activeDay, nextDay)) // Ensure activeDay is updated
                   setSelectedDay(nextDay)
                   window.scrollTo({ top: 0, behavior: "smooth" })
                 }
               }}
-              disabled={selectedDay + 1 > activeDay}
             >
-              {selectedDay + 1 <= activeDay ? (
-                <>
-                  Continue to Day {selectedDay + 1}
-                  <ArrowRight className="ml-3 size-7" />
-                </>
-              ) : (
-                <>
-                  <Lock className="mr-3 size-6" />
-                  Day {selectedDay + 1} Unlocks Tomorrow
-                </>
-              )}
+              Continue to Day {selectedDay + 1}
+              <ArrowRight className="ml-3 size-7" />
             </Button>
           </div>
         )}
@@ -1581,6 +1577,48 @@ export function JourneyClient({
           </div>
         </aside>
       </div>{/* end flex row */}
+
+      {/* ── Sticky Mobile Progress Tracker ── */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur-sm p-4 lg:hidden">
+        <div className="flex items-center gap-4">
+          {/* Day Badge - square bold */}
+          <div 
+            className="flex flex-col items-center justify-center rounded-xl w-16 h-16 shrink-0"
+            style={{ backgroundColor: "#1a4a4a" }}
+          >
+            <span className="text-[8px] font-bold uppercase tracking-wider text-white/70">Day</span>
+            <span className="text-2xl font-black text-white leading-none">{selectedDay}</span>
+          </div>
+          
+          {/* Progress info */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-sm font-bold text-foreground truncate">
+                {todayContent?.title ?? `Day ${selectedDay}`}
+              </span>
+              <span className="text-sm font-bold shrink-0 ml-2" style={{ color: activePhase.color }}>
+                {todayProgress}%
+              </span>
+            </div>
+            {/* Progress bar */}
+            <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${todayProgress}%`,
+                  backgroundColor: activePhase.color,
+                }}
+              />
+            </div>
+            <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
+              <span>{activePhase.label}</span>
+              <span>{todayActionsDone}/{todayActionsTotal} actions</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Spacer for sticky footer on mobile */}
+      <div className="h-28 lg:hidden" />
     </div>
   )
 }
