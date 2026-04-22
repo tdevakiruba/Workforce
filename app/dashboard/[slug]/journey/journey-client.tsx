@@ -825,10 +825,19 @@ export function JourneyClient({
         <div className="min-w-0 flex-1 space-y-10 w-full lg:w-auto">
           {/* Active Day Hero Card */}
           <div
-            className="overflow-hidden rounded-3xl"
+            className="relative overflow-hidden rounded-3xl"
             style={{ backgroundColor: activePhase.color }}
           >
-            <div className="relative p-12 sm:p-16">
+            {/* Day Badge - positioned on the right */}
+            <div className="absolute right-6 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center justify-center rounded-2xl bg-[#0d9488] px-6 py-5 shadow-2xl">
+              <span className="text-sm font-bold uppercase tracking-widest text-white/80">
+                Day
+              </span>
+              <span className="text-6xl font-extrabold text-white leading-none">
+                {selectedDay}
+              </span>
+            </div>
+            <div className="relative p-12 sm:p-16 md:pr-40">
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20" />
               <div className="relative z-10">
                 <div className="flex items-center gap-6">
@@ -1399,6 +1408,55 @@ export function JourneyClient({
             <p className="mt-1 max-w-xs text-sm text-muted-foreground">
               Day {selectedDay} content is being prepared.
             </p>
+          </div>
+        )}
+
+        {/* ── Next Day Button - shown when all actions are complete ── */}
+        {!isViewingPastDay && todayActionsTotal > 0 && todayActionsDone === todayActionsTotal && selectedDay < program.totalDays && (
+          <div
+            className="flex flex-col items-center justify-center rounded-3xl border-2 p-10 text-center"
+            style={{
+              borderColor: `${activePhase.color}40`,
+              backgroundColor: `${activePhase.color}08`,
+            }}
+          >
+            <div
+              className="mb-6 flex size-20 items-center justify-center rounded-full text-white shadow-lg"
+              style={{ backgroundColor: activePhase.color }}
+            >
+              <CheckCircle2 className="size-10" />
+            </div>
+            <h3 className="text-3xl font-extrabold text-foreground">
+              Day {selectedDay} Complete!
+            </h3>
+            <p className="mt-2 text-xl text-muted-foreground">
+              Great work! You&apos;ve completed all actions for today.
+            </p>
+            <Button
+              size="lg"
+              className="mt-8 rounded-xl px-12 py-8 text-xl font-bold text-white shadow-lg h-auto"
+              style={{ backgroundColor: activePhase.color }}
+              onClick={() => {
+                const nextDay = selectedDay + 1
+                if (nextDay <= activeDay) {
+                  setSelectedDay(nextDay)
+                  window.scrollTo({ top: 0, behavior: "smooth" })
+                }
+              }}
+              disabled={selectedDay + 1 > activeDay}
+            >
+              {selectedDay + 1 <= activeDay ? (
+                <>
+                  Continue to Day {selectedDay + 1}
+                  <ArrowRight className="ml-3 size-7" />
+                </>
+              ) : (
+                <>
+                  <Lock className="mr-3 size-6" />
+                  Day {selectedDay + 1} Unlocks Tomorrow
+                </>
+              )}
+            </Button>
           </div>
         )}
       </div>{/* end session-content */}
