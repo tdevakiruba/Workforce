@@ -46,23 +46,63 @@ export async function POST(request: NextRequest) {
 
     console.log('[v0][verify-session] Creating subscription for user:', userId, 'program:', programId, 'amount:', session.amount_total)
 
-    // Create subscription in database using admin client to bypass RLS
-    const subscriptionPayload = {
-      user_id: userId,
-      program_id: programId,
-      plan_tier: 'individual',
-      status: 'active',
-      current_period_start: new Date().toISOString(),
-      current_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-      amount_cents: session.amount_total,
-      currency: session.currency,
+    // Check if subscription already exists
+    const { data: existingSub } = await supabaseAdmin
+      .from('wf-subscriptions')
+      .select('id, status, current_period_end')
+      .eq('user_id', userId)
+      .eq('program_id', programId)
+      .maybeSingle()
+
+    console.log('[v0][verify-session] Existing subscription:', existingSub)
+
+    // Create or update subscription in database using admin client to bypass RLS
+    const now = new Date()
+    const oneYearFromNow = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000)
+    
+    let subData, subError
+
+    if (existingSub) {
+      // Update existing subscription (renewal case)
+      console.log('[v0][verify-session] Updating existing subscription:', existingSub.id)
+      const { data, error } = await supabaseAdmin
+        .from('wf-subscriptions')
+        .update({
+          plan_tier: 'individual',
+          status: 'active',
+          current_period_start: now.toISOString(),
+          current_period_end: oneYearFromNow.toISOString(),
+          amount_cents: session.amount_total,
+          currency: session.currency,
+          updated_at: now.toISOString(),
+        })
+        .eq('id', existingSub.id)
+        .select()
+      
+      subData = data
+      subError = error
+    } else {
+      // Create new subscription
+      console.log('[v0][verify-session] Creating new subscription')
+      const { data, error } = await supabaseAdmin
+        .from('wf-subscriptions')
+        .insert({
+          user_id: userId,
+          program_id: programId,
+          plan_tier: 'individual',
+          status: 'active',
+          current_period_start: now.toISOString(),
+          current_period_end: oneYearFromNow.toISOString(),
+          amount_cents: session.amount_total,
+          currency: session.currency,
+        })
+        .select()
+      
+      subData = data
+      subError = error
     }
 
-    console.log('[v0][verify-session] Subscription payload:', subscriptionPayload)
-
-    const { data: subData, error: subError } = await supabaseAdmin.from('wf-subscriptions').upsert(subscriptionPayload, { onConflict: 'user_id,program_id' }).select()
-
-    console.log('[v0][verify-session] Subscription upsert result:', { subData, subError })
+    console.log('[v0][verify-session] Subscription result:', { subData, subError })
 
     if (subError) {
       console.error('[v0][verify-session] Error creating subscription:', subError)
