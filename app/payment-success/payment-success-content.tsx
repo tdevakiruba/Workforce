@@ -47,7 +47,10 @@ export function PaymentSuccessContent() {
             return
           }
 
-          console.log('[v0][payment-success] Verification successful')
+          console.log('[v0][payment-success] Verification successful, waiting for DB to sync...')
+          // Wait a moment for the database to fully sync before allowing navigation
+          await new Promise(resolve => setTimeout(resolve, 1000))
+          console.log('[v0][payment-success] DB sync wait complete, marking as verified')
           setVerified(true)
           setIsVerifying(false)
         } catch (err) {
