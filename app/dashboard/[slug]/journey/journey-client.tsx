@@ -825,10 +825,19 @@ export function JourneyClient({
         <div className="min-w-0 flex-1 space-y-10 w-full lg:w-auto">
           {/* Active Day Hero Card */}
           <div
-            className="overflow-hidden rounded-3xl"
+            className="relative overflow-hidden rounded-3xl"
             style={{ backgroundColor: activePhase.color }}
           >
-            <div className="relative p-12 sm:p-16">
+            {/* Day Badge - positioned on the right */}
+            <div className="absolute right-6 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center justify-center rounded-2xl bg-[#0d9488] px-6 py-5 shadow-2xl">
+              <span className="text-sm font-bold uppercase tracking-widest text-white/80">
+                Day
+              </span>
+              <span className="text-6xl font-extrabold text-white leading-none">
+                {selectedDay}
+              </span>
+            </div>
+            <div className="relative p-12 sm:p-16 md:pr-40">
               <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/20" />
               <div className="relative z-10">
                 <div className="flex items-center gap-6">
