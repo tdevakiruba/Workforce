@@ -94,6 +94,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Program not yet completed" }, { status: 403 })
     }
 
+    // Store certificate in database (upsert to avoid duplicates)
+    await supabase
+      .from("wf-certificates")
+      .upsert({
+        credential_id: credentialId,
+        user_id: user.id,
+        enrollment_id: enrollmentId,
+        program_id: program.id,
+        certificate_type: "program",
+        phase_number: null,
+        phase_name: "Program Completion",
+        recipient_name: userName,
+        issued_at: new Date().toISOString(),
+      }, { onConflict: "credential_id" })
+
     return NextResponse.json({
       certificate: {
         type: "program",
@@ -128,6 +143,21 @@ export async function GET(request: NextRequest) {
   if (currentDay <= dayEnd) {
     return NextResponse.json({ error: "Phase not yet completed" }, { status: 403 })
   }
+
+  // Store certificate in database (upsert to avoid duplicates)
+  await supabase
+    .from("wf-certificates")
+    .upsert({
+      credential_id: credentialId,
+      user_id: user.id,
+      enrollment_id: enrollmentId,
+      program_id: program.id,
+      certificate_type: "phase",
+      phase_number: phaseIndex + 1,
+      phase_name: phase.title,
+      recipient_name: userName,
+      issued_at: new Date().toISOString(),
+    }, { onConflict: "credential_id" })
 
   return NextResponse.json({
     certificate: {
