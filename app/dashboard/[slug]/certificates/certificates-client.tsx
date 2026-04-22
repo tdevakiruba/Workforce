@@ -387,7 +387,7 @@ function drawCertificate(
     fY + 22
   )
   centerText(
-    `Issued by ${data.issuer} | Credential ID: ${data.credentialId} | Verify at www.workforceready.ai`,
+    `Issued by ${data.issuer} | Credential ID: ${data.credentialId} | Verify at workforceready.ai/verify?id=${data.credentialId}`,
     CX,
     fY + 40
   )

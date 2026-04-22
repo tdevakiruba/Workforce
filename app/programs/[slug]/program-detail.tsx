@@ -450,6 +450,24 @@ export function ProgramDetail({
             <p className="mt-4 max-w-2xl text-lg leading-relaxed text-muted-foreground">
               {program.audience}
             </p>
+            
+            {/* Ideal For section */}
+            <div className="mt-8 max-w-3xl">
+              <p className="text-lg leading-relaxed text-muted-foreground">
+                AI Workforce Ready™ is designed for the next generation of professionals who want to thrive—not just survive—in an AI-enabled economy.
+              </p>
+              <h3 className="mt-6 text-xl font-bold text-foreground">Ideal For:</h3>
+              <ul className="mt-4 space-y-3 text-lg text-muted-foreground">
+                <li><span className="font-bold text-foreground">Recent Graduates</span> entering the workforce and wanting a competitive edge beyond their degree</li>
+                <li><span className="font-bold text-foreground">Early-Career Professionals</span> looking to grow faster, stand out, and become promotion-ready</li>
+                <li><span className="font-bold text-foreground">Career Changers</span> transitioning into new industries where AI is reshaping how work gets done</li>
+                <li><span className="font-bold text-foreground">Interns &amp; New Hires</span> who want to make an immediate impact from day one</li>
+                <li><span className="font-bold text-foreground">Young Leaders</span> ready to build confidence, executive presence, and future-ready skills early</li>
+                <li><span className="font-bold text-foreground">Professionals Feeling Left Behind by AI</span> who want practical guidance, not technical overwhelm</li>
+                <li><span className="font-bold text-foreground">Global Professionals</span> who need adaptable skills for a rapidly changing workplace</li>
+              </ul>
+            </div>
+
             {program.leaders &&
               Array.isArray(program.leaders) &&
               program.leaders.length > 0 && (
