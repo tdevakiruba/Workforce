@@ -175,14 +175,18 @@ export function PaymentSuccessContent() {
               </div>
 
               <Button
-                asChild
                 size="lg"
                 className="w-full mb-3 h-12 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 shadow-lg hover:shadow-xl transition-all"
+                onClick={() => {
+                  // Use full page navigation to ensure fresh server data is fetched
+                  // Client-side navigation with <Link> may use cached data
+                  window.location.href = dashboardUrl
+                }}
               >
-                <Link href={dashboardUrl} className="flex items-center justify-center gap-2">
+                <span className="flex items-center justify-center gap-2">
                   Go to Dashboard - Access Day 1
                   <ArrowRight className="size-5" />
-                </Link>
+                </span>
               </Button>
 
               <p className="text-xs text-white/40">
