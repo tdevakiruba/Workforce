@@ -143,7 +143,7 @@ export function OverviewClient({
 
             <div className="mt-10 flex flex-wrap gap-5">
               <Link
-                href={`/dashboard/${program.slug}/journey`}
+                href={`/dashboard/${program.slug}/journey?day=${enrollment.currentDay}`}
                 className="flex items-center gap-3 rounded-xl bg-white px-8 py-4 text-lg font-bold shadow-lg transition-all hover:shadow-xl"
                 style={{ color: program.badgeColor }}
               >
@@ -328,7 +328,7 @@ export function OverviewClient({
           </h3>
           <div className="flex flex-col gap-4">
             <Link
-              href={`/dashboard/${program.slug}/journey`}
+              href={`/dashboard/${program.slug}/journey?day=${enrollment.currentDay}`}
               className="flex items-center gap-5 rounded-xl p-5 transition-all hover:bg-muted/50"
               style={{ backgroundColor: `${program.badgeColor}06` }}
             >
