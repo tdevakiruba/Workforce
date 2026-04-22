@@ -96,13 +96,15 @@ export function ProductDashboardShell({
             </Link>
             <div className="flex flex-col gap-3">
               {logoSrc ? (
-                <Image
-                  src={logoSrc}
-                  alt={program.name}
-                  width={240}
-                  height={72}
-                  className="h-auto"
-                />
+                <Link href="https://workforceready.ai" className="block w-fit">
+                  <Image
+                    src={logoSrc}
+                    alt={program.name}
+                    width={240}
+                    height={72}
+                    className="h-auto"
+                  />
+                </Link>
               ) : (
                 <>
                   <div className="flex items-center gap-5">
@@ -208,7 +210,9 @@ export function ProductDashboardShell({
             )}
           </button>
           {logoSrc ? (
-            <Image src={logoSrc} alt={program.name} width={160} height={36} className="h-auto max-w-[140px] xs:max-w-[160px]" />
+            <Link href="https://workforceready.ai">
+              <Image src={logoSrc} alt={program.name} width={160} height={36} className="h-auto max-w-[140px] xs:max-w-[160px]" />
+            </Link>
           ) : (
             <div className="flex items-center gap-3">
               <div
