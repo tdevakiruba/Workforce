@@ -1410,6 +1410,55 @@ export function JourneyClient({
             </p>
           </div>
         )}
+
+        {/* ── Next Day Button - shown when all actions are complete ── */}
+        {!isViewingPastDay && todayActionsTotal > 0 && todayActionsDone === todayActionsTotal && selectedDay < program.totalDays && (
+          <div
+            className="flex flex-col items-center justify-center rounded-3xl border-2 p-10 text-center"
+            style={{
+              borderColor: `${activePhase.color}40`,
+              backgroundColor: `${activePhase.color}08`,
+            }}
+          >
+            <div
+              className="mb-6 flex size-20 items-center justify-center rounded-full text-white shadow-lg"
+              style={{ backgroundColor: activePhase.color }}
+            >
+              <CheckCircle2 className="size-10" />
+            </div>
+            <h3 className="text-3xl font-extrabold text-foreground">
+              Day {selectedDay} Complete!
+            </h3>
+            <p className="mt-2 text-xl text-muted-foreground">
+              Great work! You&apos;ve completed all actions for today.
+            </p>
+            <Button
+              size="lg"
+              className="mt-8 rounded-xl px-12 py-8 text-xl font-bold text-white shadow-lg h-auto"
+              style={{ backgroundColor: activePhase.color }}
+              onClick={() => {
+                const nextDay = selectedDay + 1
+                if (nextDay <= activeDay) {
+                  setSelectedDay(nextDay)
+                  window.scrollTo({ top: 0, behavior: "smooth" })
+                }
+              }}
+              disabled={selectedDay + 1 > activeDay}
+            >
+              {selectedDay + 1 <= activeDay ? (
+                <>
+                  Continue to Day {selectedDay + 1}
+                  <ArrowRight className="ml-3 size-7" />
+                </>
+              ) : (
+                <>
+                  <Lock className="mr-3 size-6" />
+                  Day {selectedDay + 1} Unlocks Tomorrow
+                </>
+              )}
+            </Button>
+          </div>
+        )}
       </div>{/* end session-content */}
     </div>{/* end left column */}
 
