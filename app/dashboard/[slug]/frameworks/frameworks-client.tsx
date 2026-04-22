@@ -332,109 +332,156 @@ export function FrameworksClient({
               </div>
             </div>
 
-            {/* Day cards grid - larger, more visual cards */}
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {phaseDays.map((day) => {
+            {/* Day cards - Timeline layout with clear progression */}
+            <div className="space-y-4">
+              {phaseDays.map((day, index) => {
                 const status = getDayStatus(day.day_number)
                 const isLocked = status === "locked"
                 const isCurrent = status === "current"
                 const isCompleted = status === "completed"
                 const completion = completionMap[day.day_number]
                 const progress = completion ? Math.round((completion.done / completion.total) * 100) : 0
+                const isLastInPhase = index === phaseDays.length - 1
 
                 return (
-                  <Link
-                    key={day.day_number}
-                    href={isLocked ? "#" : `/dashboard/${program.slug}/journey?day=${day.day_number}`}
-                    onClick={(e) => isLocked && e.preventDefault()}
-                    className={`group relative overflow-hidden rounded-2xl border-2 bg-card transition-all duration-300 ${
-                      isCurrent
-                        ? "shadow-lg ring-2 ring-offset-2"
-                        : isLocked
-                        ? "cursor-not-allowed opacity-50"
-                        : "hover:shadow-xl hover:-translate-y-1"
-                    }`}
-                    style={{
-                      borderColor: isCurrent || isCompleted ? phase.color : "transparent",
-                      ringColor: isCurrent ? phase.color : undefined,
-                    }}
-                  >
-                    {/* Gradient header */}
-                    <div 
-                      className={`relative h-24 bg-gradient-to-br ${phase.gradient} p-5`}
-                      style={{ 
-                        background: isCompleted 
-                          ? `linear-gradient(135deg, ${phase.color}15, ${phase.color}05)` 
-                          : undefined 
-                      }}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div
-                          className={`flex size-14 items-center justify-center rounded-xl text-xl font-extrabold shadow-md transition-transform group-hover:scale-105 ${
-                            isLocked ? "bg-muted text-muted-foreground" : "text-white"
-                          }`}
-                          style={!isLocked ? { backgroundColor: phase.color } : undefined}
-                        >
-                          {isLocked ? (
-                            <Lock className="size-6" />
-                          ) : isCompleted ? (
-                            <CheckCircle2 className="size-7" />
-                          ) : (
-                            day.day_number
-                          )}
-                        </div>
-                        {isCurrent && (
-                          <span 
-                            className="animate-pulse rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider text-white"
-                            style={{ backgroundColor: phase.color }}
-                          >
-                            Current
-                          </span>
-                        )}
-                        {isCompleted && (
-                          <span className="rounded-full bg-white/80 px-3 py-1 text-xs font-bold uppercase tracking-wider" style={{ color: phase.color }}>
-                            Complete
-                          </span>
+                  <div key={day.day_number} className="flex gap-4 sm:gap-6">
+                    {/* Timeline connector */}
+                    <div className="flex flex-col items-center">
+                      {/* Day number badge */}
+                      <div
+                        className={`relative z-10 flex size-14 sm:size-16 shrink-0 items-center justify-center rounded-2xl text-lg sm:text-xl font-extrabold shadow-lg transition-all ${
+                          isLocked 
+                            ? "bg-muted text-muted-foreground border-2 border-dashed border-muted-foreground/30" 
+                            : isCompleted
+                            ? "text-white"
+                            : isCurrent
+                            ? "text-white ring-4 ring-offset-2 ring-offset-background"
+                            : "text-white"
+                        }`}
+                        style={{ 
+                          backgroundColor: isLocked ? undefined : phase.color,
+                          ringColor: isCurrent ? `${phase.color}50` : undefined,
+                        }}
+                      >
+                        {isCompleted ? (
+                          <CheckCircle2 className="size-7 sm:size-8" />
+                        ) : isLocked ? (
+                          <Lock className="size-5 sm:size-6" />
+                        ) : (
+                          day.day_number
                         )}
                       </div>
+                      {/* Vertical connector line */}
+                      {!isLastInPhase && (
+                        <div 
+                          className={`w-0.5 flex-1 min-h-4 ${
+                            isCompleted ? "" : "bg-muted"
+                          }`}
+                          style={{ backgroundColor: isCompleted ? phase.color : undefined }}
+                        />
+                      )}
                     </div>
 
-                    {/* Card content */}
-                    <div className="p-5">
-                      <h4 className="text-xl font-bold leading-tight text-foreground line-clamp-2 group-hover:text-primary transition-colors">
-                        {day.title}
-                      </h4>
-                      {day.key_theme && (
-                        <p className="mt-2 text-base text-muted-foreground line-clamp-2">
-                          {day.key_theme}
-                        </p>
-                      )}
-                      
-                      {/* Progress bar for incomplete days */}
-                      {!isLocked && !isCompleted && completion && (
-                        <div className="mt-4">
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-muted-foreground">Progress</span>
-                            <span className="font-bold" style={{ color: phase.color }}>{progress}%</span>
+                    {/* Day card content */}
+                    <Link
+                      href={isLocked ? "#" : `/dashboard/${program.slug}/journey?day=${day.day_number}`}
+                      onClick={(e) => isLocked && e.preventDefault()}
+                      className={`group mb-4 flex-1 overflow-hidden rounded-2xl border-2 bg-card transition-all duration-300 ${
+                        isCurrent
+                          ? "shadow-lg"
+                          : isLocked
+                          ? "cursor-not-allowed opacity-60"
+                          : "hover:shadow-lg hover:-translate-y-0.5"
+                      }`}
+                      style={{
+                        borderColor: isCurrent ? phase.color : isCompleted ? `${phase.color}40` : "transparent",
+                      }}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-5 sm:p-6">
+                        {/* Left content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <span 
+                              className={`text-xs font-bold uppercase tracking-wider ${
+                                isLocked ? "text-muted-foreground" : ""
+                              }`}
+                              style={{ color: isLocked ? undefined : phase.color }}
+                            >
+                              Day {day.day_number}
+                            </span>
+                            {isCurrent && (
+                              <span 
+                                className="animate-pulse rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white"
+                                style={{ backgroundColor: phase.color }}
+                              >
+                                Current
+                              </span>
+                            )}
+                            {isCompleted && (
+                              <span 
+                                className="rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                                style={{ backgroundColor: `${phase.color}15`, color: phase.color }}
+                              >
+                                Complete
+                              </span>
+                            )}
                           </div>
-                          <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
+                          <h4 className={`text-lg sm:text-xl font-bold leading-tight transition-colors ${
+                            isLocked ? "text-muted-foreground" : "text-foreground group-hover:text-primary"
+                          }`}>
+                            {day.title}
+                          </h4>
+                          {day.key_theme && (
+                            <p className="mt-1.5 text-sm sm:text-base text-muted-foreground line-clamp-2">
+                              {day.key_theme}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Right side - Progress or Action */}
+                        <div className="flex items-center gap-4 sm:gap-6">
+                          {/* Progress indicator */}
+                          {!isLocked && !isCompleted && completion && completion.total > 0 && (
+                            <div className="flex items-center gap-3">
+                              <div className="relative size-12 sm:size-14">
+                                <svg className="size-full -rotate-90" viewBox="0 0 36 36">
+                                  <circle cx="18" cy="18" r="14" fill="none" stroke="currentColor" strokeWidth="3" className="text-muted" />
+                                  <circle
+                                    cx="18" cy="18" r="14" fill="none" strokeWidth="3" strokeLinecap="round"
+                                    stroke={phase.color}
+                                    strokeDasharray={`${progress * 0.88} 88`}
+                                  />
+                                </svg>
+                                <span className="absolute inset-0 flex items-center justify-center text-xs sm:text-sm font-bold" style={{ color: phase.color }}>
+                                  {progress}%
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Action button */}
+                          {!isLocked && (
                             <div 
-                              className="h-full rounded-full transition-all duration-500"
-                              style={{ width: `${progress}%`, backgroundColor: phase.color }}
-                            />
-                          </div>
-                        </div>
-                      )}
+                              className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-all group-hover:gap-3 ${
+                                isCompleted ? "bg-muted text-foreground" : ""
+                              }`}
+                              style={{ backgroundColor: isCompleted ? undefined : phase.color }}
+                            >
+                              {isCompleted ? "Review" : isCurrent ? "Continue" : "Start"}
+                              <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                            </div>
+                          )}
 
-                      {/* Action hint */}
-                      {!isLocked && (
-                        <div className="mt-4 flex items-center gap-2 text-sm font-medium transition-colors" style={{ color: phase.color }}>
-                          {isCompleted ? "Review" : isCurrent ? "Continue" : "Start"}
-                          <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                          {isLocked && (
+                            <div className="flex items-center gap-2 rounded-xl bg-muted px-4 py-2.5 text-sm font-medium text-muted-foreground">
+                              <Lock className="size-4" />
+                              Locked
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                  </Link>
+                      </div>
+                    </Link>
+                  </div>
                 )
               })}
             </div>
