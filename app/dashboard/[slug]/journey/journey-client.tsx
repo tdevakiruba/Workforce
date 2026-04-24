@@ -819,6 +819,59 @@ export function JourneyClient({
 
   return (
     <div className="mx-auto w-full">
+      {/* ── Sticky Action Status Bar ── */}
+      {!isViewingPastDay && todayActionsTotal > 0 && (
+        <div 
+          className="sticky top-0 z-30 -mx-4 mb-6 px-4 py-3 backdrop-blur-md border-b"
+          style={{ 
+            backgroundColor: `${activePhase.color}f0`,
+            borderColor: `${activePhase.color}`,
+          }}
+        >
+          <div className="flex items-center justify-between gap-4 max-w-4xl mx-auto">
+            <div className="flex items-center gap-3">
+              <div 
+                className="flex size-8 items-center justify-center rounded-full bg-white/20"
+              >
+                {todayProgress === 100 ? (
+                  <CheckCircle2 className="size-5 text-white" />
+                ) : (
+                  <Zap className="size-5 text-white" />
+                )}
+              </div>
+              <span className="text-sm font-bold text-white">
+                Day {selectedDay} Progress
+              </span>
+            </div>
+            <div className="flex items-center gap-3 flex-1 max-w-xs">
+              <div className="flex-1 h-2 rounded-full bg-white/20 overflow-hidden">
+                <div 
+                  className="h-full rounded-full bg-white transition-all duration-500 ease-out"
+                  style={{ width: `${todayProgress}%` }}
+                />
+              </div>
+              <span className="text-sm font-bold text-white whitespace-nowrap">
+                {todayActionsDone}/{todayActionsTotal}
+              </span>
+            </div>
+            {todayProgress === 100 && selectedDay < program.totalDays && (
+              <Button
+                size="sm"
+                onClick={() => {
+                  setSelectedDay(selectedDay + 1)
+                  window.scrollTo({ top: 0, behavior: "smooth" })
+                }}
+                className="rounded-lg bg-white text-sm font-bold shadow-md hover:bg-white/90 h-8 px-3"
+                style={{ color: activePhase.color }}
+              >
+                Next Day
+                <ArrowRight className="ml-1 size-4" />
+              </Button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* ── Two-column: Main content + Side progress tile ── */}
       <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
         {/* LEFT: Main lesson content ── */}
@@ -854,6 +907,20 @@ export function JourneyClient({
                   <p className="mt-6 text-2xl text-white/80">
                     {todayContent.theme}
                   </p>
+                )}
+                {/* Action Progress Bar */}
+                {!isViewingPastDay && todayActionsTotal > 0 && (
+                  <div className="mt-6 flex items-center gap-4">
+                    <div className="flex-1 h-3 rounded-full bg-white/20 overflow-hidden">
+                      <div 
+                        className="h-full rounded-full bg-white transition-all duration-500 ease-out"
+                        style={{ width: `${todayProgress}%` }}
+                      />
+                    </div>
+                    <span className="text-lg font-bold text-white whitespace-nowrap">
+                      {todayActionsDone}/{todayActionsTotal} Actions
+                    </span>
+                  </div>
                 )}
                 <div className="mt-8 flex flex-wrap items-center gap-4">
                   {isViewingPastDay ? (
@@ -1277,8 +1344,8 @@ export function JourneyClient({
           )
         })}
 
-        {/* ── End of Day Outcomes ── */}
-        {(() => {
+        {/* ── End of Day Outcomes ── (only shown when all actions complete) */}
+        {todayProgress === 100 && todayActionsTotal > 0 && (() => {
           const raw = todayContent?.end_of_day_outcomes
           const items = Array.isArray(raw) ? raw : (raw as { outcomes?: string[] })?.outcomes ?? []
           return items.length > 0 ? (
@@ -1329,8 +1396,8 @@ export function JourneyClient({
           ) : null
         })()}
 
-        {/* ── Facilitator Close ── */}
-        {(() => {
+        {/* ── Facilitator Close ── (only shown when all actions complete) */}
+        {todayProgress === 100 && todayActionsTotal > 0 && (() => {
           const raw = todayContent?.facilitator_close
           if (!raw) return null
           // Support both {close: [...]} and {message, preview} formats
