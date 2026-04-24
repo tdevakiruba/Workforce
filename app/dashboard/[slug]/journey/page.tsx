@@ -39,16 +39,9 @@ export default async function JourneyPage({
 
   if (!enrollment) redirect(`/programs/${slug}`)
 
-  // Calculate current day – use the enrollment's current_day (advanced by the
-  // progress API when all actions for a day are completed). Fall back to
-  // date-based calculation only when current_day is not set.
+  // Calculate total days from program duration
   const durationMatch = program.duration?.match(/(\d+)/)
   const totalDays = durationMatch ? parseInt(durationMatch[1], 10) : 21
-  const currentDay = Math.min(enrollment.current_day ?? 1, totalDays)
-
-  // Allow viewing a specific day via query parameter, but don't allow viewing future days
-  const requestedDay = dayParam ? parseInt(dayParam, 10) : currentDay
-  const initialDay = Math.min(requestedDay, currentDay)
 
   // Fetch curriculum days, sections, and exercises separately
   // (nested FK joins don't work with hyphenated table names in Supabase JS)
@@ -104,6 +97,47 @@ export default async function JourneyPage({
     .from("wf-user_actions")
     .select("day_number, action_index, completed")
     .eq("enrollment_id", enrollment.id)
+
+  // Calculate total exercises per day and completed actions per day
+  const sectionToDayId = new Map<string, string>()
+  for (const sec of sections ?? []) sectionToDayId.set(sec.id, sec.day_id)
+
+  const dayIdToNumber = new Map<string, number>()
+  for (const d of curriculumDays ?? []) dayIdToNumber.set(d.id, d.day_number)
+
+  const totalExercisesPerDay: Record<number, number> = {}
+  for (const ex of exercises ?? []) {
+    const dayId = sectionToDayId.get(ex.section_id)
+    if (dayId) {
+      const dayNum = dayIdToNumber.get(dayId)
+      if (dayNum !== undefined) totalExercisesPerDay[dayNum] = (totalExercisesPerDay[dayNum] ?? 0) + 1
+    }
+  }
+
+  const completedActionsPerDay: Record<number, number> = {}
+  for (const a of userActions ?? []) {
+    if (a.completed) completedActionsPerDay[a.day_number] = (completedActionsPerDay[a.day_number] ?? 0) + 1
+  }
+
+  // Find the first incomplete day (effective current day)
+  let firstIncompleteDay = totalDays + 1
+  const sortedDays = [...(curriculumDays ?? [])].sort((a, b) => a.day_number - b.day_number)
+  for (const d of sortedDays) {
+    const dayNum = d.day_number
+    const total = totalExercisesPerDay[dayNum] ?? 0
+    const done = completedActionsPerDay[dayNum] ?? 0
+    if (total === 0 || done < total) {
+      firstIncompleteDay = dayNum
+      break
+    }
+  }
+
+  // The current day is the first incomplete day (or totalDays if all complete)
+  const currentDay = Math.min(firstIncompleteDay, totalDays)
+
+  // Allow viewing a specific day via query parameter, but don't allow viewing future days
+  const requestedDay = dayParam ? parseInt(dayParam, 10) : currentDay
+  const initialDay = Math.min(requestedDay, currentDay)
 
   // Fetch user section progress
   const { data: userSectionProgress } = await supabase
