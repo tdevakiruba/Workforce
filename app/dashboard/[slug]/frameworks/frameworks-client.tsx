@@ -115,28 +115,40 @@ export function FrameworksClient({
   }, [curriculum, activePhaseId, search])
 
   function getDayStatus(dayNum: number) {
-    // Days after currentDay are locked (currentDay is the next day to work on)
-    if (dayNum > currentDay) return "locked"
-    
-    // Check if this day is completed (all exercises done)
     const c = completionMap[dayNum]
-    // A day is completed if it has exercises and all are done
-    // OR if it's a day before currentDay (meaning user has already advanced past it)
-    if (dayNum < currentDay) {
-      // For past days, check if we have completion data
-      if (c && c.total > 0 && c.done >= c.total) return "completed"
-      // If no completion data but day is in the past, it should still be accessible
-      // This handles the case where user completed the day before we tracked individual actions
+    
+    // First, check if this day is completed based on actual completion data
+    // A day is completed if all its exercises are done
+    const isCompleted = c && c.total > 0 && c.done >= c.total
+    
+    if (isCompleted) {
       return "completed"
     }
     
-    // For the current day
-    if (dayNum === currentDay) {
-      // Check if it's actually completed
-      if (c && c.total > 0 && c.done >= c.total) return "completed"
+    // Find the highest completed day to determine what should be unlocked
+    // This ensures we don't rely solely on current_day from enrollment
+    let highestCompletedDay = 0
+    for (const [dayNumStr, completion] of Object.entries(completionMap)) {
+      const d = parseInt(dayNumStr, 10)
+      if (completion.total > 0 && completion.done >= completion.total && d > highestCompletedDay) {
+        highestCompletedDay = d
+      }
+    }
+    
+    // The effective current day is the max of enrollment's currentDay and (highestCompletedDay + 1)
+    const effectiveCurrentDay = Math.max(currentDay, highestCompletedDay + 1)
+    
+    // Days after effectiveCurrentDay are locked
+    if (dayNum > effectiveCurrentDay) {
+      return "locked"
+    }
+    
+    // For the effective current day
+    if (dayNum === effectiveCurrentDay) {
       return "current"
     }
     
+    // Days before effectiveCurrentDay that aren't fully completed are "available"
     return "available"
   }
 
