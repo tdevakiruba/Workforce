@@ -768,18 +768,13 @@ export function JourneyClient({
       })
       const data = await res.json()
 
-      // Day was advanced on the server -- update local state & auto-navigate
+      // Day was advanced on the server -- update local state (no auto-navigate)
+      // User must click the "Next Day" button to proceed
       if (data.dayAdvanced && dayNum === activeDay) {
         const nextDay = dayNum + 1
         setActiveDay(nextDay)
         setShowDayComplete(true)
-
-        // Auto-progress to the next day after a brief celebration
-        setTimeout(() => {
-          setSelectedDay(nextDay)
-          setShowDayComplete(false)
-          window.scrollTo({ top: 0, behavior: "smooth" })
-        }, 2500)
+        // No auto-progression - user must click "Next Day" button
       }
     } catch {
       if (isNowCompleted) next.delete(key)
