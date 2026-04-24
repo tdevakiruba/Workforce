@@ -819,8 +819,8 @@ export function JourneyClient({
 
   return (
     <div className="mx-auto w-full">
-      {/* ── Sticky Action Status Bar ── */}
-      {!isViewingPastDay && todayActionsTotal > 0 && (
+      {/* ── Sticky Action Status Bar (always visible) ── */}
+      {todayActionsTotal > 0 && (
         <div 
           className="sticky top-0 z-30 -mx-4 mb-6 px-4 py-3 backdrop-blur-md border-b"
           style={{ 
@@ -840,7 +840,7 @@ export function JourneyClient({
                 )}
               </div>
               <span className="text-sm font-bold text-white">
-                Day {selectedDay} Progress
+                Day {selectedDay} {isViewingPastDay ? "(Completed)" : "Progress"}
               </span>
             </div>
             <div className="flex items-center gap-3 flex-1 max-w-xs">
@@ -854,7 +854,8 @@ export function JourneyClient({
                 {todayActionsDone}/{todayActionsTotal}
               </span>
             </div>
-            {todayProgress === 100 && selectedDay < program.totalDays && (
+            {/* Next Day button - only shown on current day when all actions complete */}
+            {!isViewingPastDay && todayProgress === 100 && selectedDay < program.totalDays && (
               <Button
                 size="sm"
                 onClick={() => {
@@ -865,6 +866,21 @@ export function JourneyClient({
                 style={{ color: activePhase.color }}
               >
                 Next Day
+                <ArrowRight className="ml-1 size-4" />
+              </Button>
+            )}
+            {/* Return to Current Day button - shown when viewing past days */}
+            {isViewingPastDay && (
+              <Button
+                size="sm"
+                onClick={() => {
+                  setSelectedDay(activeDay)
+                  window.scrollTo({ top: 0, behavior: "smooth" })
+                }}
+                className="rounded-lg bg-white text-sm font-bold shadow-md hover:bg-white/90 h-8 px-3"
+                style={{ color: activePhase.color }}
+              >
+                Back to Day {activeDay}
                 <ArrowRight className="ml-1 size-4" />
               </Button>
             )}
