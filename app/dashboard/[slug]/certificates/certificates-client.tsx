@@ -70,7 +70,8 @@ function drawCertificate(
     totalPhases?: number
     type: string
   },
-  logoImage?: HTMLImageElement | null
+  logoImage?: HTMLImageElement | null,
+  sealImage?: HTMLImageElement | null
 ) {
   const ctx = canvas.getContext("2d")
   if (!ctx) return
@@ -79,8 +80,14 @@ function drawCertificate(
   const H = 1130
   canvas.width = W
   canvas.height = H
-  const CX = W / 2
   const accent = data.color
+  
+  // Layout constants - seal on left takes up space, content shifts right
+  const SEAL_SIZE = 320
+  const SEAL_X = 200 // Center of seal on left
+  const SEAL_Y = H / 2 - 40 // Vertically centered
+  const CONTENT_START_X = SEAL_SIZE + 120 // Content starts after seal
+  const CX = CONTENT_START_X + (W - CONTENT_START_X) / 2 // Center of content area
 
   // Helper: draw centered text
   function centerText(text: string, x: number, y: number) {
@@ -102,19 +109,15 @@ function drawCertificate(
     ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke()
   }
 
-  // Draw large centered watermark if logo image is available
-  if (logoImage && logoImage.complete) {
-    ctx.save()
-    ctx.globalAlpha = 0.06 // Very subtle watermark
-    const watermarkSize = 400
+  // Draw gold seal on the left side
+  if (sealImage && sealImage.complete) {
     ctx.drawImage(
-      logoImage,
-      CX - watermarkSize / 2,
-      H / 2 - watermarkSize / 2 + 40, // Slightly below center
-      watermarkSize,
-      watermarkSize
+      sealImage,
+      SEAL_X - SEAL_SIZE / 2,
+      SEAL_Y - SEAL_SIZE / 2,
+      SEAL_SIZE,
+      SEAL_SIZE
     )
-    ctx.restore()
   }
 
   // Outer border
@@ -137,53 +140,45 @@ function drawCertificate(
     [42, 42], [W - 42 - cs, 42], [42, H - 42 - cs], [W - 42 - cs, H - 42 - cs],
   ].forEach(([x, y]) => { ctx.fillStyle = accent; ctx.fillRect(x, y, cs, cs) })
 
-  // ---- Header: Logo side + title ----
+  // ---- Header: Logo on left of content area + title on right ----
   let Y = 80
 
-  // Draw logo image if available, otherwise draw shield
-  const logoX = 100
+  // Draw small logo image at start of content area
+  const logoX = CONTENT_START_X + 40
   const logoY = Y + 22
   const logoSize = 50
   
   if (logoImage && logoImage.complete) {
-    // Draw the actual logo image
     ctx.drawImage(logoImage, logoX - logoSize/2, logoY - logoSize/2, logoSize, logoSize)
   } else {
-    // Fallback: Shield background with "W"
+    // Fallback: Shield with "W"
     ctx.beginPath()
-    ctx.moveTo(logoX, logoY - 32)
-    ctx.lineTo(logoX + 32, logoY - 32 * 0.6)
-    ctx.lineTo(logoX + 32, logoY + 32 * 0.3)
-    ctx.lineTo(logoX, logoY + 32)
-    ctx.lineTo(logoX - 32, logoY + 32 * 0.3)
-    ctx.lineTo(logoX - 32, logoY - 32 * 0.6)
-    ctx.closePath()
+    ctx.arc(logoX, logoY, 24, 0, Math.PI * 2)
     ctx.fillStyle = accent
     ctx.fill()
-    
     ctx.fillStyle = "#FFFFFF"
-    ctx.font = `bold 28px ${FONT}`
+    ctx.font = `bold 22px ${FONT}`
     ctx.textAlign = "center"
     ctx.textBaseline = "middle"
     ctx.fillText("W", logoX, logoY)
     ctx.textBaseline = "alphabetic"
   }
 
-  // Right header text - larger and bolder
+  // Right header text
   ctx.textAlign = "right"
   ctx.fillStyle = NAVY
-  ctx.font = `900 24px ${FONT}`
+  ctx.font = `900 22px ${FONT}`
   ctx.fillText("WORKFORCE READY\u2122", W - 80, Y + 10)
   ctx.fillStyle = "#6B7280"
-  ctx.font = `600 13px ${FONT}`
-  ctx.fillText("AI Workforce Readiness Certification", W - 80, Y + 34)
+  ctx.font = `600 12px ${FONT}`
+  ctx.fillText("AI Workforce Readiness Certification", W - 80, Y + 32)
   ctx.textAlign = "center"
 
-  // Thin teal divider
-  Y = 130
+  // Thin teal divider across content area
+  Y = 125
   ctx.beginPath()
-  ctx.moveTo(80, Y)
-  ctx.lineTo(W - 80, Y)
+  ctx.moveTo(CONTENT_START_X, Y)
+  ctx.lineTo(W - 60, Y)
   ctx.strokeStyle = accent
   ctx.lineWidth = 1.5
   ctx.stroke()
@@ -266,10 +261,10 @@ function drawCertificate(
     ctx.letterSpacing = "0px"
 
     const phaseCount = data.phases.length
-    const phaseWidth = 280
-    const gap = 24
+    const phaseWidth = 240
+    const gap = 16
     const totalW = phaseCount * phaseWidth + (phaseCount - 1) * gap
-    const startX = (W - totalW) / 2
+    const startX = CONTENT_START_X + ((W - CONTENT_START_X) - totalW) / 2
 
     data.phases.forEach((phase, i) => {
       const x = startX + i * (phaseWidth + gap)
@@ -277,37 +272,37 @@ function drawCertificate(
 
       ctx.fillStyle = `${accent}08`
       ctx.beginPath()
-      ctx.roundRect(x, y, phaseWidth, 76, 10)
+      ctx.roundRect(x, y, phaseWidth, 68, 8)
       ctx.fill()
       ctx.strokeStyle = `${accent}30`
       ctx.lineWidth = 1.5
       ctx.beginPath()
-      ctx.roundRect(x, y, phaseWidth, 76, 10)
+      ctx.roundRect(x, y, phaseWidth, 68, 8)
       ctx.stroke()
 
       // Circle with number
       ctx.beginPath()
-      ctx.arc(x + 32, y + 38, 18, 0, Math.PI * 2)
+      ctx.arc(x + 28, y + 34, 16, 0, Math.PI * 2)
       ctx.fillStyle = accent
       ctx.fill()
       ctx.fillStyle = "#FFFFFF"
-      ctx.font = `bold 16px ${FONT}`
+      ctx.font = `bold 14px ${FONT}`
       ctx.textBaseline = "middle"
       ctx.textAlign = "center"
-      ctx.fillText(phase.letter ?? String(i + 1), x + 32, y + 39)
+      ctx.fillText(phase.letter ?? String(i + 1), x + 28, y + 35)
       ctx.textBaseline = "alphabetic"
 
       ctx.textAlign = "left"
       ctx.fillStyle = NAVY
-      ctx.font = `600 14px ${FONT}`
-      ctx.fillText(phase.name, x + 58, y + 34)
+      ctx.font = `600 12px ${FONT}`
+      ctx.fillText(phase.name, x + 52, y + 30)
       ctx.fillStyle = "#6B7280"
-      ctx.font = `400 12px ${FONT}`
-      ctx.fillText(phase.days ?? "", x + 58, y + 54)
+      ctx.font = `400 10px ${FONT}`
+      ctx.fillText(phase.days ?? "", x + 52, y + 48)
       ctx.textAlign = "center"
     })
 
-    phaseBlockEnd = pY + 18 + 76 + 18
+    phaseBlockEnd = pY + 18 + 68 + 14
   } else if (data.type === "phase" && data.phaseName) {
     const pY = phaseBlockEnd + 10
     ctx.fillStyle = "#9CA3AF"
@@ -316,8 +311,8 @@ function drawCertificate(
     centerText(`PHASE ${data.phaseNumber} OF ${data.totalPhases}`, CX, pY)
     ctx.letterSpacing = "0px"
 
-    const boxW = 400
-    const boxX = (W - boxW) / 2
+    const boxW = 360
+    const boxX = CONTENT_START_X + ((W - CONTENT_START_X) - boxW) / 2
     const boxY = pY + 18
     ctx.fillStyle = `${accent}08`
     ctx.beginPath()
@@ -382,10 +377,10 @@ function drawCertificate(
   // ---- Bottom metadata: 3 columns (without credential ID) ----
   const metaY = H - 175
 
-  // Divider above metadata
+  // Divider above metadata (in content area)
   ctx.beginPath()
-  ctx.moveTo(80, metaY - 18)
-  ctx.lineTo(W - 80, metaY - 18)
+  ctx.moveTo(CONTENT_START_X, metaY - 18)
+  ctx.lineTo(W - 60, metaY - 18)
   ctx.strokeStyle = "#E5E7EB"
   ctx.lineWidth = 1.5
   ctx.stroke()
@@ -396,9 +391,10 @@ function drawCertificate(
     { label: "DELIVERY MODE", value: "Applied Simulation + Capstone" },
   ]
 
+  // Position 3 columns evenly within content area
+  const contentWidth = W - CONTENT_START_X - 60
   cols.forEach((col, i) => {
-    // Position 3 columns evenly: left, center, right
-    const cx = i === 0 ? 200 : i === 1 ? CX : W - 200
+    const cx = CONTENT_START_X + (contentWidth / 4) * (i + 1)
     ctx.fillStyle = "#9CA3AF"
     ctx.font = `600 11px ${FONT}`
     ctx.letterSpacing = "3px"
@@ -410,27 +406,28 @@ function drawCertificate(
     ctx.fillText(col.value, cx, metaY + 24)
   })
 
-  // ---- Footer ----
+  // ---- Footer (spans full width) ----
   const fY = H - 85
   ctx.beginPath()
-  ctx.moveTo(80, fY)
-  ctx.lineTo(W - 80, fY)
+  ctx.moveTo(60, fY)
+  ctx.lineTo(W - 60, fY)
   ctx.strokeStyle = "#E5E7EB"
   ctx.lineWidth = 1.5
   ctx.stroke()
 
   ctx.fillStyle = "#9CA3AF"
-  ctx.font = `500 12px ${FONT}`
+  ctx.font = `500 11px ${FONT}`
   ctx.textAlign = "center"
+  const footerCX = W / 2
   centerText(
     "This digital credential verifies that the above-named individual has completed the required mastery path.",
-    CX,
-    fY + 24
+    footerCX,
+    fY + 22
   )
   centerText(
     `Issued by ${data.issuer} | Credential ID: ${data.credentialId.toUpperCase()} | Verify at workforceready.ai/verify`,
-    CX,
-    fY + 44
+    footerCX,
+    fY + 40
   )
 }
 
@@ -471,12 +468,21 @@ export function CertificatesClient({
           return
         }
 
-        // Load logo image
+        // Load both logo and seal images
         const logoImg = new Image()
+        const sealImg = new Image()
         logoImg.crossOrigin = "anonymous"
+        sealImg.crossOrigin = "anonymous"
         
-        const drawAndDownload = (img: HTMLImageElement | null) => {
-          drawCertificate(canvas, data, img)
+        let logoLoaded = false
+        let sealLoaded = false
+        let logoResult: HTMLImageElement | null = null
+        let sealResult: HTMLImageElement | null = null
+        
+        const tryDraw = () => {
+          if (!logoLoaded || !sealLoaded) return
+          
+          drawCertificate(canvas, data, logoResult, sealResult)
           
           // Convert to PNG blob and download
           canvas.toBlob((blob) => {
@@ -496,10 +502,15 @@ export function CertificatesClient({
           }, "image/png")
         }
 
-        // Try to load logo, fall back to no logo if it fails
-        logoImg.onload = () => drawAndDownload(logoImg)
-        logoImg.onerror = () => drawAndDownload(null)
+        // Load logo
+        logoImg.onload = () => { logoLoaded = true; logoResult = logoImg; tryDraw() }
+        logoImg.onerror = () => { logoLoaded = true; logoResult = null; tryDraw() }
         logoImg.src = "/images/workforce-ready-icon.png"
+        
+        // Load seal
+        sealImg.onload = () => { sealLoaded = true; sealResult = sealImg; tryDraw() }
+        sealImg.onerror = () => { sealLoaded = true; sealResult = null; tryDraw() }
+        sealImg.src = "/images/workforce-ready-seal.png"
       } catch {
         setDownloading(null)
       }
