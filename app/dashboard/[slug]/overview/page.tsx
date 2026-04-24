@@ -96,22 +96,27 @@ export default async function OverviewPage({
     if (a.completed) completedActionsPerDay[a.day_number] = (completedActionsPerDay[a.day_number] ?? 0) + 1
   }
 
-  // Calculate actual completed days based on completion data
+  // Calculate actual completed days and find the first incomplete day
   let actualCompletedDays = 0
-  let highestCompletedDay = 0
-  for (const d of days ?? []) {
+  let firstIncompleteDay = totalDays + 1 // Default to beyond total if all complete
+  
+  // Sort days by day_number to process in order
+  const sortedDays = [...(days ?? [])].sort((a, b) => a.day_number - b.day_number)
+  
+  for (const d of sortedDays) {
     const dayNum = d.day_number
     const total = totalExercisesPerDay[dayNum] ?? 0
     const done = completedActionsPerDay[dayNum] ?? 0
     if (total > 0 && done >= total) {
       actualCompletedDays++
-      if (dayNum > highestCompletedDay) highestCompletedDay = dayNum
+    } else if (firstIncompleteDay > totalDays) {
+      // First incomplete day found
+      firstIncompleteDay = dayNum
     }
   }
 
-  // The effective current day is the next day after the highest completed day
-  const effectiveCurrentDay = Math.max(enrollment.current_day ?? 1, highestCompletedDay + 1)
-  const currentDay = Math.min(effectiveCurrentDay, totalDays)
+  // The current day is the first incomplete day (or totalDays if all complete)
+  const currentDay = Math.min(firstIncompleteDay, totalDays)
 
   // Get user actions completed
   const { count: actionsCompleted } = await supabase
