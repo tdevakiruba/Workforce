@@ -19,8 +19,11 @@ export async function GET(request: NextRequest) {
 
   const supabase = await createClient()
 
-  // Look up the certificate
-  const { data: certificate, error } = await supabase
+  // Normalize the credential ID - trim and uppercase
+  const normalizedId = credentialId.trim().toUpperCase()
+  
+  // Look up the certificate (try exact match first, then case-insensitive)
+  let { data: certificate, error } = await supabase
     .from("wf-certificates")
     .select(`
       id,
@@ -33,8 +36,30 @@ export async function GET(request: NextRequest) {
       program_id,
       enrollment_id
     `)
-    .eq("credential_id", credentialId.toUpperCase())
+    .eq("credential_id", normalizedId)
     .maybeSingle()
+
+  // If not found, try case-insensitive search
+  if (!certificate && !error) {
+    const result = await supabase
+      .from("wf-certificates")
+      .select(`
+        id,
+        credential_id,
+        certificate_type,
+        phase_number,
+        phase_name,
+        recipient_name,
+        issued_at,
+        program_id,
+        enrollment_id
+      `)
+      .ilike("credential_id", normalizedId)
+      .maybeSingle()
+    
+    certificate = result.data
+    error = result.error
+  }
 
   if (error) {
     console.error("[v0][verify-certificate] Database error:", error)
@@ -44,7 +69,8 @@ export async function GET(request: NextRequest) {
   if (!certificate) {
     return NextResponse.json({ 
       verified: false,
-      error: "Certificate not found" 
+      error: "Certificate not found",
+      searchedId: normalizedId 
     }, { status: 404 })
   }
 
