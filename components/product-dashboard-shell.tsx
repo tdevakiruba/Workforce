@@ -134,10 +134,14 @@ export function ProductDashboardShell({
               {sidebarTabs.map((tab) => {
                 const Icon = tab.icon
                 const isActive = activeTab === tab.id
+                // Journey link should include the current day
+                const href = tab.id === "journey" 
+                  ? `/dashboard/${program.slug}/journey?day=${enrollment.currentDay}`
+                  : `/dashboard/${program.slug}/${tab.id}`
                 return (
                   <li key={tab.id}>
                     <Link
-                      href={`/dashboard/${program.slug}/${tab.id}`}
+                      href={href}
                       className={`flex items-center gap-5 rounded-lg px-5 py-4 text-xl font-medium transition-all ${
                         isActive
                           ? "text-foreground"
@@ -250,10 +254,14 @@ export function ProductDashboardShell({
                 {sidebarTabs.map((tab) => {
                   const Icon = tab.icon
                   const isActive = activeTab === tab.id
+                  // Journey link should include the current day
+                  const href = tab.id === "journey" 
+                    ? `/dashboard/${program.slug}/journey?day=${enrollment.currentDay}`
+                    : `/dashboard/${program.slug}/${tab.id}`
                   return (
                     <li key={tab.id}>
                       <Link
-                        href={`/dashboard/${program.slug}/${tab.id}`}
+                        href={href}
                         onClick={() => setMobileOpen(false)}
                         className={`flex items-center gap-5 rounded-lg px-5 py-4 text-xl font-medium transition-all ${
                           isActive
