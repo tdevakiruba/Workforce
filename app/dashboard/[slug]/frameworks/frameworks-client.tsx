@@ -115,10 +115,28 @@ export function FrameworksClient({
   }, [curriculum, activePhaseId, search])
 
   function getDayStatus(dayNum: number) {
+    // Days after currentDay are locked (currentDay is the next day to work on)
     if (dayNum > currentDay) return "locked"
+    
+    // Check if this day is completed (all exercises done)
     const c = completionMap[dayNum]
-    if (c && c.done > 0 && c.done >= c.total) return "completed"
-    if (dayNum === currentDay) return "current"
+    // A day is completed if it has exercises and all are done
+    // OR if it's a day before currentDay (meaning user has already advanced past it)
+    if (dayNum < currentDay) {
+      // For past days, check if we have completion data
+      if (c && c.total > 0 && c.done >= c.total) return "completed"
+      // If no completion data but day is in the past, it should still be accessible
+      // This handles the case where user completed the day before we tracked individual actions
+      return "completed"
+    }
+    
+    // For the current day
+    if (dayNum === currentDay) {
+      // Check if it's actually completed
+      if (c && c.total > 0 && c.done >= c.total) return "completed"
+      return "current"
+    }
+    
     return "available"
   }
 
