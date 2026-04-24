@@ -363,19 +363,11 @@ function drawCertificate(
   ctx.lineWidth = 1.5
   ctx.stroke()
 
-  // Format credential ID nicely - extract unique identifier portion
+  // Use the full credential ID as provided by the API
+  // Format: TH-WFR-{8chars}-{phase} e.g., "TH-WFR-A1B2C3D4-1"
   const formatCredentialId = (id: string) => {
-    // Extract the badge ID portion (e.g., from "TH-workforce-ready-badge-9B0F373A-1" get "9B0F373A-1")
-    const parts = id.split("-")
-    // Find the alphanumeric portion that looks like a unique ID
-    const idParts = parts.slice(-2) // Get last 2 parts like ["9B0F373A", "1"]
-    if (idParts.length >= 2 && idParts[0].length >= 6) {
-      return `WFR-${idParts[0].toUpperCase()}-${idParts[1]}`
-    } else if (parts.length > 3) {
-      // Fallback: use last part
-      return `WFR-${parts[parts.length - 1].toUpperCase()}`
-    }
-    return id
+    // Just return the credential ID as-is since it's already properly formatted
+    return id.toUpperCase()
   }
 
   const cols = [
@@ -407,9 +399,6 @@ function drawCertificate(
   ctx.lineWidth = 1.5
   ctx.stroke()
 
-  // Format short credential ID for footer
-  const shortId = data.credentialId.split("-").pop()?.toUpperCase() || data.credentialId
-
   ctx.fillStyle = "#9CA3AF"
   ctx.font = `500 12px ${FONT}`
   ctx.textAlign = "center"
@@ -419,7 +408,7 @@ function drawCertificate(
     fY + 24
   )
   centerText(
-    `Issued by ${data.issuer} | Credential ID: WFR-${shortId} | Verify at workforceready.ai/verify`,
+    `Issued by ${data.issuer} | Credential ID: ${data.credentialId.toUpperCase()} | Verify at workforceready.ai/verify`,
     CX,
     fY + 44
   )
