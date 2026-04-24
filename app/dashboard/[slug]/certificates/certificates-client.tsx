@@ -69,7 +69,8 @@ function drawCertificate(
     phaseNumber?: number
     totalPhases?: number
     type: string
-  }
+  },
+  logoImage?: HTMLImageElement | null
 ) {
   const ctx = canvas.getContext("2d")
   if (!ctx) return
@@ -124,30 +125,34 @@ function drawCertificate(
   // ---- Header: Logo side + title ----
   let Y = 80
 
-  // Logo icon - stylized "W" with shield shape
+  // Draw logo image if available, otherwise draw shield
   const logoX = 100
   const logoY = Y + 22
-  const logoSize = 32
+  const logoSize = 50
   
-  // Shield background
-  ctx.beginPath()
-  ctx.moveTo(logoX, logoY - logoSize)
-  ctx.lineTo(logoX + logoSize, logoY - logoSize * 0.6)
-  ctx.lineTo(logoX + logoSize, logoY + logoSize * 0.3)
-  ctx.lineTo(logoX, logoY + logoSize)
-  ctx.lineTo(logoX - logoSize, logoY + logoSize * 0.3)
-  ctx.lineTo(logoX - logoSize, logoY - logoSize * 0.6)
-  ctx.closePath()
-  ctx.fillStyle = accent
-  ctx.fill()
-  
-  // "W" letter on shield
-  ctx.fillStyle = "#FFFFFF"
-  ctx.font = `bold 28px ${FONT}`
-  ctx.textAlign = "center"
-  ctx.textBaseline = "middle"
-  ctx.fillText("W", logoX, logoY)
-  ctx.textBaseline = "alphabetic"
+  if (logoImage && logoImage.complete) {
+    // Draw the actual logo image
+    ctx.drawImage(logoImage, logoX - logoSize/2, logoY - logoSize/2, logoSize, logoSize)
+  } else {
+    // Fallback: Shield background with "W"
+    ctx.beginPath()
+    ctx.moveTo(logoX, logoY - 32)
+    ctx.lineTo(logoX + 32, logoY - 32 * 0.6)
+    ctx.lineTo(logoX + 32, logoY + 32 * 0.3)
+    ctx.lineTo(logoX, logoY + 32)
+    ctx.lineTo(logoX - 32, logoY + 32 * 0.3)
+    ctx.lineTo(logoX - 32, logoY - 32 * 0.6)
+    ctx.closePath()
+    ctx.fillStyle = accent
+    ctx.fill()
+    
+    ctx.fillStyle = "#FFFFFF"
+    ctx.font = `bold 28px ${FONT}`
+    ctx.textAlign = "center"
+    ctx.textBaseline = "middle"
+    ctx.fillText("W", logoX, logoY)
+    ctx.textBaseline = "alphabetic"
+  }
 
   // Right header text - larger and bolder
   ctx.textAlign = "right"
@@ -358,15 +363,11 @@ function drawCertificate(
   ctx.lineWidth = 1.5
   ctx.stroke()
 
-  // Format credential ID nicely (e.g., "WFR-9B0F-373A")
+  // Use the full credential ID as provided by the API
+  // Format: TH-WFR-{8chars}-{phase} e.g., "TH-WFR-A1B2C3D4-1"
   const formatCredentialId = (id: string) => {
-    // Extract the last part after the last dash and format it
-    const parts = id.split("-")
-    const lastPart = parts[parts.length - 1]
-    if (lastPart && lastPart.length >= 8) {
-      return `WFR-${lastPart.substring(0, 4).toUpperCase()}-${lastPart.substring(4, 8).toUpperCase()}`
-    }
-    return id.length > 20 ? id.substring(0, 20) + "..." : id
+    // Just return the credential ID as-is since it's already properly formatted
+    return id.toUpperCase()
   }
 
   const cols = [
@@ -398,9 +399,6 @@ function drawCertificate(
   ctx.lineWidth = 1.5
   ctx.stroke()
 
-  // Format short credential ID for footer
-  const shortId = data.credentialId.split("-").pop()?.toUpperCase() || data.credentialId
-
   ctx.fillStyle = "#9CA3AF"
   ctx.font = `500 12px ${FONT}`
   ctx.textAlign = "center"
@@ -410,7 +408,7 @@ function drawCertificate(
     fY + 24
   )
   centerText(
-    `Issued by ${data.issuer} | Credential ID: WFR-${shortId} | Verify at workforceready.ai/verify`,
+    `Issued by ${data.issuer} | Credential ID: ${data.credentialId.toUpperCase()} | Verify at workforceready.ai/verify`,
     CX,
     fY + 44
   )
@@ -442,28 +440,47 @@ export function CertificatesClient({
         if (!res.ok) {
           const err = await res.json()
           alert(err.error ?? "Failed to generate certificate")
+          setDownloading(null)
           return
         }
         const { certificate: data } = await res.json()
 
         const canvas = canvasRef.current
-        if (!canvas) return
+        if (!canvas) {
+          setDownloading(null)
+          return
+        }
 
-        drawCertificate(canvas, data)
+        // Load logo image
+        const logoImg = new Image()
+        logoImg.crossOrigin = "anonymous"
+        
+        const drawAndDownload = (img: HTMLImageElement | null) => {
+          drawCertificate(canvas, data, img)
+          
+          // Convert to PNG blob and download
+          canvas.toBlob((blob) => {
+            if (!blob) {
+              setDownloading(null)
+              return
+            }
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement("a")
+            a.href = url
+            a.download = `${data.credentialId}-certificate.png`
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            URL.revokeObjectURL(url)
+            setDownloading(null)
+          }, "image/png")
+        }
 
-        // Convert to PNG blob and download
-        canvas.toBlob((blob) => {
-          if (!blob) return
-          const url = URL.createObjectURL(blob)
-          const a = document.createElement("a")
-          a.href = url
-          a.download = `${data.credentialId}-certificate.png`
-          document.body.appendChild(a)
-          a.click()
-          document.body.removeChild(a)
-          URL.revokeObjectURL(url)
-        }, "image/png")
-      } finally {
+        // Try to load logo, fall back to no logo if it fails
+        logoImg.onload = () => drawAndDownload(logoImg)
+        logoImg.onerror = () => drawAndDownload(null)
+        logoImg.src = "/images/workforce-ready-icon.png"
+      } catch {
         setDownloading(null)
       }
     },
