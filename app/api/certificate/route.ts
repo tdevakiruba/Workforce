@@ -79,14 +79,40 @@ export async function GET(request: NextRequest) {
     ? `${user.user_metadata.first_name} ${user.user_metadata.last_name ?? ""}`.trim()
     : user.email?.split("@")[0] ?? "Participant"
 
-  const issuedDate = new Date().toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  })
+  // Check if certificate already exists in database
+  const certType = phaseParam === "program" ? "program" : "phase"
+  
+  let existingCertQuery = supabase
+    .from("wf-certificates")
+    .select("*")
+    .eq("enrollment_id", enrollmentId)
+    .eq("certificate_type", certType)
+  
+  // Use .is() for null comparison, .eq() for specific phase numbers
+  if (phaseParam === "program") {
+    existingCertQuery = existingCertQuery.is("phase_number", null)
+  } else {
+    existingCertQuery = existingCertQuery.eq("phase_number", parseInt(phaseParam, 10))
+  }
+  
+  const { data: existingCert } = await existingCertQuery.maybeSingle()
 
-  // Generate a credential ID
-  const credentialId = `TH-${program.badge ?? "WFR"}-${enrollmentId.slice(0, 8).toUpperCase()}-${phaseParam.toUpperCase()}`
+  // Use existing credential ID or generate new one
+  const credentialId = existingCert?.credential_id ?? 
+    `TH-${program.badge ?? "WFR"}-${enrollmentId.slice(0, 8).toUpperCase()}-${phaseParam.toUpperCase()}`
+
+  // Format issued date - use existing or current
+  const issuedDate = existingCert?.issued_at 
+    ? new Date(existingCert.issued_at).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
 
   if (phaseParam === "program") {
     // Full program completion
@@ -94,20 +120,22 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Program not yet completed" }, { status: 403 })
     }
 
-    // Store certificate in database (upsert to avoid duplicates)
-    await supabase
-      .from("wf-certificates")
-      .upsert({
-        credential_id: credentialId,
-        user_id: user.id,
-        enrollment_id: enrollmentId,
-        program_id: program.id,
-        certificate_type: "program",
-        phase_number: null,
-        phase_name: "Program Completion",
-        recipient_name: userName,
-        issued_at: new Date().toISOString(),
-      }, { onConflict: "credential_id" })
+    // Store certificate in database only if it doesn't exist
+    if (!existingCert) {
+      await supabase
+        .from("wf-certificates")
+        .insert({
+          credential_id: credentialId,
+          user_id: user.id,
+          enrollment_id: enrollmentId,
+          program_id: program.id,
+          certificate_type: "program",
+          phase_number: null,
+          phase_name: "Program Completion",
+          recipient_name: userName,
+          issued_at: new Date().toISOString(),
+        })
+    }
 
     return NextResponse.json({
       certificate: {
@@ -144,20 +172,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Phase not yet completed" }, { status: 403 })
   }
 
-  // Store certificate in database (upsert to avoid duplicates)
-  await supabase
-    .from("wf-certificates")
-    .upsert({
-      credential_id: credentialId,
-      user_id: user.id,
-      enrollment_id: enrollmentId,
-      program_id: program.id,
-      certificate_type: "phase",
-      phase_number: phaseIndex + 1,
-      phase_name: phase.title,
-      recipient_name: userName,
-      issued_at: new Date().toISOString(),
-    }, { onConflict: "credential_id" })
+  // Store certificate in database only if it doesn't exist
+  if (!existingCert) {
+    await supabase
+      .from("wf-certificates")
+      .insert({
+        credential_id: credentialId,
+        user_id: user.id,
+        enrollment_id: enrollmentId,
+        program_id: program.id,
+        certificate_type: "phase",
+        phase_number: phaseIndex + 1,
+        phase_name: phase.title,
+        recipient_name: userName,
+        issued_at: new Date().toISOString(),
+      })
+  }
 
   return NextResponse.json({
     certificate: {
