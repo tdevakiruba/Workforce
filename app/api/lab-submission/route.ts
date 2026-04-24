@@ -40,23 +40,11 @@ export async function POST(request: Request) {
     )
   }
 
-  // Find the next upcoming office hours session for this program
-  const { data: nextSession } = await supabase
-    .from("wf-office_hours")
-    .select("id")
-    .eq("program_id", programId)
-    .eq("status", "scheduled")
-    .gte("scheduled_at", new Date().toISOString())
-    .order("scheduled_at", { ascending: true })
-    .limit(1)
-    .maybeSingle()
-
   const { data: submission, error } = await supabase
     .from("wf-lab_submissions")
     .insert({
       user_id: user.id,
       program_id: programId,
-      office_hours_id: nextSession?.id ?? null,
       category,
       title,
       description,
