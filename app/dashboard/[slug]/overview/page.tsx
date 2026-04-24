@@ -49,9 +49,12 @@ export default async function OverviewPage({
 
   // Use the enrollment's current_day (advanced by the progress API when all
   // actions for a day are completed), matching the journey page behaviour.
+  // Note: current_day represents the NEXT day to work on, so completed days = current_day - 1
   const durationMatch = program.duration?.match(/(\d+)/)
   const totalDays = durationMatch ? parseInt(durationMatch[1], 10) : 21
   const currentDay = Math.min(enrollment.current_day ?? 1, totalDays)
+  // Calculate actual progress based on completed days (current_day - 1)
+  const completedDays = Math.max(0, currentDay - 1)
 
   // Get user actions completed
   const { count: actionsCompleted } = await supabase
@@ -97,7 +100,7 @@ export default async function OverviewPage({
       enrollment={{
         currentDay,
         totalDays,
-        progress: Math.round((currentDay / totalDays) * 100),
+        progress: Math.round((completedDays / totalDays) * 100),
         startDate: enrollment.started_at,
         endDate: subscription?.current_period_end ?? null,
         planTier: subscription?.plan_tier ?? "individual",
