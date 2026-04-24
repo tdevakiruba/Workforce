@@ -366,9 +366,11 @@ export function FrameworksClient({
             <div className="space-y-4">
               {phaseDays.map((day, index) => {
                 const status = getDayStatus(day.day_number)
-                const isLocked = status === "locked"
-                const isCurrent = status === "current"
                 const isCompleted = status === "completed"
+                const isCurrent = status === "current"
+                // Only completed days and current day are accessible
+                // All other incomplete days (including "available" and "locked") are locked
+                const isLocked = !isCompleted && !isCurrent
                 const completion = completionMap[day.day_number]
                 const progress = completion ? Math.round((completion.done / completion.total) * 100) : 0
                 const isLastInPhase = index === phaseDays.length - 1
