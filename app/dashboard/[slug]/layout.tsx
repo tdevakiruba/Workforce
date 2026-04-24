@@ -148,13 +148,73 @@ export default async function ProductDashboardLayout({
     enrollment = newEnrollment
   }
 
-  // Use the enrollment's current_day (advanced by the progress API when all
-  // actions for a day are completed), matching the journey / overview / frameworks pages.
+  // Calculate effective current day based on actual completion data
   const durationMatch = program.duration?.match(/(\d+)/)
   const totalDays = durationMatch ? parseInt(durationMatch[1], 10) : 21
-  const currentDay = Math.min(enrollment.current_day ?? 1, totalDays)
 
-  const progress = Math.round((currentDay / totalDays) * 100)
+  // Fetch curriculum days and exercises to calculate completion
+  const { data: days } = await supabase
+    .from("wf-curriculum_days")
+    .select("id, day_number")
+    .eq("program_id", program.id)
+    .order("day_number")
+
+  const dayIds = (days ?? []).map((d) => d.id)
+
+  const { data: sections } = dayIds.length
+    ? await supabase.from("wf-curriculum_sections").select("id, day_id").in("day_id", dayIds)
+    : { data: [] as { id: string; day_id: string }[] }
+
+  const sectionIds = (sections ?? []).map((s) => s.id)
+
+  const { data: exercises } = sectionIds.length
+    ? await supabase.from("wf-curriculum_exercises").select("id, section_id").in("section_id", sectionIds)
+    : { data: [] as { id: string; section_id: string }[] }
+
+  // Build maps for counting
+  const sectionToDayId = new Map<string, string>()
+  for (const sec of sections ?? []) sectionToDayId.set(sec.id, sec.day_id)
+
+  const dayIdToNumber = new Map<string, number>()
+  for (const d of days ?? []) dayIdToNumber.set(d.id, d.day_number)
+
+  const totalExercisesPerDay: Record<number, number> = {}
+  for (const ex of exercises ?? []) {
+    const dayId = sectionToDayId.get(ex.section_id)
+    if (dayId) {
+      const dayNum = dayIdToNumber.get(dayId)
+      if (dayNum !== undefined) totalExercisesPerDay[dayNum] = (totalExercisesPerDay[dayNum] ?? 0) + 1
+    }
+  }
+
+  // Fetch user's completed actions
+  const { data: userActions } = await supabase
+    .from("wf-user_actions")
+    .select("day_number, completed")
+    .eq("enrollment_id", enrollment.id)
+
+  const completedActionsPerDay: Record<number, number> = {}
+  for (const a of userActions ?? []) {
+    if (a.completed) completedActionsPerDay[a.day_number] = (completedActionsPerDay[a.day_number] ?? 0) + 1
+  }
+
+  // Find the first incomplete day
+  let actualCompletedDays = 0
+  let firstIncompleteDay = totalDays + 1
+  const sortedDays = [...(days ?? [])].sort((a, b) => a.day_number - b.day_number)
+  for (const d of sortedDays) {
+    const dayNum = d.day_number
+    const total = totalExercisesPerDay[dayNum] ?? 0
+    const done = completedActionsPerDay[dayNum] ?? 0
+    if (total > 0 && done >= total) {
+      actualCompletedDays++
+    } else if (firstIncompleteDay > totalDays) {
+      firstIncompleteDay = dayNum
+    }
+  }
+
+  const currentDay = Math.min(firstIncompleteDay, totalDays)
+  const progress = Math.round((actualCompletedDays / totalDays) * 100)
 
   return (
     <ProductDashboardShell
