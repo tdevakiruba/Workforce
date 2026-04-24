@@ -35,6 +35,7 @@ interface CertificatesClientProps {
 /* Certificate canvas renderer – professional AI Workforce credential */
 /* ------------------------------------------------------------------ */
 const FONT = "'Inter', 'Helvetica Neue', Arial, sans-serif"
+const CURSIVE_FONT = "'Brush Script MT', 'Segoe Script', 'Bradley Hand', cursive"
 const NAVY = "#0F172A"
 const COMPETENCIES = [
   "AI-enabled workflow operation",
@@ -123,30 +124,38 @@ function drawCertificate(
   // ---- Header: Logo side + title ----
   let Y = 80
 
-  // Shield logo circle
+  // Logo icon - stylized "W" with shield shape
+  const logoX = 100
+  const logoY = Y + 22
+  const logoSize = 32
+  
+  // Shield background
   ctx.beginPath()
-  ctx.arc(120, Y + 22, 26, 0, Math.PI * 2)
-  ctx.fillStyle = `${accent}12`
-  ctx.fill()
-  ctx.beginPath()
-  ctx.arc(120, Y + 22, 26, 0, Math.PI * 2)
-  ctx.strokeStyle = accent
-  ctx.lineWidth = 2
-  ctx.stroke()
+  ctx.moveTo(logoX, logoY - logoSize)
+  ctx.lineTo(logoX + logoSize, logoY - logoSize * 0.6)
+  ctx.lineTo(logoX + logoSize, logoY + logoSize * 0.3)
+  ctx.lineTo(logoX, logoY + logoSize)
+  ctx.lineTo(logoX - logoSize, logoY + logoSize * 0.3)
+  ctx.lineTo(logoX - logoSize, logoY - logoSize * 0.6)
+  ctx.closePath()
   ctx.fillStyle = accent
-  ctx.font = `bold 22px ${FONT}`
+  ctx.fill()
+  
+  // "W" letter on shield
+  ctx.fillStyle = "#FFFFFF"
+  ctx.font = `bold 28px ${FONT}`
   ctx.textAlign = "center"
   ctx.textBaseline = "middle"
-  ctx.fillText("W", 120, Y + 23)
+  ctx.fillText("W", logoX, logoY)
   ctx.textBaseline = "alphabetic"
 
-  // Right header text
+  // Right header text - larger and bolder
   ctx.textAlign = "right"
   ctx.fillStyle = NAVY
-  ctx.font = `800 18px ${FONT}`
-  ctx.fillText("WORKFORCE READY\u2122", W - 80, Y + 14)
+  ctx.font = `900 24px ${FONT}`
+  ctx.fillText("WORKFORCE READY\u2122", W - 80, Y + 10)
   ctx.fillStyle = "#6B7280"
-  ctx.font = `500 11px ${FONT}`
+  ctx.font = `600 13px ${FONT}`
   ctx.fillText("AI Workforce Readiness Certification", W - 80, Y + 34)
   ctx.textAlign = "center"
 
@@ -160,236 +169,250 @@ function drawCertificate(
   ctx.stroke()
 
   // ---- CERTIFICATE OF COMPLETION ----
-  Y = 168
+  Y = 175
   ctx.fillStyle = "#9CA3AF"
-  ctx.font = `600 11px ${FONT}`
-  ctx.letterSpacing = "6px"
+  ctx.font = `600 14px ${FONT}`
+  ctx.letterSpacing = "8px"
   centerText("DIGITAL CREDENTIAL", CX, Y)
   ctx.letterSpacing = "0px"
 
-  Y = 206
+  Y = 220
   ctx.fillStyle = NAVY
-  ctx.font = `800 22px ${FONT}`
-  ctx.letterSpacing = "10px"
+  ctx.font = `900 32px ${FONT}`
+  ctx.letterSpacing = "12px"
   centerText("CERTIFICATE OF COMPLETION", CX, Y)
   ctx.letterSpacing = "0px"
 
   // ---- "This certifies that" ----
-  Y = 248
+  Y = 270
   ctx.fillStyle = "#6B7280"
-  ctx.font = `500 14px ${FONT}`
+  ctx.font = `500 18px ${FONT}`
   centerText("This certifies that", CX, Y)
 
-  // ---- Recipient Name ----
-  Y = 296
+  // ---- Recipient Name in beautiful cursive ----
+  Y = 340
   ctx.fillStyle = NAVY
-  ctx.font = `700 46px ${FONT}`
+  ctx.font = `64px ${CURSIVE_FONT}`
   centerText(data.userName, CX, Y)
 
-  // Line under name
+  // Elegant line under name
   ctx.beginPath()
-  ctx.moveTo(CX - 180, Y + 16)
-  ctx.lineTo(CX + 180, Y + 16)
-  ctx.strokeStyle = `${accent}35`
-  ctx.lineWidth = 1
+  ctx.moveTo(CX - 240, Y + 20)
+  ctx.lineTo(CX + 240, Y + 20)
+  ctx.strokeStyle = `${accent}50`
+  ctx.lineWidth = 2
   ctx.stroke()
 
   // ---- "has successfully completed the" ----
-  Y = 340
+  Y = 390
   ctx.fillStyle = "#6B7280"
-  ctx.font = `500 13px ${FONT}`
+  ctx.font = `500 16px ${FONT}`
   centerText("has successfully completed the", CX, Y)
 
   // ---- Program title ----
-  Y = 374
+  Y = 430
   ctx.fillStyle = accent
-  ctx.font = `700 24px ${FONT}`
+  ctx.font = `700 28px ${FONT}`
   centerText(data.type === "program" ? "21 DAYS - ACCELERATION PROGRAM" : data.title, CX, Y)
 
   ctx.fillStyle = "#6B7280"
-  ctx.font = `500 13px ${FONT}`
-  centerText("and demonstrated competency in:", CX, Y + 28)
+  ctx.font = `500 16px ${FONT}`
+  centerText("and demonstrated competency in:", CX, Y + 34)
 
   // ---- Competency list (left column) ----
-  const compY = Y + 56
+  const compY = Y + 70
   const compItems = data.type === "program" ? COMPETENCIES : COMPETENCIES.slice(0, 3)
   ctx.textAlign = "left"
   compItems.forEach((item, i) => {
-    const iy = compY + i * 22
+    const iy = compY + i * 28
     ctx.fillStyle = accent
-    ctx.font = `700 10px ${FONT}`
-    ctx.fillText("\u2022", CX - 200, iy)
+    ctx.font = `700 14px ${FONT}`
+    ctx.fillText("\u2022", CX - 220, iy)
     ctx.fillStyle = "#374151"
-    ctx.font = `500 12px ${FONT}`
-    ctx.fillText(item, CX - 186, iy)
+    ctx.font = `500 15px ${FONT}`
+    ctx.fillText(item, CX - 200, iy)
   })
   ctx.textAlign = "center"
 
   // ---- Mastery path / phases ----
-  let phaseBlockEnd = compY + compItems.length * 22 + 16
+  let phaseBlockEnd = compY + compItems.length * 28 + 20
 
   if (data.type === "program" && data.phases && data.phases.length > 0) {
-    const pY = phaseBlockEnd + 6
+    const pY = phaseBlockEnd + 10
     ctx.fillStyle = "#9CA3AF"
-    ctx.font = `600 10px ${FONT}`
-    ctx.letterSpacing = "3px"
+    ctx.font = `600 12px ${FONT}`
+    ctx.letterSpacing = "4px"
     centerText("MASTERY PATH COMPLETED", CX, pY)
     ctx.letterSpacing = "0px"
 
     const phaseCount = data.phases.length
-    const phaseWidth = 260
-    const gap = 20
+    const phaseWidth = 280
+    const gap = 24
     const totalW = phaseCount * phaseWidth + (phaseCount - 1) * gap
     const startX = (W - totalW) / 2
 
     data.phases.forEach((phase, i) => {
       const x = startX + i * (phaseWidth + gap)
-      const y = pY + 14
+      const y = pY + 18
 
       ctx.fillStyle = `${accent}08`
       ctx.beginPath()
-      ctx.roundRect(x, y, phaseWidth, 68, 8)
+      ctx.roundRect(x, y, phaseWidth, 76, 10)
       ctx.fill()
-      ctx.strokeStyle = `${accent}25`
-      ctx.lineWidth = 1
+      ctx.strokeStyle = `${accent}30`
+      ctx.lineWidth = 1.5
       ctx.beginPath()
-      ctx.roundRect(x, y, phaseWidth, 68, 8)
+      ctx.roundRect(x, y, phaseWidth, 76, 10)
       ctx.stroke()
 
       // Circle with number
       ctx.beginPath()
-      ctx.arc(x + 28, y + 34, 14, 0, Math.PI * 2)
+      ctx.arc(x + 32, y + 38, 18, 0, Math.PI * 2)
       ctx.fillStyle = accent
       ctx.fill()
       ctx.fillStyle = "#FFFFFF"
-      ctx.font = `bold 13px ${FONT}`
+      ctx.font = `bold 16px ${FONT}`
       ctx.textBaseline = "middle"
       ctx.textAlign = "center"
-      ctx.fillText(phase.letter ?? String(i + 1), x + 28, y + 35)
+      ctx.fillText(phase.letter ?? String(i + 1), x + 32, y + 39)
       ctx.textBaseline = "alphabetic"
 
       ctx.textAlign = "left"
       ctx.fillStyle = NAVY
-      ctx.font = `600 12px ${FONT}`
-      ctx.fillText(phase.name, x + 50, y + 30)
+      ctx.font = `600 14px ${FONT}`
+      ctx.fillText(phase.name, x + 58, y + 34)
       ctx.fillStyle = "#6B7280"
-      ctx.font = `400 10px ${FONT}`
-      ctx.fillText(phase.days ?? "", x + 50, y + 48)
+      ctx.font = `400 12px ${FONT}`
+      ctx.fillText(phase.days ?? "", x + 58, y + 54)
       ctx.textAlign = "center"
     })
 
-    phaseBlockEnd = pY + 14 + 68 + 14
+    phaseBlockEnd = pY + 18 + 76 + 18
   } else if (data.type === "phase" && data.phaseName) {
-    const pY = phaseBlockEnd + 6
+    const pY = phaseBlockEnd + 10
     ctx.fillStyle = "#9CA3AF"
-    ctx.font = `600 10px ${FONT}`
-    ctx.letterSpacing = "3px"
+    ctx.font = `600 12px ${FONT}`
+    ctx.letterSpacing = "4px"
     centerText(`PHASE ${data.phaseNumber} OF ${data.totalPhases}`, CX, pY)
     ctx.letterSpacing = "0px"
 
-    const boxW = 360
+    const boxW = 400
     const boxX = (W - boxW) / 2
-    const boxY = pY + 14
+    const boxY = pY + 18
     ctx.fillStyle = `${accent}08`
     ctx.beginPath()
-    ctx.roundRect(boxX, boxY, boxW, 68, 8)
+    ctx.roundRect(boxX, boxY, boxW, 80, 10)
     ctx.fill()
-    ctx.strokeStyle = `${accent}25`
-    ctx.lineWidth = 1
+    ctx.strokeStyle = `${accent}30`
+    ctx.lineWidth = 1.5
     ctx.beginPath()
-    ctx.roundRect(boxX, boxY, boxW, 68, 8)
+    ctx.roundRect(boxX, boxY, boxW, 80, 10)
     ctx.stroke()
 
     ctx.beginPath()
-    ctx.arc(boxX + 32, boxY + 34, 16, 0, Math.PI * 2)
+    ctx.arc(boxX + 38, boxY + 40, 20, 0, Math.PI * 2)
     ctx.fillStyle = accent
     ctx.fill()
     ctx.fillStyle = "#FFFFFF"
-    ctx.font = `bold 14px ${FONT}`
+    ctx.font = `bold 18px ${FONT}`
     ctx.textBaseline = "middle"
-    ctx.fillText(data.phaseLetter ?? String(data.phaseNumber), boxX + 32, boxY + 35)
+    ctx.fillText(data.phaseLetter ?? String(data.phaseNumber), boxX + 38, boxY + 41)
     ctx.textBaseline = "alphabetic"
 
     ctx.textAlign = "left"
     ctx.fillStyle = NAVY
-    ctx.font = `600 13px ${FONT}`
-    ctx.fillText(data.phaseName, boxX + 58, boxY + 30)
+    ctx.font = `600 16px ${FONT}`
+    ctx.fillText(data.phaseName, boxX + 68, boxY + 36)
     ctx.fillStyle = "#6B7280"
-    ctx.font = `400 11px ${FONT}`
-    ctx.fillText(data.subtitle, boxX + 58, boxY + 50)
+    ctx.font = `400 13px ${FONT}`
+    ctx.fillText(data.subtitle, boxX + 68, boxY + 58)
     ctx.textAlign = "center"
 
-    phaseBlockEnd = boxY + 68 + 14
+    phaseBlockEnd = boxY + 80 + 18
   }
 
   // ---- Credential Statement ----
-  const csY = phaseBlockEnd + 8
+  const csY = phaseBlockEnd + 12
   ctx.fillStyle = "#9CA3AF"
-  ctx.font = `600 10px ${FONT}`
-  ctx.letterSpacing = "3px"
+  ctx.font = `600 12px ${FONT}`
+  ctx.letterSpacing = "4px"
   centerText("CREDENTIAL STATEMENT", CX, csY)
   ctx.letterSpacing = "0px"
 
   ctx.fillStyle = "#374151"
-  ctx.font = `italic 11px ${FONT}`
+  ctx.font = `italic 14px ${FONT}`
   centerText(
     "Certified to operate in AI-enabled organizations under hybrid human-machine systems.",
     CX,
-    csY + 20
+    csY + 26
   )
 
   // ---- Bottom metadata: 4 columns ----
-  const metaY = H - 168
+  const metaY = H - 175
 
   // Divider above metadata
   ctx.beginPath()
-  ctx.moveTo(80, metaY - 14)
-  ctx.lineTo(W - 80, metaY - 14)
+  ctx.moveTo(80, metaY - 18)
+  ctx.lineTo(W - 80, metaY - 18)
   ctx.strokeStyle = "#E5E7EB"
-  ctx.lineWidth = 1
+  ctx.lineWidth = 1.5
   ctx.stroke()
+
+  // Format credential ID nicely (e.g., "WFR-9B0F-373A")
+  const formatCredentialId = (id: string) => {
+    // Extract the last part after the last dash and format it
+    const parts = id.split("-")
+    const lastPart = parts[parts.length - 1]
+    if (lastPart && lastPart.length >= 8) {
+      return `WFR-${lastPart.substring(0, 4).toUpperCase()}-${lastPart.substring(4, 8).toUpperCase()}`
+    }
+    return id.length > 20 ? id.substring(0, 20) + "..." : id
+  }
 
   const cols = [
     { label: "DATE ISSUED", value: data.issuedDate },
     { label: "CREDENTIAL LEVEL", value: "AI-Enabled Professional" },
     { label: "DELIVERY MODE", value: "Applied Simulation + Capstone" },
-    { label: "CREDENTIAL ID", value: data.credentialId },
+    { label: "CREDENTIAL ID", value: formatCredentialId(data.credentialId) },
   ]
 
   cols.forEach((col, i) => {
     const cx = 80 + (i * (W - 160)) / (cols.length - 1) + (i === 0 ? 60 : i === cols.length - 1 ? -60 : 0)
     ctx.fillStyle = "#9CA3AF"
-    ctx.font = `600 9px ${FONT}`
-    ctx.letterSpacing = "2px"
+    ctx.font = `600 11px ${FONT}`
+    ctx.letterSpacing = "3px"
     ctx.textAlign = "center"
     ctx.fillText(col.label, cx, metaY)
     ctx.letterSpacing = "0px"
     ctx.fillStyle = "#374151"
-    ctx.font = `500 12px ${FONT}`
-    ctx.fillText(col.value, cx, metaY + 20)
+    ctx.font = `600 14px ${FONT}`
+    ctx.fillText(col.value, cx, metaY + 24)
   })
 
   // ---- Footer ----
-  const fY = H - 80
+  const fY = H - 85
   ctx.beginPath()
   ctx.moveTo(80, fY)
   ctx.lineTo(W - 80, fY)
   ctx.strokeStyle = "#E5E7EB"
-  ctx.lineWidth = 1
+  ctx.lineWidth = 1.5
   ctx.stroke()
 
+  // Format short credential ID for footer
+  const shortId = data.credentialId.split("-").pop()?.toUpperCase() || data.credentialId
+
   ctx.fillStyle = "#9CA3AF"
-  ctx.font = `500 10px ${FONT}`
+  ctx.font = `500 12px ${FONT}`
   ctx.textAlign = "center"
   centerText(
     "This digital credential verifies that the above-named individual has completed the required mastery path.",
     CX,
-    fY + 22
+    fY + 24
   )
   centerText(
-    `Issued by ${data.issuer} | Credential ID: ${data.credentialId} | Verify at workforceready.ai/verify?id=${data.credentialId}`,
+    `Issued by ${data.issuer} | Credential ID: WFR-${shortId} | Verify at workforceready.ai/verify`,
     CX,
-    fY + 40
+    fY + 44
   )
 }
 
