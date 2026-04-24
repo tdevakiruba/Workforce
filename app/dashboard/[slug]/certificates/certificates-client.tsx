@@ -84,9 +84,9 @@ function drawCertificate(
   
   // Layout constants - seal on left takes up space, content shifts right
   const SEAL_SIZE = 320
-  const SEAL_X = 200 // Center of seal on left
+  const SEAL_X = 340 // Center of seal - positioned closer to content
   const SEAL_Y = H / 2 - 40 // Vertically centered
-  const CONTENT_START_X = SEAL_SIZE + 120 // Content starts after seal
+  const CONTENT_START_X = SEAL_X + SEAL_SIZE / 2 + 40 // Content starts after seal with small gap
   const CX = CONTENT_START_X + (W - CONTENT_START_X) / 2 // Center of content area
 
   // Helper: draw centered text
