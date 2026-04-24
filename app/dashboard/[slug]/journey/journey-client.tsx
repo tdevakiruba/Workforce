@@ -786,6 +786,10 @@ export function JourneyClient({
   }
 
   function isDayCompleted(day: number) {
+    // A day can only be completed if it's at or before the active day
+    // This prevents showing future days as complete due to stale data
+    if (day > activeDay) return false
+    
     const content = curriculum.find((d) => d.day_number === day)
     const exercises =
       content?.curriculum_sections?.flatMap(

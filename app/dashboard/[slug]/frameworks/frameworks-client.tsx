@@ -83,6 +83,8 @@ export function FrameworksClient({
   const [activePhaseId, setActivePhaseId] = useState<string | null>(null)
 
   const completedCount = curriculum.filter((d) => {
+    // Only count days at or before currentDay as potentially complete
+    if (d.day_number > currentDay) return false
     const c = completionMap[d.day_number]
     return c && c.done > 0 && c.done >= c.total
   }).length
@@ -217,6 +219,8 @@ export function FrameworksClient({
               ).length
               const phaseDone = curriculum.filter((d) => {
                 if (d.day_number < phase.dayStart || d.day_number > phase.dayEnd) return false
+                // Only count days at or before currentDay as potentially complete
+                if (d.day_number > currentDay) return false
                 const c = completionMap[d.day_number]
                 return c && c.done > 0 && c.done >= c.total
               }).length
@@ -321,6 +325,8 @@ export function FrameworksClient({
         if (phaseDays.length === 0) return null
 
         const phaseDone = phaseDays.filter((d) => {
+          // Only count days at or before currentDay as potentially complete
+          if (d.day_number > currentDay) return false
           const c = completionMap[d.day_number]
           return c && c.done > 0 && c.done >= c.total
         }).length
