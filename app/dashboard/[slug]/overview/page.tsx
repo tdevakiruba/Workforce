@@ -47,14 +47,71 @@ export default async function OverviewPage({
     .eq("status", "active")
     .maybeSingle()
 
-  // Use the enrollment's current_day (advanced by the progress API when all
-  // actions for a day are completed), matching the journey page behaviour.
-  // Note: current_day represents the NEXT day to work on, so completed days = current_day - 1
+  // Fetch curriculum days and their exercise counts
   const durationMatch = program.duration?.match(/(\d+)/)
   const totalDays = durationMatch ? parseInt(durationMatch[1], 10) : 21
-  const currentDay = Math.min(enrollment.current_day ?? 1, totalDays)
-  // Calculate actual progress based on completed days (current_day - 1)
-  const completedDays = Math.max(0, currentDay - 1)
+
+  const { data: days } = await supabase
+    .from("wf-curriculum_days")
+    .select("id, day_number")
+    .eq("program_id", program.id)
+    .order("day_number")
+
+  const dayIds = (days ?? []).map((d) => d.id)
+
+  const { data: sections } = dayIds.length
+    ? await supabase.from("wf-curriculum_sections").select("id, day_id").in("day_id", dayIds)
+    : { data: [] as { id: string; day_id: string }[] }
+
+  const sectionIds = (sections ?? []).map((s) => s.id)
+
+  const { data: exercises } = sectionIds.length
+    ? await supabase.from("wf-curriculum_exercises").select("id, section_id").in("section_id", sectionIds)
+    : { data: [] as { id: string; section_id: string }[] }
+
+  // Build maps for counting
+  const sectionToDayId = new Map<string, string>()
+  for (const sec of sections ?? []) sectionToDayId.set(sec.id, sec.day_id)
+
+  const dayIdToNumber = new Map<string, number>()
+  for (const d of days ?? []) dayIdToNumber.set(d.id, d.day_number)
+
+  const totalExercisesPerDay: Record<number, number> = {}
+  for (const ex of exercises ?? []) {
+    const dayId = sectionToDayId.get(ex.section_id)
+    if (dayId) {
+      const dayNum = dayIdToNumber.get(dayId)
+      if (dayNum !== undefined) totalExercisesPerDay[dayNum] = (totalExercisesPerDay[dayNum] ?? 0) + 1
+    }
+  }
+
+  // Fetch user's completed actions
+  const { data: userActions } = await supabase
+    .from("wf-user_actions")
+    .select("day_number, completed")
+    .eq("enrollment_id", enrollment.id)
+
+  const completedActionsPerDay: Record<number, number> = {}
+  for (const a of userActions ?? []) {
+    if (a.completed) completedActionsPerDay[a.day_number] = (completedActionsPerDay[a.day_number] ?? 0) + 1
+  }
+
+  // Calculate actual completed days based on completion data
+  let actualCompletedDays = 0
+  let highestCompletedDay = 0
+  for (const d of days ?? []) {
+    const dayNum = d.day_number
+    const total = totalExercisesPerDay[dayNum] ?? 0
+    const done = completedActionsPerDay[dayNum] ?? 0
+    if (total > 0 && done >= total) {
+      actualCompletedDays++
+      if (dayNum > highestCompletedDay) highestCompletedDay = dayNum
+    }
+  }
+
+  // The effective current day is the next day after the highest completed day
+  const effectiveCurrentDay = Math.max(enrollment.current_day ?? 1, highestCompletedDay + 1)
+  const currentDay = Math.min(effectiveCurrentDay, totalDays)
 
   // Get user actions completed
   const { count: actionsCompleted } = await supabase
@@ -100,7 +157,7 @@ export default async function OverviewPage({
       enrollment={{
         currentDay,
         totalDays,
-        progress: Math.round((completedDays / totalDays) * 100),
+        progress: Math.round((actualCompletedDays / totalDays) * 100),
         startDate: enrollment.started_at,
         endDate: subscription?.current_period_end ?? null,
         planTier: subscription?.plan_tier ?? "individual",
