@@ -494,10 +494,8 @@ export function FrameworksClient({
                           {/* Action button */}
                           {!isLocked && (
                             <div 
-                              className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-all group-hover:gap-3 ${
-                                isCompleted ? "bg-muted text-foreground" : ""
-                              }`}
-                              style={{ backgroundColor: isCompleted ? undefined : phase.color }}
+                              className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-all group-hover:gap-3"
+                              style={{ backgroundColor: phase.color }}
                             >
                               {isCompleted ? "Review" : isCurrent ? "Continue" : "Start"}
                               <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
