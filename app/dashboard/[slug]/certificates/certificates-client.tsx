@@ -102,6 +102,21 @@ function drawCertificate(
     ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke()
   }
 
+  // Draw large centered watermark if logo image is available
+  if (logoImage && logoImage.complete) {
+    ctx.save()
+    ctx.globalAlpha = 0.06 // Very subtle watermark
+    const watermarkSize = 400
+    ctx.drawImage(
+      logoImage,
+      CX - watermarkSize / 2,
+      H / 2 - watermarkSize / 2 + 40, // Slightly below center
+      watermarkSize,
+      watermarkSize
+    )
+    ctx.restore()
+  }
+
   // Outer border
   ctx.strokeStyle = accent
   ctx.lineWidth = 3
@@ -352,7 +367,19 @@ function drawCertificate(
     csY + 26
   )
 
-  // ---- Bottom metadata: 4 columns ----
+  // ---- Credential ID (displayed prominently under credential statement) ----
+  const credY = csY + 60
+  ctx.fillStyle = "#9CA3AF"
+  ctx.font = `600 11px ${FONT}`
+  ctx.letterSpacing = "3px"
+  centerText("CREDENTIAL ID", CX, credY)
+  ctx.letterSpacing = "0px"
+  
+  ctx.fillStyle = NAVY
+  ctx.font = `700 18px ${FONT}`
+  centerText(data.credentialId.toUpperCase(), CX, credY + 24)
+
+  // ---- Bottom metadata: 3 columns (without credential ID) ----
   const metaY = H - 175
 
   // Divider above metadata
@@ -363,22 +390,15 @@ function drawCertificate(
   ctx.lineWidth = 1.5
   ctx.stroke()
 
-  // Use the full credential ID as provided by the API
-  // Format: TH-WFR-{8chars}-{phase} e.g., "TH-WFR-A1B2C3D4-1"
-  const formatCredentialId = (id: string) => {
-    // Just return the credential ID as-is since it's already properly formatted
-    return id.toUpperCase()
-  }
-
   const cols = [
     { label: "DATE ISSUED", value: data.issuedDate },
     { label: "CREDENTIAL LEVEL", value: "AI-Enabled Professional" },
     { label: "DELIVERY MODE", value: "Applied Simulation + Capstone" },
-    { label: "CREDENTIAL ID", value: formatCredentialId(data.credentialId) },
   ]
 
   cols.forEach((col, i) => {
-    const cx = 80 + (i * (W - 160)) / (cols.length - 1) + (i === 0 ? 60 : i === cols.length - 1 ? -60 : 0)
+    // Position 3 columns evenly: left, center, right
+    const cx = i === 0 ? 200 : i === 1 ? CX : W - 200
     ctx.fillStyle = "#9CA3AF"
     ctx.font = `600 11px ${FONT}`
     ctx.letterSpacing = "3px"
